@@ -20,7 +20,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'lang.en': 'English',
     'lang.ms': 'Bahasa Melayu',
     'app.title': '存货管理系统',
-    'app.subtitle': '实时跟踪您的物品入库与库存状态',
+    'app.subtitle': '实时跟踪您的物品出入库与库存状态',
     'button.overwrite': '用清单覆盖库存',
     'button.syncFromCloud': '从云端同步',
     'button.clearAll': '清除所有数据',
@@ -28,6 +28,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'confirm.overwrite': '确定要用清单覆盖当前库存吗？这不会清除入库记录。',
     'loading': '加载中...',
     'section.stockIn': '物品入库',
+    'section.stockOut': '物品出库',
     'label.itemName': '物品名称',
     'label.itemCode': '物品编号',
     'label.newItemName': '新物品名称',
@@ -36,7 +37,9 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'label.supplier': '供货商',
     'label.currentQty': '当前数量',
     'label.lastStockInTime': '上次入库时间',
+    'label.lastStockOutTime': '上次出库时间',
     'label.stockInQty': '入库数量',
+    'label.stockOutQty': '出库数量',
     'placeholder.selectItem': '请选择物品',
     'option.addNewItem': '➕ 新增物品…',
     'placeholder.itemCode': '例如: SKU-001',
@@ -46,13 +49,14 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'placeholder.supplier': '例如: XX供应商',
     'placeholder.stockInQty': '输入正整数',
     'button.confirmStockIn': '确认入库',
+    'button.confirmStockOut': '确认出库',
     'section.overview': '概览',
     'stat.itemTypes': '物品种类',
     'stat.totalQty': '总库存量',
     'section.inventory': '当前存货清单',
-    'section.transactions': '入库记录 (时间顺序)',
+    'section.transactions': '出入库记录 (时间顺序)',
     'search.inventory': '关键字搜索：名称 / 编号 / 特征',
-    'search.transactions': '搜索入库记录：物品 / 编号 / 特征',
+    'search.transactions': '搜索出入库记录：物品 / 编号 / 特征',
     'paging.range': ({ start, end, total }) => `显示 ${start}-${end} / ${total}`,
     'paging.perPage': '每页',
     'paging.all': '全部',
@@ -60,7 +64,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'paging.next': '下一页',
     'paging.page': ({ page, pages }) => `第 ${page}/${pages} 页`,
     'empty.inventory': '暂无库存数据',
-    'empty.transactions': '暂无入库记录',
+    'empty.transactions': '暂无出入库记录',
     'empty.noMatch': '没有匹配结果',
     'hint.editQtyClick': '点击修改数量',
     'hint.editSupplierClick': '点击修改供货商',
@@ -79,13 +83,14 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'table.action': '操作',
     'table.quantity': '数量',
     'badge.in': '入库',
+    'badge.out': '出库',
   },
   en: {
     'lang.zh': '中文',
     'lang.en': 'English',
     'lang.ms': 'Bahasa Melayu',
     'app.title': 'Inventory Management',
-    'app.subtitle': 'Track stock-in and inventory in real time',
+    'app.subtitle': 'Track stock in/out and inventory in real time',
     'button.overwrite': 'Overwrite from catalog',
     'button.syncFromCloud': 'Sync from cloud',
     'button.clearAll': 'Clear all data',
@@ -93,6 +98,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'confirm.overwrite': "Overwrite inventory using the catalog? This won't clear stock-in records.",
     'loading': 'Loading...',
     'section.stockIn': 'Stock In',
+    'section.stockOut': 'Stock Out',
     'label.itemName': 'Item',
     'label.itemCode': 'Item Code',
     'label.newItemName': 'New Item Name',
@@ -101,7 +107,9 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'label.supplier': 'Supplier',
     'label.currentQty': 'Current Qty',
     'label.lastStockInTime': 'Last stock-in time',
+    'label.lastStockOutTime': 'Last stock-out time',
     'label.stockInQty': 'Stock-in Qty',
+    'label.stockOutQty': 'Stock-out Qty',
     'placeholder.selectItem': 'Select an item',
     'option.addNewItem': '➕ Add new item…',
     'placeholder.itemCode': 'e.g. SKU-001',
@@ -111,11 +119,12 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'placeholder.supplier': 'e.g. Supplier A',
     'placeholder.stockInQty': 'Enter a positive integer',
     'button.confirmStockIn': 'Confirm stock-in',
+    'button.confirmStockOut': 'Confirm stock-out',
     'section.overview': 'Overview',
     'stat.itemTypes': 'Item types',
     'stat.totalQty': 'Total quantity',
     'section.inventory': 'Inventory List',
-    'section.transactions': 'Stock-in Records (Newest first)',
+    'section.transactions': 'Stock Records (Newest first)',
     'search.inventory': 'Search: name / code / features',
     'search.transactions': 'Search records: item / code / features',
     'paging.range': ({ start, end, total }) => `Showing ${start}-${end} / ${total}`,
@@ -125,7 +134,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'paging.next': 'Next',
     'paging.page': ({ page, pages }) => `Page ${page}/${pages}`,
     'empty.inventory': 'No inventory data',
-    'empty.transactions': 'No stock-in records',
+    'empty.transactions': 'No stock records',
     'empty.noMatch': 'No matches',
     'hint.editQtyClick': 'Click to edit quantity',
     'hint.editSupplierClick': 'Click to edit supplier',
@@ -144,13 +153,14 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'table.action': 'Action',
     'table.quantity': 'Qty',
     'badge.in': 'IN',
+    'badge.out': 'OUT',
   },
   ms: {
     'lang.zh': '中文',
     'lang.en': 'English',
     'lang.ms': 'Bahasa Melayu',
     'app.title': 'Pengurusan Inventori',
-    'app.subtitle': 'Jejaki stok masuk dan inventori secara masa nyata',
+    'app.subtitle': 'Jejaki stok masuk/keluar dan inventori secara masa nyata',
     'button.overwrite': 'Ganti dari katalog',
     'button.syncFromCloud': 'Segerak dari awan',
     'button.clearAll': 'Padam semua data',
@@ -158,6 +168,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'confirm.overwrite': 'Ganti inventori menggunakan katalog? Ini tidak akan memadam rekod stok masuk.',
     'loading': 'Memuatkan...',
     'section.stockIn': 'Stok Masuk',
+    'section.stockOut': 'Stok Keluar',
     'label.itemName': 'Item',
     'label.itemCode': 'Kod Item',
     'label.newItemName': 'Nama Item Baharu',
@@ -166,7 +177,9 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'label.supplier': 'Pembekal',
     'label.currentQty': 'Kuantiti Semasa',
     'label.lastStockInTime': 'Masa stok masuk terakhir',
+    'label.lastStockOutTime': 'Masa stok keluar terakhir',
     'label.stockInQty': 'Kuantiti stok masuk',
+    'label.stockOutQty': 'Kuantiti stok keluar',
     'placeholder.selectItem': 'Pilih item',
     'option.addNewItem': '➕ Tambah item baharu…',
     'placeholder.itemCode': 'cth. SKU-001',
@@ -176,11 +189,12 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'placeholder.supplier': 'cth. Pembekal A',
     'placeholder.stockInQty': 'Masukkan nombor bulat positif',
     'button.confirmStockIn': 'Sahkan stok masuk',
+    'button.confirmStockOut': 'Sahkan stok keluar',
     'section.overview': 'Ringkasan',
     'stat.itemTypes': 'Jenis item',
     'stat.totalQty': 'Jumlah kuantiti',
     'section.inventory': 'Senarai Inventori',
-    'section.transactions': 'Rekod Stok Masuk (Terkini dahulu)',
+    'section.transactions': 'Rekod Stok (Terkini dahulu)',
     'search.inventory': 'Cari: nama / kod / ciri',
     'search.transactions': 'Cari rekod: item / kod / ciri',
     'paging.range': ({ start, end, total }) => `Paparan ${start}-${end} / ${total}`,
@@ -190,7 +204,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'paging.next': 'Seterusnya',
     'paging.page': ({ page, pages }) => `Halaman ${page}/${pages}`,
     'empty.inventory': 'Tiada data inventori',
-    'empty.transactions': 'Tiada rekod stok masuk',
+    'empty.transactions': 'Tiada rekod stok',
     'empty.noMatch': 'Tiada padanan',
     'hint.editQtyClick': 'Klik untuk ubah kuantiti',
     'hint.editSupplierClick': 'Klik untuk ubah pembekal',
@@ -209,6 +223,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'table.action': 'Tindakan',
     'table.quantity': 'Kuantiti',
     'badge.in': 'MASUK',
+    'badge.out': 'KELUAR',
   },
 };
 
@@ -360,6 +375,7 @@ const INITIAL_INVENTORY_ITEMS: InitialCatalogItem[] = [
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>('zh');
+  const [stockMode, setStockMode] = useState<Transaction['type']>('IN');
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedItemId, setSelectedItemId] = useState('');
@@ -395,6 +411,11 @@ export default function Home() {
     !selectedItem
       ? null
       : (transactions.find((t) => t.type === 'IN' && (t.itemId ? t.itemId === selectedItem.id : t.itemName === selectedItem.name))
+          ?.timestamp ?? null);
+  const lastOutTimestamp =
+    !selectedItem
+      ? null
+      : (transactions.find((t) => t.type === 'OUT' && (t.itemId ? t.itemId === selectedItem.id : t.itemName === selectedItem.name))
           ?.timestamp ?? null);
   const t = (key: string, params?: I18nParams) => translate(lang, key, params);
   const locale = LOCALE_BY_LANG[lang] ?? 'en-US';
@@ -517,7 +538,13 @@ export default function Home() {
     localStorage.setItem(LAST_SELECTED_ITEM_ID_KEY, selectedItemId);
   }, [selectedItemId, isLoaded]);
 
-  const handleAddStock = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (stockMode === 'OUT' && selectedItemId === '__new__') {
+      setSelectedItemId('');
+    }
+  }, [stockMode, selectedItemId]);
+
+  const handleStockSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedItemId || !newItemQuantity) return;
 
@@ -527,6 +554,38 @@ export default function Home() {
     const timestamp = Date.now();
     setStateUpdatedAt(timestamp);
     const transactionId = Math.random().toString(36).substring(2, 9);
+
+    if (stockMode === 'OUT') {
+      if (selectedItemId === '__new__') return;
+      const existingItemIndex = inventory.findIndex((item) => item.id === selectedItemId);
+      if (existingItemIndex === -1) return;
+      const target = inventory[existingItemIndex];
+      if (quantity > target.quantity) return;
+
+      setInventory(
+        inventory.map((item) => {
+          if (item.id !== selectedItemId) return item;
+          return {
+            ...item,
+            quantity: Math.max(0, item.quantity - quantity),
+            lastUpdated: timestamp,
+          };
+        })
+      );
+      setTransactions([
+        {
+          id: transactionId,
+          itemId: selectedItemId,
+          itemName: target.name,
+          quantity,
+          timestamp,
+          type: 'OUT',
+        },
+        ...transactions,
+      ]);
+      setNewItemQuantity('');
+      return;
+    }
 
     let nextInventory = inventory;
     let itemNameForTransaction = '';
@@ -999,11 +1058,38 @@ export default function Home() {
           {/* Input Section */}
           <section className="lg:col-span-1 space-y-6">
             <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <PlusCircle className="text-blue-500" size={20} />
-                {t('section.stockIn')}
-              </h2>
-              <form onSubmit={handleAddStock} className="space-y-4">
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <PlusCircle className="text-blue-500" size={20} />
+                  {stockMode === 'IN' ? t('section.stockIn') : t('section.stockOut')}
+                </h2>
+                <div className="flex items-center rounded-lg border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setStockMode('IN')}
+                    className={`px-3 py-2 text-sm font-medium ${
+                      stockMode === 'IN'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-transparent text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-zinc-800/40'
+                    }`}
+                  >
+                    {t('badge.in')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStockMode('OUT')}
+                    className={`px-3 py-2 text-sm font-medium ${
+                      stockMode === 'OUT'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-transparent text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-zinc-800/40'
+                    }`}
+                  >
+                    {t('badge.out')}
+                  </button>
+                </div>
+              </div>
+
+              <form onSubmit={handleStockSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">{t('label.itemName')}</label>
                   <select
@@ -1020,7 +1106,7 @@ export default function Home() {
                         {item.itemCode ? `${item.itemCode} - ${item.name}` : item.name}
                       </option>
                     ))}
-                    <option value="__new__">{t('option.addNewItem')}</option>
+                    {stockMode === 'IN' ? <option value="__new__">{t('option.addNewItem')}</option> : null}
                   </select>
                 </div>
 
@@ -1045,11 +1131,17 @@ export default function Home() {
                           {lastInTimestamp ? new Date(lastInTimestamp).toLocaleString(locale) : '-'}
                         </div>
                       </div>
+                      <div className="col-span-2 min-w-0">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{t('label.lastStockOutTime')}</div>
+                        <div className="font-medium">
+                          {lastOutTimestamp ? new Date(lastOutTimestamp).toLocaleString(locale) : '-'}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
 
-                {isCreatingNewItem && (
+                {stockMode === 'IN' && isCreatingNewItem && (
                   <>
                     <div>
                       <label className="block text-sm font-medium mb-1">{t('label.itemCode')}</label>
@@ -1111,7 +1203,9 @@ export default function Home() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">{t('label.stockInQty')}</label>
+                  <label className="block text-sm font-medium mb-1">
+                    {stockMode === 'IN' ? t('label.stockInQty') : t('label.stockOutQty')}
+                  </label>
                   <input
                     type="number"
                     value={newItemQuantity}
@@ -1124,9 +1218,13 @@ export default function Home() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md shadow-blue-500/20"
+                  className={`w-full py-2 text-white font-semibold rounded-lg transition-colors shadow-md ${
+                    stockMode === 'IN'
+                      ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20'
+                      : 'bg-red-600 hover:bg-red-700 shadow-red-500/20'
+                  }`}
                 >
-                  {t('button.confirmStockIn')}
+                  {stockMode === 'IN' ? t('button.confirmStockIn') : t('button.confirmStockOut')}
                 </button>
               </form>
             </div>
@@ -1502,7 +1600,14 @@ export default function Home() {
                           </div>
                           <div className="mt-1 font-medium text-sm whitespace-normal break-words leading-5">{tx.itemName}</div>
                         </div>
-                        <div className="shrink-0 text-right font-bold text-blue-600 dark:text-blue-400">+{tx.quantity}</div>
+                        <div
+                          className={`shrink-0 text-right font-bold ${
+                            tx.type === 'OUT' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
+                          }`}
+                        >
+                          {tx.type === 'OUT' ? '-' : '+'}
+                          {tx.quantity}
+                        </div>
                       </div>
                     </div>
                   ))
@@ -1537,12 +1642,23 @@ export default function Home() {
                           </td>
                           <td className="px-6 py-4 font-medium">{tx.itemName}</td>
                           <td className="px-6 py-4">
-                            <span className="text-xs font-semibold px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded uppercase">
-                              {t('badge.in')}
-                            </span>
+                            {tx.type === 'OUT' ? (
+                              <span className="text-xs font-semibold px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded uppercase">
+                                {t('badge.out')}
+                              </span>
+                            ) : (
+                              <span className="text-xs font-semibold px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded uppercase">
+                                {t('badge.in')}
+                              </span>
+                            )}
                           </td>
-                          <td className="px-6 py-4 text-right font-bold text-blue-600 dark:text-blue-400">
-                            +{tx.quantity}
+                          <td
+                            className={`px-6 py-4 text-right font-bold ${
+                              tx.type === 'OUT' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
+                            }`}
+                          >
+                            {tx.type === 'OUT' ? '-' : '+'}
+                            {tx.quantity}
                           </td>
                         </tr>
                       ))
