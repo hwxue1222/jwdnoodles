@@ -51,8 +51,8 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'stat.totalQty': '总库存量',
     'section.inventory': '当前存货清单',
     'section.transactions': '入库记录 (时间顺序)',
-    'search.inventory': '关键字搜索：名称 / 编号 / 特征 / 供货商',
-    'search.transactions': '搜索入库记录：物品 / 编号 / 特征 / 供货商',
+    'search.inventory': '关键字搜索：名称 / 编号 / 特征',
+    'search.transactions': '搜索入库记录：物品 / 编号 / 特征',
     'paging.range': ({ start, end, total }) => `显示 ${start}-${end} / ${total}`,
     'paging.perPage': '每页',
     'paging.all': '全部',
@@ -66,6 +66,8 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'hint.editSupplierClick': '点击修改供货商',
     'hint.editQtyDbl': '双击修改数量',
     'hint.editSupplierDbl': '双击修改供货商',
+    'hint.editFeaturesClick': '点击修改特征',
+    'hint.editFeaturesDbl': '双击修改特征',
     'table.name': '物品名称',
     'table.code': '物品编号',
     'table.cost': '成本',
@@ -114,8 +116,8 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'stat.totalQty': 'Total quantity',
     'section.inventory': 'Inventory List',
     'section.transactions': 'Stock-in Records (Newest first)',
-    'search.inventory': 'Search: name / code / features / supplier',
-    'search.transactions': 'Search records: item / code / features / supplier',
+    'search.inventory': 'Search: name / code / features',
+    'search.transactions': 'Search records: item / code / features',
     'paging.range': ({ start, end, total }) => `Showing ${start}-${end} / ${total}`,
     'paging.perPage': 'Per page',
     'paging.all': 'All',
@@ -129,6 +131,8 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'hint.editSupplierClick': 'Click to edit supplier',
     'hint.editQtyDbl': 'Double click to edit quantity',
     'hint.editSupplierDbl': 'Double click to edit supplier',
+    'hint.editFeaturesClick': 'Click to edit features',
+    'hint.editFeaturesDbl': 'Double click to edit features',
     'table.name': 'Name',
     'table.code': 'Code',
     'table.cost': 'Cost',
@@ -177,8 +181,8 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'stat.totalQty': 'Jumlah kuantiti',
     'section.inventory': 'Senarai Inventori',
     'section.transactions': 'Rekod Stok Masuk (Terkini dahulu)',
-    'search.inventory': 'Cari: nama / kod / ciri / pembekal',
-    'search.transactions': 'Cari rekod: item / kod / ciri / pembekal',
+    'search.inventory': 'Cari: nama / kod / ciri',
+    'search.transactions': 'Cari rekod: item / kod / ciri',
     'paging.range': ({ start, end, total }) => `Paparan ${start}-${end} / ${total}`,
     'paging.perPage': 'Setiap',
     'paging.all': 'Semua',
@@ -192,6 +196,8 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'hint.editSupplierClick': 'Klik untuk ubah pembekal',
     'hint.editQtyDbl': 'Klik dua kali untuk ubah kuantiti',
     'hint.editSupplierDbl': 'Klik dua kali untuk ubah pembekal',
+    'hint.editFeaturesClick': 'Klik untuk ubah ciri',
+    'hint.editFeaturesDbl': 'Klik dua kali untuk ubah ciri',
     'table.name': 'Nama',
     'table.code': 'Kod',
     'table.cost': 'Kos',
@@ -365,8 +371,8 @@ export default function Home() {
   const [transactionsPageIndex, setTransactionsPageIndex] = useState(0);
   const [stateUpdatedAt, setStateUpdatedAt] = useState(0);
   const [cloudStatus, setCloudStatus] = useState<'unknown' | 'disabled' | 'ready' | 'error'>('unknown');
-  const [editingSupplierItemId, setEditingSupplierItemId] = useState<string | null>(null);
-  const [editingSupplier, setEditingSupplier] = useState('');
+  const [editingFeaturesItemId, setEditingFeaturesItemId] = useState<string | null>(null);
+  const [editingFeatures, setEditingFeatures] = useState('');
   const skipNextBlurRef = useRef(false);
   const didInitialCloudSyncRef = useRef(false);
   const isApplyingRemoteRef = useRef(false);
@@ -533,7 +539,7 @@ export default function Home() {
       const trimmedSupplier = newItemSupplier.trim();
       const cost = Number(newItemCost);
 
-      if (!trimmedCode || !trimmedName || !trimmedFeatures || !trimmedSupplier) return;
+      if (!trimmedCode || !trimmedName || !trimmedFeatures) return;
       if (!Number.isFinite(cost) || cost < 0) return;
       if (inventory.some((i) => i.name === trimmedName)) return;
       if (inventory.some((i) => i.itemCode === trimmedCode)) return;
@@ -607,19 +613,19 @@ export default function Home() {
     }
   };
 
-  const startEditSupplier = (item: InventoryItem) => {
-    setEditingSupplierItemId(item.id);
-    setEditingSupplier(item.supplier ?? '');
+  const startEditFeatures = (item: InventoryItem) => {
+    setEditingFeaturesItemId(item.id);
+    setEditingFeatures(item.features ?? '');
   };
 
-  const cancelEditSupplier = () => {
+  const cancelEditFeatures = () => {
     skipNextBlurRef.current = true;
-    setEditingSupplierItemId(null);
-    setEditingSupplier('');
+    setEditingFeaturesItemId(null);
+    setEditingFeatures('');
   };
 
-  const saveEditSupplier = (item: InventoryItem) => {
-    const next = editingSupplier.trim();
+  const saveEditFeatures = (item: InventoryItem) => {
+    const next = editingFeatures.trim();
     const timestamp = Date.now();
     setStateUpdatedAt(timestamp);
     setInventory((prev) =>
@@ -627,12 +633,12 @@ export default function Home() {
         if (i.id !== item.id) return i;
         return {
           ...i,
-          supplier: next,
+          features: next,
           lastUpdated: timestamp,
         };
       })
     );
-    cancelEditSupplier();
+    cancelEditFeatures();
   };
 
   const overwriteInventoryFromCatalog = () => {
@@ -685,7 +691,7 @@ export default function Home() {
     searchTokens.length === 0
       ? inventory
       : inventory.filter((item) => {
-          const haystack = `${item.itemCode} ${item.name} ${item.features} ${item.supplier}`.toLowerCase();
+          const haystack = `${item.itemCode} ${item.name} ${item.features}`.toLowerCase();
           return searchTokens.every((token) => haystack.includes(token));
         });
 
@@ -728,7 +734,7 @@ export default function Home() {
       ? transactions
       : transactions.filter((t) => {
           const inv = t.itemId ? inventoryLookup[t.itemId] : undefined;
-          const haystack = `${t.itemName} ${inv?.itemCode ?? ''} ${inv?.features ?? ''} ${inv?.supplier ?? ''}`.toLowerCase();
+          const haystack = `${t.itemName} ${inv?.itemCode ?? ''} ${inv?.features ?? ''}`.toLowerCase();
           return transactionsSearchTokens.every((token) => haystack.includes(token));
         });
 
@@ -1112,7 +1118,6 @@ export default function Home() {
                         onChange={(e) => setNewItemSupplier(e.target.value)}
                         placeholder={t('placeholder.supplier')}
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        required
                       />
                     </div>
                   </>
@@ -1254,37 +1259,33 @@ export default function Home() {
                         </div>
                         <div>
                           <div className="text-gray-400 dark:text-gray-500">{t('label.features')}</div>
-                          <div className="mt-1 whitespace-normal break-words leading-5">{item.features || '-'}</div>
-                        </div>
-                        <div className="col-span-2">
-                          <div className="text-gray-400 dark:text-gray-500">{t('label.supplier')}</div>
                           <div className="mt-1">
-                            {editingSupplierItemId === item.id ? (
+                            {editingFeaturesItemId === item.id ? (
                               <input
                                 autoFocus
                                 type="text"
-                                value={editingSupplier}
-                                onChange={(e) => setEditingSupplier(e.target.value)}
+                                value={editingFeatures}
+                                onChange={(e) => setEditingFeatures(e.target.value)}
                                 onKeyDown={(e) => {
-                                  if (e.key === 'Enter') saveEditSupplier(item);
-                                  if (e.key === 'Escape') cancelEditSupplier();
+                                  if (e.key === 'Enter') saveEditFeatures(item);
+                                  if (e.key === 'Escape') cancelEditFeatures();
                                 }}
                                 onBlur={() => {
                                   if (skipNextBlurRef.current) {
                                     skipNextBlurRef.current = false;
                                     return;
                                   }
-                                  saveEditSupplier(item);
+                                  saveEditFeatures(item);
                                 }}
-                                className="w-full px-2 py-1 rounded border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                                className="w-full min-w-0 px-2 py-1 rounded border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
                               />
                             ) : (
                               <div
-                                onClick={() => startEditSupplier(item)}
+                                onClick={() => startEditFeatures(item)}
                                 className="cursor-text select-none whitespace-normal break-words leading-5"
-                                title={t('hint.editSupplierClick')}
+                                title={t('hint.editFeaturesClick')}
                               >
-                                {item.supplier || '-'}
+                                {item.features || '-'}
                               </div>
                             )}
                           </div>
@@ -1299,7 +1300,7 @@ export default function Home() {
                 <table className="w-full text-left table-fixed">
                   <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs">
                     <tr>
-                      <th colSpan={6} className="px-4 py-3 font-medium">
+                      <th colSpan={5} className="px-4 py-3 font-medium">
                         <div className="grid grid-cols-1 md:grid-cols-[minmax(260px,1fr)_auto] items-center gap-2">
                           <input
                             type="text"
@@ -1361,19 +1362,18 @@ export default function Home() {
                       <th className="px-4 py-3 font-medium w-[26%]">{t('table.name')}</th>
                       <th className="px-4 py-3 font-medium w-[10%]">{t('table.code')}</th>
                       <th className="px-4 py-3 font-medium w-[8%]">{t('table.cost')}</th>
-                      <th className="px-4 py-3 font-medium w-[28%]">{t('table.features')}</th>
-                      <th className="px-4 py-3 font-medium w-[14%]">{t('table.qty')}</th>
-                      <th className="px-4 py-3 font-medium w-[14%]">{t('table.supplier')}</th>
+                      <th className="px-4 py-3 font-medium w-[38%]">{t('table.features')}</th>
+                      <th className="px-4 py-3 font-medium w-[18%]">{t('table.qty')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
                     {inventory.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-6 py-10 text-center text-gray-400">{t('empty.inventory')}</td>
+                        <td colSpan={5} className="px-6 py-10 text-center text-gray-400">{t('empty.inventory')}</td>
                       </tr>
                     ) : filteredInventory.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</td>
+                        <td colSpan={5} className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</td>
                       </tr>
                     ) : (
                       pagedInventory.map((item) => (
@@ -1393,46 +1393,39 @@ export default function Home() {
                             {Number.isFinite(item.cost) ? item.cost.toFixed(2) : '0.00'}
                           </td>
                           <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300">
-                            <span title={item.features || ''} className="block whitespace-normal break-words leading-5">
-                              {item.features || '-'}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold">
-                              {item.quantity}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300">
-                            {editingSupplierItemId === item.id ? (
+                            {editingFeaturesItemId === item.id ? (
                               <input
                                 autoFocus
                                 type="text"
-                                value={editingSupplier}
-                                onChange={(e) => setEditingSupplier(e.target.value)}
+                                value={editingFeatures}
+                                onChange={(e) => setEditingFeatures(e.target.value)}
                                 onKeyDown={(e) => {
-                                  if (e.key === 'Enter') saveEditSupplier(item);
-                                  if (e.key === 'Escape') cancelEditSupplier();
+                                  if (e.key === 'Enter') saveEditFeatures(item);
+                                  if (e.key === 'Escape') cancelEditFeatures();
                                 }}
                                 onBlur={() => {
                                   if (skipNextBlurRef.current) {
                                     skipNextBlurRef.current = false;
                                     return;
                                   }
-                                  saveEditSupplier(item);
+                                  saveEditFeatures(item);
                                 }}
                                 className="w-full min-w-0 px-2 py-1 rounded border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
                               />
                             ) : (
                               <div
-                                onDoubleClick={() => startEditSupplier(item)}
-                                className="flex items-start gap-2 cursor-text select-none"
-                                title={t('hint.editSupplierDbl')}
+                                onDoubleClick={() => startEditFeatures(item)}
+                                className="cursor-text select-none whitespace-normal break-words leading-5"
+                                title={t('hint.editFeaturesDbl')}
                               >
-                                <span title={item.supplier || ''} className="block whitespace-normal break-words leading-5 flex-1 min-w-0">
-                                  {item.supplier || '-'}
-                                </span>
+                                {item.features || '-'}
                               </div>
                             )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold">
+                              {item.quantity}
+                            </span>
                           </td>
                         </tr>
                       ))
