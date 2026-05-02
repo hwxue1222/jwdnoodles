@@ -158,6 +158,7 @@ export default function Home() {
   const [transactionsPageSize, setTransactionsPageSize] = useState<number>(20);
   const [transactionsPageIndex, setTransactionsPageIndex] = useState(0);
   const [stateUpdatedAt, setStateUpdatedAt] = useState(0);
+  const [cloudStatus, setCloudStatus] = useState<'unknown' | 'disabled' | 'ready' | 'error'>('unknown');
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingQuantity, setEditingQuantity] = useState('');
   const [editingSupplierItemId, setEditingSupplierItemId] = useState<string | null>(null);
@@ -166,6 +167,10 @@ export default function Home() {
   const didInitialCloudSyncRef = useRef(false);
   const isApplyingRemoteRef = useRef(false);
   const pushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cloudSyncInFlightRef = useRef(false);
+  const inventoryRef = useRef<InventoryItem[]>([]);
+  const transactionsRef = useRef<Transaction[]>([]);
+  const stateUpdatedAtRef = useRef(0);
   const [newItemCode, setNewItemCode] = useState('');
   const [newItemName, setNewItemName] = useState('');
   const [newItemCost, setNewItemCost] = useState('');
@@ -213,6 +218,12 @@ export default function Home() {
       }))
       .filter((t) => t.id && t.itemName && t.quantity > 0 && t.timestamp > 0);
   };
+
+  useEffect(() => {
+    inventoryRef.current = inventory;
+    transactionsRef.current = transactions;
+    stateUpdatedAtRef.current = stateUpdatedAt;
+  }, [inventory, transactions, stateUpdatedAt]);
 
   // Load data from localStorage
   useEffect(() => {
@@ -552,28 +563,43 @@ export default function Home() {
 
   useEffect(() => {
     if (!isLoaded) return;
-    if (didInitialCloudSyncRef.current) return;
-    didInitialCloudSyncRef.current = true;
+    if (cloudSyncInFlightRef.current) return;
+    cloudSyncInFlightRef.current = true;
 
     const run = async () => {
       try {
         const res = await fetch('/api/stock-state', { method: 'GET', cache: 'no-store' });
-        if (res.status === 501) return;
+        if (res.status === 501) {
+          setCloudStatus('disabled');
+          return;
+        }
         const data = (await res.json()) as { ok: boolean; state: { inventory: unknown[]; transactions: unknown[]; updatedAt: number } | null };
-        if (!data.ok) return;
+        if (!data.ok) {
+          setCloudStatus('error');
+          return;
+        }
+        setCloudStatus('ready');
+        didInitialCloudSyncRef.current = true;
+
         const remote = data.state;
+        const localInventory = inventoryRef.current;
+        const localTransactions = transactionsRef.current;
+        const localUpdatedAt = stateUpdatedAtRef.current;
+
         if (!remote) {
-          if (stateUpdatedAt > 0) {
+          if (localUpdatedAt > 0 || localTransactions.length > 0) {
+            const ts = localUpdatedAt > 0 ? localUpdatedAt : Date.now();
+            if (localUpdatedAt === 0) setStateUpdatedAt(ts);
             await fetch('/api/stock-state', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ inventory, transactions, updatedAt: stateUpdatedAt }),
+              body: JSON.stringify({ inventory: localInventory, transactions: localTransactions, updatedAt: ts }),
             });
           }
           return;
         }
 
-        if (typeof remote.updatedAt === 'number' && remote.updatedAt > stateUpdatedAt) {
+        if (typeof remote.updatedAt === 'number' && remote.updatedAt > localUpdatedAt) {
           isApplyingRemoteRef.current = true;
           setInventory(normalizeInventory(remote.inventory));
           setTransactions(normalizeTransactions(remote.transactions));
@@ -582,25 +608,109 @@ export default function Home() {
           return;
         }
 
-        if (typeof remote.updatedAt === 'number' && remote.updatedAt < stateUpdatedAt) {
+        if (typeof remote.updatedAt === 'number' && remote.updatedAt < localUpdatedAt && localUpdatedAt > 0) {
           await fetch('/api/stock-state', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ inventory, transactions, updatedAt: stateUpdatedAt }),
+            body: JSON.stringify({ inventory: localInventory, transactions: localTransactions, updatedAt: localUpdatedAt }),
           });
         }
       } catch {
+        setCloudStatus('error');
         return;
+      } finally {
+        cloudSyncInFlightRef.current = false;
       }
     };
 
     void run();
-  }, [isLoaded, stateUpdatedAt, inventory, transactions]);
+  }, [isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
-    if (!didInitialCloudSyncRef.current) return;
+    const onFocus = () => {
+      if (cloudStatus !== 'ready') setCloudStatus('unknown');
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && cloudStatus !== 'ready') setCloudStatus('unknown');
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [isLoaded, cloudStatus]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (cloudStatus === 'unknown') {
+      if (cloudSyncInFlightRef.current) return;
+      cloudSyncInFlightRef.current = true;
+      void (async () => {
+        try {
+          const res = await fetch('/api/stock-state', { method: 'GET', cache: 'no-store' });
+          if (res.status === 501) {
+            setCloudStatus('disabled');
+            return;
+          }
+          const data = (await res.json()) as { ok: boolean; state: { inventory: unknown[]; transactions: unknown[]; updatedAt: number } | null };
+          if (!data.ok) {
+            setCloudStatus('error');
+            return;
+          }
+          setCloudStatus('ready');
+          didInitialCloudSyncRef.current = true;
+
+          const remote = data.state;
+          const localInventory = inventoryRef.current;
+          const localTransactions = transactionsRef.current;
+          const localUpdatedAt = stateUpdatedAtRef.current;
+
+          if (!remote) {
+            if (localUpdatedAt > 0 || localTransactions.length > 0) {
+              const ts = localUpdatedAt > 0 ? localUpdatedAt : Date.now();
+              if (localUpdatedAt === 0) setStateUpdatedAt(ts);
+              await fetch('/api/stock-state', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ inventory: localInventory, transactions: localTransactions, updatedAt: ts }),
+              });
+            }
+            return;
+          }
+
+          if (typeof remote.updatedAt === 'number' && remote.updatedAt > localUpdatedAt) {
+            isApplyingRemoteRef.current = true;
+            setInventory(normalizeInventory(remote.inventory));
+            setTransactions(normalizeTransactions(remote.transactions));
+            setStateUpdatedAt(remote.updatedAt);
+            isApplyingRemoteRef.current = false;
+            return;
+          }
+
+          if (typeof remote.updatedAt === 'number' && remote.updatedAt < localUpdatedAt && localUpdatedAt > 0) {
+            await fetch('/api/stock-state', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ inventory: localInventory, transactions: localTransactions, updatedAt: localUpdatedAt }),
+            });
+          }
+        } catch {
+          setCloudStatus('error');
+          return;
+        } finally {
+          cloudSyncInFlightRef.current = false;
+        }
+      })();
+    }
+  }, [cloudStatus, isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (cloudStatus !== 'ready') return;
     if (isApplyingRemoteRef.current) return;
+    if (stateUpdatedAt <= 0) return;
 
     if (pushTimerRef.current) clearTimeout(pushTimerRef.current);
     pushTimerRef.current = setTimeout(async () => {
@@ -610,6 +720,10 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ inventory, transactions, updatedAt: stateUpdatedAt }),
         });
+        if (res.status === 501) {
+          setCloudStatus('disabled');
+          return;
+        }
         if (res.status === 409) {
           const data = (await res.json()) as {
             ok: boolean;
