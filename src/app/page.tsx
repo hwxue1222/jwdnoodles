@@ -1382,7 +1382,7 @@ export default function Home() {
               </div>
 
               <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full text-left table-fixed">
+                <table className="w-full text-left table-auto">
                   <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs">
                     <tr>
                       <th colSpan={5} className="px-4 py-3 font-medium">
@@ -1444,11 +1444,11 @@ export default function Home() {
                       </th>
                     </tr>
                     <tr>
-                      <th className="px-4 py-3 font-medium w-[26%]">{t('table.name')}</th>
-                      <th className="px-4 py-3 font-medium w-[10%]">{t('table.code')}</th>
-                      <th className="px-4 py-3 font-medium w-[8%]">{t('table.cost')}</th>
-                      <th className="px-4 py-3 font-medium w-[38%]">{t('table.features')}</th>
-                      <th className="px-4 py-3 font-medium w-[18%]">{t('table.qty')}</th>
+                      <th className="px-4 py-3 font-medium">{t('table.name')}</th>
+                      <th className="px-4 py-3 font-medium w-[92px] whitespace-nowrap">{t('table.code')}</th>
+                      <th className="px-4 py-3 font-medium w-[88px] whitespace-nowrap">{t('table.cost')}</th>
+                      <th className="px-4 py-3 font-medium">{t('table.features')}</th>
+                      <th className="px-4 py-3 font-medium w-[110px] whitespace-nowrap">{t('table.qty')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
@@ -1508,7 +1508,7 @@ export default function Home() {
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold">
+                            <span className="inline-flex items-center justify-center min-w-[52px] px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold tabular-nums">
                               {item.quantity}
                             </span>
                           </td>
