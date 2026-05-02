@@ -6,6 +6,211 @@ import { PlusCircle, History, Package, Clock, Trash2 } from 'lucide-react';
 
 const LAST_SELECTED_ITEM_ID_KEY = 'stock:lastSelectedItemId';
 const STATE_UPDATED_AT_KEY = 'stock:stateUpdatedAt';
+const LANG_STORAGE_KEY = 'stock:lang';
+
+type Lang = 'zh' | 'en' | 'ms';
+const LOCALE_BY_LANG: Record<Lang, string> = { zh: 'zh-CN', en: 'en-US', ms: 'ms-MY' };
+
+type I18nParams = Record<string, string | number>;
+type I18nValue = string | ((params: I18nParams) => string);
+
+const I18N: Record<Lang, Record<string, I18nValue>> = {
+  zh: {
+    'lang.zh': '中文',
+    'lang.en': 'English',
+    'lang.ms': 'Bahasa Melayu',
+    'app.title': '存货管理系统',
+    'app.subtitle': '实时跟踪您的物品入库与库存状态',
+    'button.overwrite': '用清单覆盖库存',
+    'button.syncFromCloud': '从云端同步',
+    'button.clearAll': '清除所有数据',
+    'confirm.clearAll': '确定要清除所有数据吗？',
+    'confirm.overwrite': '确定要用清单覆盖当前库存吗？这不会清除入库记录。',
+    'loading': '加载中...',
+    'section.stockIn': '物品入库',
+    'label.itemName': '物品名称',
+    'label.itemCode': '物品编号',
+    'label.newItemName': '新物品名称',
+    'label.cost': '成本',
+    'label.features': '特征',
+    'label.supplier': '供货商',
+    'label.currentQty': '当前数量',
+    'label.lastStockInTime': '上次入库时间',
+    'label.stockInQty': '入库数量',
+    'placeholder.selectItem': '请选择物品',
+    'option.addNewItem': '➕ 新增物品…',
+    'placeholder.itemCode': '例如: SKU-001',
+    'placeholder.newItemName': '例如: 苹果, 笔记本',
+    'placeholder.cost': '例如: 12.5',
+    'placeholder.features': '例如: 红色 / 500g / 有机',
+    'placeholder.supplier': '例如: XX供应商',
+    'placeholder.stockInQty': '输入正整数',
+    'button.confirmStockIn': '确认入库',
+    'section.overview': '概览',
+    'stat.itemTypes': '物品种类',
+    'stat.totalQty': '总库存量',
+    'section.inventory': '当前存货清单',
+    'section.transactions': '入库记录 (时间顺序)',
+    'search.inventory': '关键字搜索：名称 / 编号 / 特征 / 供货商',
+    'search.transactions': '搜索入库记录：物品 / 编号 / 特征 / 供货商',
+    'paging.range': ({ start, end, total }) => `显示 ${start}-${end} / ${total}`,
+    'paging.perPage': '每页',
+    'paging.all': '全部',
+    'paging.prev': '上一页',
+    'paging.next': '下一页',
+    'paging.page': ({ page, pages }) => `第 ${page}/${pages} 页`,
+    'empty.inventory': '暂无库存数据',
+    'empty.transactions': '暂无入库记录',
+    'empty.noMatch': '没有匹配结果',
+    'hint.editQtyClick': '点击修改数量',
+    'hint.editSupplierClick': '点击修改供货商',
+    'hint.editQtyDbl': '双击修改数量',
+    'hint.editSupplierDbl': '双击修改供货商',
+    'table.name': '物品名称',
+    'table.code': '物品编号',
+    'table.cost': '成本',
+    'table.features': '特征',
+    'table.qty': '当前数量',
+    'table.supplier': '供货商',
+    'table.time': '时间',
+    'table.item': '物品',
+    'table.action': '操作',
+    'table.quantity': '数量',
+    'badge.in': '入库',
+  },
+  en: {
+    'lang.zh': '中文',
+    'lang.en': 'English',
+    'lang.ms': 'Bahasa Melayu',
+    'app.title': 'Inventory Management',
+    'app.subtitle': 'Track stock-in and inventory in real time',
+    'button.overwrite': 'Overwrite from catalog',
+    'button.syncFromCloud': 'Sync from cloud',
+    'button.clearAll': 'Clear all data',
+    'confirm.clearAll': 'Are you sure you want to clear all data?',
+    'confirm.overwrite': "Overwrite inventory using the catalog? This won't clear stock-in records.",
+    'loading': 'Loading...',
+    'section.stockIn': 'Stock In',
+    'label.itemName': 'Item',
+    'label.itemCode': 'Item Code',
+    'label.newItemName': 'New Item Name',
+    'label.cost': 'Cost',
+    'label.features': 'Features',
+    'label.supplier': 'Supplier',
+    'label.currentQty': 'Current Qty',
+    'label.lastStockInTime': 'Last stock-in time',
+    'label.stockInQty': 'Stock-in Qty',
+    'placeholder.selectItem': 'Select an item',
+    'option.addNewItem': '➕ Add new item…',
+    'placeholder.itemCode': 'e.g. SKU-001',
+    'placeholder.newItemName': 'e.g. Apple, Notebook',
+    'placeholder.cost': 'e.g. 12.5',
+    'placeholder.features': 'e.g. Red / 500g / Organic',
+    'placeholder.supplier': 'e.g. Supplier A',
+    'placeholder.stockInQty': 'Enter a positive integer',
+    'button.confirmStockIn': 'Confirm stock-in',
+    'section.overview': 'Overview',
+    'stat.itemTypes': 'Item types',
+    'stat.totalQty': 'Total quantity',
+    'section.inventory': 'Inventory List',
+    'section.transactions': 'Stock-in Records (Newest first)',
+    'search.inventory': 'Search: name / code / features / supplier',
+    'search.transactions': 'Search records: item / code / features / supplier',
+    'paging.range': ({ start, end, total }) => `Showing ${start}-${end} / ${total}`,
+    'paging.perPage': 'Per page',
+    'paging.all': 'All',
+    'paging.prev': 'Prev',
+    'paging.next': 'Next',
+    'paging.page': ({ page, pages }) => `Page ${page}/${pages}`,
+    'empty.inventory': 'No inventory data',
+    'empty.transactions': 'No stock-in records',
+    'empty.noMatch': 'No matches',
+    'hint.editQtyClick': 'Click to edit quantity',
+    'hint.editSupplierClick': 'Click to edit supplier',
+    'hint.editQtyDbl': 'Double click to edit quantity',
+    'hint.editSupplierDbl': 'Double click to edit supplier',
+    'table.name': 'Name',
+    'table.code': 'Code',
+    'table.cost': 'Cost',
+    'table.features': 'Features',
+    'table.qty': 'Quantity',
+    'table.supplier': 'Supplier',
+    'table.time': 'Time',
+    'table.item': 'Item',
+    'table.action': 'Action',
+    'table.quantity': 'Qty',
+    'badge.in': 'IN',
+  },
+  ms: {
+    'lang.zh': '中文',
+    'lang.en': 'English',
+    'lang.ms': 'Bahasa Melayu',
+    'app.title': 'Pengurusan Inventori',
+    'app.subtitle': 'Jejaki stok masuk dan inventori secara masa nyata',
+    'button.overwrite': 'Ganti dari katalog',
+    'button.syncFromCloud': 'Segerak dari awan',
+    'button.clearAll': 'Padam semua data',
+    'confirm.clearAll': 'Anda pasti mahu memadam semua data?',
+    'confirm.overwrite': 'Ganti inventori menggunakan katalog? Ini tidak akan memadam rekod stok masuk.',
+    'loading': 'Memuatkan...',
+    'section.stockIn': 'Stok Masuk',
+    'label.itemName': 'Item',
+    'label.itemCode': 'Kod Item',
+    'label.newItemName': 'Nama Item Baharu',
+    'label.cost': 'Kos',
+    'label.features': 'Ciri-ciri',
+    'label.supplier': 'Pembekal',
+    'label.currentQty': 'Kuantiti Semasa',
+    'label.lastStockInTime': 'Masa stok masuk terakhir',
+    'label.stockInQty': 'Kuantiti stok masuk',
+    'placeholder.selectItem': 'Pilih item',
+    'option.addNewItem': '➕ Tambah item baharu…',
+    'placeholder.itemCode': 'cth. SKU-001',
+    'placeholder.newItemName': 'cth. Epal, Buku nota',
+    'placeholder.cost': 'cth. 12.5',
+    'placeholder.features': 'cth. Merah / 500g / Organik',
+    'placeholder.supplier': 'cth. Pembekal A',
+    'placeholder.stockInQty': 'Masukkan nombor bulat positif',
+    'button.confirmStockIn': 'Sahkan stok masuk',
+    'section.overview': 'Ringkasan',
+    'stat.itemTypes': 'Jenis item',
+    'stat.totalQty': 'Jumlah kuantiti',
+    'section.inventory': 'Senarai Inventori',
+    'section.transactions': 'Rekod Stok Masuk (Terkini dahulu)',
+    'search.inventory': 'Cari: nama / kod / ciri / pembekal',
+    'search.transactions': 'Cari rekod: item / kod / ciri / pembekal',
+    'paging.range': ({ start, end, total }) => `Paparan ${start}-${end} / ${total}`,
+    'paging.perPage': 'Setiap',
+    'paging.all': 'Semua',
+    'paging.prev': 'Sebelumnya',
+    'paging.next': 'Seterusnya',
+    'paging.page': ({ page, pages }) => `Halaman ${page}/${pages}`,
+    'empty.inventory': 'Tiada data inventori',
+    'empty.transactions': 'Tiada rekod stok masuk',
+    'empty.noMatch': 'Tiada padanan',
+    'hint.editQtyClick': 'Klik untuk ubah kuantiti',
+    'hint.editSupplierClick': 'Klik untuk ubah pembekal',
+    'hint.editQtyDbl': 'Klik dua kali untuk ubah kuantiti',
+    'hint.editSupplierDbl': 'Klik dua kali untuk ubah pembekal',
+    'table.name': 'Nama',
+    'table.code': 'Kod',
+    'table.cost': 'Kos',
+    'table.features': 'Ciri',
+    'table.qty': 'Kuantiti',
+    'table.supplier': 'Pembekal',
+    'table.time': 'Masa',
+    'table.item': 'Item',
+    'table.action': 'Tindakan',
+    'table.quantity': 'Kuantiti',
+    'badge.in': 'MASUK',
+  },
+};
+
+const translate = (lang: Lang, key: string, params?: I18nParams) => {
+  const val = I18N[lang]?.[key] ?? I18N.zh[key] ?? key;
+  if (typeof val === 'function') return val(params ?? {});
+  return val;
+};
 type InitialCatalogItem = Omit<InventoryItem, 'quantity' | 'lastUpdated'> & {
   openingBalance?: number;
 };
@@ -148,6 +353,7 @@ const INITIAL_INVENTORY_ITEMS: InitialCatalogItem[] = [
 ];
 
 export default function Home() {
+  const [lang, setLang] = useState<Lang>('zh');
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedItemId, setSelectedItemId] = useState('');
@@ -186,6 +392,8 @@ export default function Home() {
       ? null
       : (transactions.find((t) => t.type === 'IN' && (t.itemId ? t.itemId === selectedItem.id : t.itemName === selectedItem.name))
           ?.timestamp ?? null);
+  const t = (key: string, params?: I18nParams) => translate(lang, key, params);
+  const locale = LOCALE_BY_LANG[lang] ?? 'en-US';
 
   const normalizeInventory = (raw: unknown[]): InventoryItem[] => {
     return raw
@@ -227,6 +435,12 @@ export default function Home() {
 
   // Load data from localStorage
   useEffect(() => {
+    const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
+    const browserLang = (typeof navigator !== 'undefined' ? navigator.language : '').toLowerCase();
+    const detected: Lang = browserLang.startsWith('zh') ? 'zh' : browserLang.startsWith('ms') ? 'ms' : 'en';
+    const nextLang: Lang = savedLang === 'zh' || savedLang === 'en' || savedLang === 'ms' ? savedLang : detected;
+    setLang(nextLang);
+
     const savedInventory = localStorage.getItem('inventory');
     const savedTransactions = localStorage.getItem('transactions');
     const savedStateUpdatedAt = localStorage.getItem(STATE_UPDATED_AT_KEY);
@@ -285,11 +499,12 @@ export default function Home() {
   // Save data to localStorage
   useEffect(() => {
     if (isLoaded) {
+      localStorage.setItem(LANG_STORAGE_KEY, lang);
       localStorage.setItem('inventory', JSON.stringify(inventory));
       localStorage.setItem('transactions', JSON.stringify(transactions));
       localStorage.setItem(STATE_UPDATED_AT_KEY, String(stateUpdatedAt));
     }
-  }, [inventory, transactions, stateUpdatedAt, isLoaded]);
+  }, [lang, inventory, transactions, stateUpdatedAt, isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -383,7 +598,7 @@ export default function Home() {
   };
 
   const clearData = () => {
-    if (confirm('确定要清除所有数据吗？')) {
+    if (confirm(t('confirm.clearAll'))) {
       setStateUpdatedAt(0);
       setCloudStatus('unknown');
       setInventory([]);
@@ -460,7 +675,7 @@ export default function Home() {
   };
 
   const overwriteInventoryFromCatalog = () => {
-    if (!confirm('确定要用清单覆盖当前库存吗？这不会清除入库记录。')) return;
+    if (!confirm(t('confirm.overwrite'))) return;
     const now = Date.now();
     setStateUpdatedAt(now);
     const initialInventory: InventoryItem[] = INITIAL_INVENTORY_ITEMS.map((item) => ({
@@ -783,7 +998,7 @@ export default function Home() {
     if (transactionsPageIndex > transactionsPageCount - 1) setTransactionsPageIndex(transactionsPageCount - 1);
   }, [transactionsPageCount, transactionsPageIndex]);
 
-  if (!isLoaded) return <div className="p-8 text-center">加载中...</div>;
+  if (!isLoaded) return <div className="p-8 text-center">{t('loading')}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 p-4 md:p-8 font-sans text-gray-900 dark:text-gray-100">
@@ -791,28 +1006,37 @@ export default function Home() {
         {/* Header */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">存货管理系统</h1>
-            <p className="text-gray-500 dark:text-gray-400">实时跟踪您的物品入库与库存状态</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t('app.title')}</h1>
+            <p className="text-gray-500 dark:text-gray-400">{t('app.subtitle')}</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as Lang)}
+              className="px-3 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 dark:bg-zinc-900 dark:text-gray-200 dark:border-zinc-800 dark:hover:bg-zinc-800/40 transition-colors"
+            >
+              <option value="zh">{t('lang.zh')}</option>
+              <option value="en">{t('lang.en')}</option>
+              <option value="ms">{t('lang.ms')}</option>
+            </select>
             <button
               onClick={overwriteInventoryFromCatalog}
               className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 dark:text-blue-300 dark:border-blue-900/30 dark:hover:bg-blue-900/20 transition-colors"
             >
-              用清单覆盖库存
+              {t('button.overwrite')}
             </button>
             <button
               onClick={syncFromCloudNow}
               className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 dark:text-gray-200 dark:border-zinc-800 dark:hover:bg-zinc-800/40 transition-colors"
             >
-              从云端同步
+              {t('button.syncFromCloud')}
             </button>
             <button
               onClick={clearData}
               className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/20 transition-colors"
             >
               <Trash2 size={16} />
-              清除所有数据
+              {t('button.clearAll')}
             </button>
           </div>
         </header>
@@ -823,11 +1047,11 @@ export default function Home() {
             <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <PlusCircle className="text-blue-500" size={20} />
-                物品入库
+                {t('section.stockIn')}
               </h2>
               <form onSubmit={handleAddStock} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">物品名称</label>
+                  <label className="block text-sm font-medium mb-1">{t('label.itemName')}</label>
                   <select
                     value={selectedItemId}
                     onChange={(e) => setSelectedItemId(e.target.value)}
@@ -835,14 +1059,14 @@ export default function Home() {
                     required
                   >
                     <option value="" disabled>
-                      请选择物品
+                      {t('placeholder.selectItem')}
                     </option>
                     {inventory.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.itemCode ? `${item.itemCode} - ${item.name}` : item.name}
                       </option>
                     ))}
-                    <option value="__new__">➕ 新增物品…</option>
+                    <option value="__new__">{t('option.addNewItem')}</option>
                   </select>
                 </div>
 
@@ -850,21 +1074,21 @@ export default function Home() {
                   <div className="rounded-lg border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/40 px-4 py-3 text-sm">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="min-w-0">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">成本</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{t('label.cost')}</div>
                         <div className="font-semibold">{Number.isFinite(selectedItem.cost) ? selectedItem.cost.toFixed(2) : '0.00'}</div>
                       </div>
                       <div className="min-w-0">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">当前数量</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{t('label.currentQty')}</div>
                         <div className="font-semibold">{selectedItem.quantity}</div>
                       </div>
                       <div className="col-span-2 min-w-0">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">特征</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{t('label.features')}</div>
                         <div className="break-words leading-5">{selectedItem.features || '-'}</div>
                       </div>
                       <div className="col-span-2 min-w-0">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">上次入库时间</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{t('label.lastStockInTime')}</div>
                         <div className="font-medium">
-                          {lastInTimestamp ? new Date(lastInTimestamp).toLocaleString('zh-CN') : '-'}
+                          {lastInTimestamp ? new Date(lastInTimestamp).toLocaleString(locale) : '-'}
                         </div>
                       </div>
                     </div>
@@ -874,34 +1098,34 @@ export default function Home() {
                 {isCreatingNewItem && (
                   <>
                     <div>
-                      <label className="block text-sm font-medium mb-1">物品编号</label>
+                      <label className="block text-sm font-medium mb-1">{t('label.itemCode')}</label>
                       <input
                         type="text"
                         value={newItemCode}
                         onChange={(e) => setNewItemCode(e.target.value)}
-                        placeholder="例如: SKU-001"
+                        placeholder={t('placeholder.itemCode')}
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">新物品名称</label>
+                      <label className="block text-sm font-medium mb-1">{t('label.newItemName')}</label>
                       <input
                         type="text"
                         value={newItemName}
                         onChange={(e) => setNewItemName(e.target.value)}
-                        placeholder="例如: 苹果, 笔记本"
+                        placeholder={t('placeholder.newItemName')}
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">成本</label>
+                      <label className="block text-sm font-medium mb-1">{t('label.cost')}</label>
                       <input
                         type="number"
                         value={newItemCost}
                         onChange={(e) => setNewItemCost(e.target.value)}
-                        placeholder="例如: 12.5"
+                        placeholder={t('placeholder.cost')}
                         min="0"
                         step="0.01"
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
@@ -909,23 +1133,23 @@ export default function Home() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">特征</label>
+                      <label className="block text-sm font-medium mb-1">{t('label.features')}</label>
                       <input
                         type="text"
                         value={newItemFeatures}
                         onChange={(e) => setNewItemFeatures(e.target.value)}
-                        placeholder="例如: 红色 / 500g / 有机"
+                        placeholder={t('placeholder.features')}
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">供货商</label>
+                      <label className="block text-sm font-medium mb-1">{t('label.supplier')}</label>
                       <input
                         type="text"
                         value={newItemSupplier}
                         onChange={(e) => setNewItemSupplier(e.target.value)}
-                        placeholder="例如: XX供应商"
+                        placeholder={t('placeholder.supplier')}
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                         required
                       />
@@ -934,12 +1158,12 @@ export default function Home() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">入库数量</label>
+                  <label className="block text-sm font-medium mb-1">{t('label.stockInQty')}</label>
                   <input
                     type="number"
                     value={newItemQuantity}
                     onChange={(e) => setNewItemQuantity(e.target.value)}
-                    placeholder="输入正整数"
+                    placeholder={t('placeholder.stockInQty')}
                     min="1"
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                     required
@@ -949,24 +1173,24 @@ export default function Home() {
                   type="submit"
                   className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md shadow-blue-500/20"
                 >
-                  确认入库
+                  {t('button.confirmStockIn')}
                 </button>
               </form>
             </div>
 
             {/* Stats Summary */}
             <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-900/30">
-              <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-2">概览</h3>
+              <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-2">{t('section.overview')}</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{inventory.length}</p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">物品种类</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">{t('stat.itemTypes')}</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                     {inventory.reduce((sum, item) => sum + item.quantity, 0)}
                   </p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">总库存量</p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">{t('stat.totalQty')}</p>
                 </div>
               </div>
             </div>
@@ -979,7 +1203,7 @@ export default function Home() {
               <div className="p-6 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between">
                 <h2 className="text-xl font-semibold flex items-center gap-2">
                   <Package className="text-green-500" size={20} />
-                  当前存货清单
+                  {t('section.inventory')}
                 </h2>
               </div>
               <div className="sm:hidden border-b border-gray-200 dark:border-zinc-800 p-4">
@@ -988,16 +1212,16 @@ export default function Home() {
                     type="text"
                     value={inventorySearch}
                     onChange={(e) => setInventorySearch(e.target.value)}
-                    placeholder="关键字搜索：名称 / 编号 / 特征 / 供货商"
+                    placeholder={t('search.inventory')}
                     className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   />
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
                     <div className="whitespace-nowrap">
-                      显示 {inventoryStart}-{inventoryEnd} / {inventoryTotal}
+                      {t('paging.range', { start: inventoryStart, end: inventoryEnd, total: inventoryTotal })}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="whitespace-nowrap">每页</span>
+                        <span className="whitespace-nowrap">{t('paging.perPage')}</span>
                         <select
                           value={inventoryPageSize === 0 ? 'all' : String(inventoryPageSize)}
                           onChange={(e) => {
@@ -1011,7 +1235,7 @@ export default function Home() {
                           <option value="20">20</option>
                           <option value="30">30</option>
                           <option value="50">50</option>
-                          <option value="all">全部</option>
+                          <option value="all">{t('paging.all')}</option>
                         </select>
                       </div>
                       <button
@@ -1020,10 +1244,12 @@ export default function Home() {
                         onClick={() => setInventoryPageIndex((p) => Math.max(0, p - 1))}
                         className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        上一页
+                        {t('paging.prev')}
                       </button>
                       <div className="whitespace-nowrap">
-                        {inventoryPageSize === 0 ? '全部' : `第 ${safeInventoryPageIndex + 1}/${inventoryPageCount} 页`}
+                        {inventoryPageSize === 0
+                          ? t('paging.all')
+                          : t('paging.page', { page: safeInventoryPageIndex + 1, pages: inventoryPageCount })}
                       </div>
                       <button
                         type="button"
@@ -1031,7 +1257,7 @@ export default function Home() {
                         onClick={() => setInventoryPageIndex((p) => Math.min(inventoryPageCount - 1, p + 1))}
                         className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        下一页
+                        {t('paging.next')}
                       </button>
                     </div>
                   </div>
@@ -1040,9 +1266,9 @@ export default function Home() {
 
               <div className="sm:hidden divide-y divide-gray-200 dark:divide-zinc-800">
                 {inventory.length === 0 ? (
-                  <div className="px-6 py-10 text-center text-gray-400">暂无库存数据</div>
+                  <div className="px-6 py-10 text-center text-gray-400">{t('empty.inventory')}</div>
                 ) : filteredInventory.length === 0 ? (
-                  <div className="px-6 py-10 text-center text-gray-400">没有匹配结果</div>
+                  <div className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</div>
                 ) : (
                   pagedInventory.map((item) => (
                     <div key={item.id} className="p-4">
@@ -1077,7 +1303,7 @@ export default function Home() {
                             <div
                               onClick={() => startEditQuantity(item)}
                               className="inline-flex items-center gap-2 cursor-text select-none"
-                              title="点击修改数量"
+                              title={t('hint.editQtyClick')}
                             >
                               <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold">
                                 {item.quantity}
@@ -1089,17 +1315,17 @@ export default function Home() {
 
                       <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-gray-600 dark:text-gray-300">
                         <div>
-                          <div className="text-gray-400 dark:text-gray-500">成本</div>
+                          <div className="text-gray-400 dark:text-gray-500">{t('label.cost')}</div>
                           <div className="mt-1 whitespace-nowrap">
                             {Number.isFinite(item.cost) ? item.cost.toFixed(2) : '0.00'}
                           </div>
                         </div>
                         <div>
-                          <div className="text-gray-400 dark:text-gray-500">特征</div>
+                          <div className="text-gray-400 dark:text-gray-500">{t('label.features')}</div>
                           <div className="mt-1 whitespace-normal break-words leading-5">{item.features || '-'}</div>
                         </div>
                         <div className="col-span-2">
-                          <div className="text-gray-400 dark:text-gray-500">供货商</div>
+                          <div className="text-gray-400 dark:text-gray-500">{t('label.supplier')}</div>
                           <div className="mt-1">
                             {editingSupplierItemId === item.id ? (
                               <input
@@ -1124,7 +1350,7 @@ export default function Home() {
                               <div
                                 onClick={() => startEditSupplier(item)}
                                 className="cursor-text select-none whitespace-normal break-words leading-5"
-                                title="点击修改供货商"
+                                title={t('hint.editSupplierClick')}
                               >
                                 {item.supplier || '-'}
                               </div>
@@ -1147,16 +1373,16 @@ export default function Home() {
                             type="text"
                             value={inventorySearch}
                             onChange={(e) => setInventorySearch(e.target.value)}
-                            placeholder="关键字搜索：名称 / 编号 / 特征 / 供货商"
+                            placeholder={t('search.inventory')}
                             className="w-full md:max-w-[420px] px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                           />
                           <div className="flex flex-wrap items-center justify-start md:justify-end gap-2 text-xs text-gray-500">
                             <div className="whitespace-nowrap">
-                              显示 {inventoryStart}-{inventoryEnd} / {inventoryTotal}
+                              {t('paging.range', { start: inventoryStart, end: inventoryEnd, total: inventoryTotal })}
                             </div>
                             <div className="flex flex-wrap items-center gap-2">
                               <div className="flex items-center gap-2">
-                                <span className="whitespace-nowrap">每页</span>
+                                <span className="whitespace-nowrap">{t('paging.perPage')}</span>
                                 <select
                                   value={inventoryPageSize === 0 ? 'all' : String(inventoryPageSize)}
                                   onChange={(e) => {
@@ -1170,7 +1396,7 @@ export default function Home() {
                                   <option value="20">20</option>
                                   <option value="30">30</option>
                                   <option value="50">50</option>
-                                  <option value="all">全部</option>
+                                  <option value="all">{t('paging.all')}</option>
                                 </select>
                               </div>
                               <button
@@ -1179,10 +1405,12 @@ export default function Home() {
                                 onClick={() => setInventoryPageIndex((p) => Math.max(0, p - 1))}
                                 className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                上一页
+                                {t('paging.prev')}
                               </button>
                               <div className="whitespace-nowrap">
-                                {inventoryPageSize === 0 ? '全部' : `第 ${safeInventoryPageIndex + 1}/${inventoryPageCount} 页`}
+                                {inventoryPageSize === 0
+                                  ? t('paging.all')
+                                  : t('paging.page', { page: safeInventoryPageIndex + 1, pages: inventoryPageCount })}
                               </div>
                               <button
                                 type="button"
@@ -1190,7 +1418,7 @@ export default function Home() {
                                 onClick={() => setInventoryPageIndex((p) => Math.min(inventoryPageCount - 1, p + 1))}
                                 className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                下一页
+                                {t('paging.next')}
                               </button>
                             </div>
                           </div>
@@ -1198,22 +1426,22 @@ export default function Home() {
                       </th>
                     </tr>
                     <tr>
-                      <th className="px-4 py-3 font-medium w-[26%]">物品名称</th>
-                      <th className="px-4 py-3 font-medium w-[10%]">物品编号</th>
-                      <th className="px-4 py-3 font-medium w-[8%]">成本</th>
-                      <th className="px-4 py-3 font-medium w-[28%]">特征</th>
-                      <th className="px-4 py-3 font-medium w-[14%]">当前数量</th>
-                      <th className="px-4 py-3 font-medium w-[14%]">供货商</th>
+                      <th className="px-4 py-3 font-medium w-[26%]">{t('table.name')}</th>
+                      <th className="px-4 py-3 font-medium w-[10%]">{t('table.code')}</th>
+                      <th className="px-4 py-3 font-medium w-[8%]">{t('table.cost')}</th>
+                      <th className="px-4 py-3 font-medium w-[28%]">{t('table.features')}</th>
+                      <th className="px-4 py-3 font-medium w-[14%]">{t('table.qty')}</th>
+                      <th className="px-4 py-3 font-medium w-[14%]">{t('table.supplier')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
                     {inventory.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-6 py-10 text-center text-gray-400">暂无库存数据</td>
+                        <td colSpan={6} className="px-6 py-10 text-center text-gray-400">{t('empty.inventory')}</td>
                       </tr>
                     ) : filteredInventory.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-6 py-10 text-center text-gray-400">没有匹配结果</td>
+                        <td colSpan={6} className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</td>
                       </tr>
                     ) : (
                       pagedInventory.map((item) => (
@@ -1263,7 +1491,7 @@ export default function Home() {
                               <div
                                 onDoubleClick={() => startEditQuantity(item)}
                                 className="inline-flex items-center gap-2 cursor-text select-none"
-                                title="双击修改数量"
+                                title={t('hint.editQtyDbl')}
                               >
                                 <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold">
                                   {item.quantity}
@@ -1295,7 +1523,7 @@ export default function Home() {
                               <div
                                 onDoubleClick={() => startEditSupplier(item)}
                                 className="flex items-start gap-2 cursor-text select-none"
-                                title="双击修改供货商"
+                                title={t('hint.editSupplierDbl')}
                               >
                                 <span title={item.supplier || ''} className="block whitespace-normal break-words leading-5 flex-1 min-w-0">
                                   {item.supplier || '-'}
@@ -1316,7 +1544,7 @@ export default function Home() {
               <div className="p-6 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between">
                 <h2 className="text-xl font-semibold flex items-center gap-2">
                   <History className="text-purple-500" size={20} />
-                  入库记录 (时间顺序)
+                  {t('section.transactions')}
                 </h2>
               </div>
               <div className="border-b border-gray-200 dark:border-zinc-800 p-4">
@@ -1325,15 +1553,15 @@ export default function Home() {
                     type="text"
                     value={transactionsSearch}
                     onChange={(e) => setTransactionsSearch(e.target.value)}
-                    placeholder="搜索入库记录：物品 / 编号 / 特征 / 供货商"
+                    placeholder={t('search.transactions')}
                     className="w-full md:max-w-[420px] px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   />
                   <div className="flex flex-wrap items-center justify-start md:justify-end gap-2">
                     <div className="text-sm text-gray-500 whitespace-nowrap">
-                      显示 {transactionsStart}-{transactionsEnd} / {transactionsTotal}
+                      {t('paging.range', { start: transactionsStart, end: transactionsEnd, total: transactionsTotal })}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500 whitespace-nowrap">每页</span>
+                      <span className="text-sm text-gray-500 whitespace-nowrap">{t('paging.perPage')}</span>
                       <select
                         value={transactionsPageSize === 0 ? 'all' : String(transactionsPageSize)}
                         onChange={(e) => {
@@ -1347,7 +1575,7 @@ export default function Home() {
                         <option value="20">20</option>
                         <option value="30">30</option>
                         <option value="50">50</option>
-                        <option value="all">全部</option>
+                        <option value="all">{t('paging.all')}</option>
                       </select>
                     </div>
                     <button
@@ -1356,10 +1584,12 @@ export default function Home() {
                       onClick={() => setTransactionsPageIndex((p) => Math.max(0, p - 1))}
                       className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      上一页
+                      {t('paging.prev')}
                     </button>
                     <div className="text-sm text-gray-500 whitespace-nowrap">
-                      {transactionsPageSize === 0 ? '全部' : `第 ${safeTransactionsPageIndex + 1}/${transactionsPageCount} 页`}
+                      {transactionsPageSize === 0
+                        ? t('paging.all')
+                        : t('paging.page', { page: safeTransactionsPageIndex + 1, pages: transactionsPageCount })}
                     </div>
                     <button
                       type="button"
@@ -1367,7 +1597,7 @@ export default function Home() {
                       onClick={() => setTransactionsPageIndex((p) => Math.min(transactionsPageCount - 1, p + 1))}
                       className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      下一页
+                      {t('paging.next')}
                     </button>
                   </div>
                 </div>
@@ -1375,21 +1605,21 @@ export default function Home() {
 
               <div className="sm:hidden divide-y divide-gray-200 dark:divide-zinc-800">
                 {transactions.length === 0 ? (
-                  <div className="px-6 py-10 text-center text-gray-400">暂无入库记录</div>
+                  <div className="px-6 py-10 text-center text-gray-400">{t('empty.transactions')}</div>
                 ) : filteredTransactions.length === 0 ? (
-                  <div className="px-6 py-10 text-center text-gray-400">没有匹配结果</div>
+                  <div className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</div>
                 ) : (
-                  pagedTransactions.map((t) => (
-                    <div key={t.id} className="p-4">
+                  pagedTransactions.map((tx) => (
+                    <div key={tx.id} className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="text-xs text-gray-500 flex items-center gap-2">
                             <Clock size={14} className="text-gray-400" />
-                            {new Date(t.timestamp).toLocaleString('zh-CN')}
+                            {new Date(tx.timestamp).toLocaleString(locale)}
                           </div>
-                          <div className="mt-1 font-medium text-sm whitespace-normal break-words leading-5">{t.itemName}</div>
+                          <div className="mt-1 font-medium text-sm whitespace-normal break-words leading-5">{tx.itemName}</div>
                         </div>
-                        <div className="shrink-0 text-right font-bold text-blue-600 dark:text-blue-400">+{t.quantity}</div>
+                        <div className="shrink-0 text-right font-bold text-blue-600 dark:text-blue-400">+{tx.quantity}</div>
                       </div>
                     </div>
                   ))
@@ -1400,36 +1630,36 @@ export default function Home() {
                 <table className="w-full text-left">
                   <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-sm">
                     <tr>
-                      <th className="px-6 py-3 font-medium">时间</th>
-                      <th className="px-6 py-3 font-medium">物品</th>
-                      <th className="px-6 py-3 font-medium">操作</th>
-                      <th className="px-6 py-3 font-medium text-right">数量</th>
+                      <th className="px-6 py-3 font-medium">{t('table.time')}</th>
+                      <th className="px-6 py-3 font-medium">{t('table.item')}</th>
+                      <th className="px-6 py-3 font-medium">{t('table.action')}</th>
+                      <th className="px-6 py-3 font-medium text-right">{t('table.quantity')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
                     {transactions.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="px-6 py-10 text-center text-gray-400">暂无入库记录</td>
+                        <td colSpan={4} className="px-6 py-10 text-center text-gray-400">{t('empty.transactions')}</td>
                       </tr>
                     ) : filteredTransactions.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="px-6 py-10 text-center text-gray-400">没有匹配结果</td>
+                        <td colSpan={4} className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</td>
                       </tr>
                     ) : (
-                      pagedTransactions.map((t) => (
-                        <tr key={t.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition-colors">
+                      pagedTransactions.map((tx) => (
+                        <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition-colors">
                           <td className="px-6 py-4 text-sm flex items-center gap-2">
                             <Clock size={14} className="text-gray-400" />
-                            {new Date(t.timestamp).toLocaleString('zh-CN')}
+                            {new Date(tx.timestamp).toLocaleString(locale)}
                           </td>
-                          <td className="px-6 py-4 font-medium">{t.itemName}</td>
+                          <td className="px-6 py-4 font-medium">{tx.itemName}</td>
                           <td className="px-6 py-4">
                             <span className="text-xs font-semibold px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded uppercase">
-                              入库
+                              {t('badge.in')}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right font-bold text-blue-600 dark:text-blue-400">
-                            +{t.quantity}
+                            +{tx.quantity}
                           </td>
                         </tr>
                       ))
