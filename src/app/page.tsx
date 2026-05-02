@@ -365,8 +365,6 @@ export default function Home() {
   const [transactionsPageIndex, setTransactionsPageIndex] = useState(0);
   const [stateUpdatedAt, setStateUpdatedAt] = useState(0);
   const [cloudStatus, setCloudStatus] = useState<'unknown' | 'disabled' | 'ready' | 'error'>('unknown');
-  const [editingItemId, setEditingItemId] = useState<string | null>(null);
-  const [editingQuantity, setEditingQuantity] = useState('');
   const [editingSupplierItemId, setEditingSupplierItemId] = useState<string | null>(null);
   const [editingSupplier, setEditingSupplier] = useState('');
   const skipNextBlurRef = useRef(false);
@@ -609,44 +607,7 @@ export default function Home() {
     }
   };
 
-  const startEditQuantity = (item: InventoryItem) => {
-    setEditingSupplierItemId(null);
-    setEditingSupplier('');
-    setEditingItemId(item.id);
-    setEditingQuantity(String(item.quantity));
-  };
-
-  const cancelEditQuantity = () => {
-    skipNextBlurRef.current = true;
-    setEditingItemId(null);
-    setEditingQuantity('');
-  };
-
-  const saveEditQuantity = (item: InventoryItem) => {
-    const next = parseInt(editingQuantity, 10);
-    if (!Number.isFinite(next) || next < 0) {
-      cancelEditQuantity();
-      return;
-    }
-
-    const timestamp = Date.now();
-    setStateUpdatedAt(timestamp);
-    setInventory((prev) =>
-      prev.map((i) => {
-        if (i.id !== item.id) return i;
-        return {
-          ...i,
-          quantity: next,
-          lastUpdated: timestamp,
-        };
-      })
-    );
-    cancelEditQuantity();
-  };
-
   const startEditSupplier = (item: InventoryItem) => {
-    setEditingItemId(null);
-    setEditingQuantity('');
     setEditingSupplierItemId(item.id);
     setEditingSupplier(item.supplier ?? '');
   };
@@ -1278,38 +1239,9 @@ export default function Home() {
                           <div className="mt-1 text-xs text-gray-500 whitespace-nowrap">{item.itemCode || '-'}</div>
                         </div>
                         <div className="shrink-0">
-                          {editingItemId === item.id ? (
-                            <input
-                              autoFocus
-                              type="number"
-                              min="0"
-                              step="1"
-                              value={editingQuantity}
-                              onChange={(e) => setEditingQuantity(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') saveEditQuantity(item);
-                                if (e.key === 'Escape') cancelEditQuantity();
-                              }}
-                              onBlur={() => {
-                                if (skipNextBlurRef.current) {
-                                  skipNextBlurRef.current = false;
-                                  return;
-                                }
-                                saveEditQuantity(item);
-                              }}
-                              className="w-24 px-2 py-1 rounded border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-right"
-                            />
-                          ) : (
-                            <div
-                              onClick={() => startEditQuantity(item)}
-                              className="inline-flex items-center gap-2 cursor-text select-none"
-                              title={t('hint.editQtyClick')}
-                            >
-                              <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold">
-                                {item.quantity}
-                              </span>
-                            </div>
-                          )}
+                          <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold">
+                            {item.quantity}
+                          </span>
                         </div>
                       </div>
 
@@ -1466,38 +1398,9 @@ export default function Home() {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            {editingItemId === item.id ? (
-                              <input
-                                autoFocus
-                                type="number"
-                                min="0"
-                                step="1"
-                                value={editingQuantity}
-                                onChange={(e) => setEditingQuantity(e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') saveEditQuantity(item);
-                                  if (e.key === 'Escape') cancelEditQuantity();
-                                }}
-                                onBlur={() => {
-                                  if (skipNextBlurRef.current) {
-                                    skipNextBlurRef.current = false;
-                                    return;
-                                  }
-                                  saveEditQuantity(item);
-                                }}
-                                className="w-28 px-2 py-1 rounded border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
-                              />
-                            ) : (
-                              <div
-                                onDoubleClick={() => startEditQuantity(item)}
-                                className="inline-flex items-center gap-2 cursor-text select-none"
-                                title={t('hint.editQtyDbl')}
-                              >
-                                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold">
-                                  {item.quantity}
-                                </span>
-                              </div>
-                            )}
+                            <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold">
+                              {item.quantity}
+                            </span>
                           </td>
                           <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300">
                             {editingSupplierItemId === item.id ? (
