@@ -684,7 +684,7 @@ export default function Home() {
                   />
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
                     <div className="whitespace-nowrap">
-                      显示 {inventoryStart}-{inventoryEnd}/{inventoryTotal}（总 {inventory.length}）
+                      显示 {inventoryStart}-{inventoryEnd} / {inventoryTotal}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <div className="flex items-center gap-2">
@@ -696,7 +696,7 @@ export default function Home() {
                             setInventoryPageIndex(0);
                             setInventoryPageSize(next);
                           }}
-                          className="px-2 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
+                          className="px-2 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
                         >
                           <option value="10">10</option>
                           <option value="20">20</option>
@@ -709,7 +709,7 @@ export default function Home() {
                         type="button"
                         disabled={inventoryPageSize === 0 || safeInventoryPageIndex === 0}
                         onClick={() => setInventoryPageIndex((p) => Math.max(0, p - 1))}
-                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         上一页
                       </button>
@@ -720,7 +720,7 @@ export default function Home() {
                         type="button"
                         disabled={inventoryPageSize === 0 || safeInventoryPageIndex >= inventoryPageCount - 1}
                         onClick={() => setInventoryPageIndex((p) => Math.min(inventoryPageCount - 1, p + 1))}
-                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         下一页
                       </button>
@@ -833,17 +833,17 @@ export default function Home() {
                   <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs">
                     <tr>
                       <th colSpan={6} className="px-4 py-3 font-medium">
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+                        <div className="grid grid-cols-1 md:grid-cols-[minmax(260px,1fr)_auto] items-center gap-2">
                           <input
                             type="text"
                             value={inventorySearch}
                             onChange={(e) => setInventorySearch(e.target.value)}
                             placeholder="关键字搜索：名称 / 编号 / 特征 / 供货商"
-                            className="w-full sm:w-80 max-w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                            className="w-full md:max-w-[420px] px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                           />
-                          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
+                          <div className="flex flex-wrap items-center justify-start md:justify-end gap-2 text-xs text-gray-500">
                             <div className="whitespace-nowrap">
-                              显示 {inventoryStart}-{inventoryEnd}/{inventoryTotal}（总 {inventory.length}）
+                              显示 {inventoryStart}-{inventoryEnd} / {inventoryTotal}
                             </div>
                             <div className="flex flex-wrap items-center gap-2">
                               <div className="flex items-center gap-2">
@@ -855,7 +855,7 @@ export default function Home() {
                                     setInventoryPageIndex(0);
                                     setInventoryPageSize(next);
                                   }}
-                                  className="px-2 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
+                                  className="px-2 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
                                 >
                                   <option value="10">10</option>
                                   <option value="20">20</option>
@@ -868,7 +868,7 @@ export default function Home() {
                                 type="button"
                                 disabled={inventoryPageSize === 0 || safeInventoryPageIndex === 0}
                                 onClick={() => setInventoryPageIndex((p) => Math.max(0, p - 1))}
-                                className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 上一页
                               </button>
@@ -879,7 +879,7 @@ export default function Home() {
                                 type="button"
                                 disabled={inventoryPageSize === 0 || safeInventoryPageIndex >= inventoryPageCount - 1}
                                 onClick={() => setInventoryPageIndex((p) => Math.min(inventoryPageCount - 1, p + 1))}
-                                className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 下一页
                               </button>
@@ -1013,7 +1013,7 @@ export default function Home() {
               <div className="border-b border-gray-200 dark:border-zinc-800 p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="text-sm text-gray-500 whitespace-nowrap">
-                    {transactionsStart}-{transactionsEnd}/{transactionsTotal}
+                    显示 {transactionsStart}-{transactionsEnd} / {transactionsTotal}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="flex items-center gap-2">
@@ -1025,7 +1025,7 @@ export default function Home() {
                           setTransactionsPageIndex(0);
                           setTransactionsPageSize(next);
                         }}
-                        className="px-2 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
+                        className="px-2 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
                       >
                         <option value="10">10</option>
                         <option value="20">20</option>
@@ -1038,7 +1038,7 @@ export default function Home() {
                       type="button"
                       disabled={transactionsPageSize === 0 || safeTransactionsPageIndex === 0}
                       onClick={() => setTransactionsPageIndex((p) => Math.max(0, p - 1))}
-                      className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       上一页
                     </button>
@@ -1049,7 +1049,7 @@ export default function Home() {
                       type="button"
                       disabled={transactionsPageSize === 0 || safeTransactionsPageIndex >= transactionsPageCount - 1}
                       onClick={() => setTransactionsPageIndex((p) => Math.min(transactionsPageCount - 1, p + 1))}
-                      className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       下一页
                     </button>
