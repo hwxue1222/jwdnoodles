@@ -150,6 +150,7 @@ export default function Home() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedItemId, setSelectedItemId] = useState('');
+  const [inventorySearch, setInventorySearch] = useState('');
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingQuantity, setEditingQuantity] = useState('');
   const [editingSupplierItemId, setEditingSupplierItemId] = useState<string | null>(null);
@@ -389,6 +390,20 @@ export default function Home() {
 
   if (!isLoaded) return <div className="p-8 text-center">加载中...</div>;
 
+  const searchTokens = inventorySearch
+    .toLowerCase()
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const filteredInventory =
+    searchTokens.length === 0
+      ? inventory
+      : inventory.filter((item) => {
+          const haystack = `${item.itemCode} ${item.name} ${item.features} ${item.supplier}`.toLowerCase();
+          return searchTokens.every((token) => haystack.includes(token));
+        });
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 p-4 md:p-8 font-sans text-gray-900 dark:text-gray-100">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -554,6 +569,18 @@ export default function Home() {
                   <Package className="text-green-500" size={20} />
                   当前存货清单
                 </h2>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={inventorySearch}
+                    onChange={(e) => setInventorySearch(e.target.value)}
+                    placeholder="搜索：名称 / 编号 / 特征 / 供货商"
+                    className="w-64 max-w-[55vw] px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                  />
+                  <div className="text-xs text-gray-500 whitespace-nowrap">
+                    {filteredInventory.length}/{inventory.length}
+                  </div>
+                </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left table-fixed">
@@ -572,8 +599,12 @@ export default function Home() {
                       <tr>
                         <td colSpan={6} className="px-6 py-10 text-center text-gray-400">暂无库存数据</td>
                       </tr>
+                    ) : filteredInventory.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-10 text-center text-gray-400">没有匹配结果</td>
+                      </tr>
                     ) : (
-                      inventory.map((item) => (
+                      filteredInventory.map((item) => (
                         <tr
                           key={item.id}
                           className="odd:bg-white even:bg-gray-50 hover:bg-gray-100 dark:odd:bg-zinc-900 dark:even:bg-zinc-900/70 dark:hover:bg-zinc-800/40 transition-colors"
