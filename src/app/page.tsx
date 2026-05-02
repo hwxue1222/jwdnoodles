@@ -151,6 +151,10 @@ export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedItemId, setSelectedItemId] = useState('');
   const [inventorySearch, setInventorySearch] = useState('');
+  const [inventoryPageSize, setInventoryPageSize] = useState<number>(20);
+  const [inventoryPageIndex, setInventoryPageIndex] = useState(0);
+  const [transactionsPageSize, setTransactionsPageSize] = useState<number>(20);
+  const [transactionsPageIndex, setTransactionsPageIndex] = useState(0);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingQuantity, setEditingQuantity] = useState('');
   const [editingSupplierItemId, setEditingSupplierItemId] = useState<string | null>(null);
@@ -406,8 +410,6 @@ export default function Home() {
     localStorage.removeItem(LAST_SELECTED_ITEM_ID_KEY);
   };
 
-  if (!isLoaded) return <div className="p-8 text-center">加载中...</div>;
-
   const searchTokens = inventorySearch
     .toLowerCase()
     .trim()
@@ -421,6 +423,64 @@ export default function Home() {
           const haystack = `${item.itemCode} ${item.name} ${item.features} ${item.supplier}`.toLowerCase();
           return searchTokens.every((token) => haystack.includes(token));
         });
+
+  const inventoryTotal = filteredInventory.length;
+  const inventoryPageCount =
+    inventoryPageSize === 0 ? 1 : Math.max(1, Math.ceil(inventoryTotal / inventoryPageSize));
+  const safeInventoryPageIndex = Math.min(inventoryPageIndex, inventoryPageCount - 1);
+  const pagedInventory =
+    inventoryPageSize === 0
+      ? filteredInventory
+      : filteredInventory.slice(
+          safeInventoryPageIndex * inventoryPageSize,
+          safeInventoryPageIndex * inventoryPageSize + inventoryPageSize
+        );
+  const inventoryStart =
+    inventoryTotal === 0 ? 0 : inventoryPageSize === 0 ? 1 : safeInventoryPageIndex * inventoryPageSize + 1;
+  const inventoryEnd =
+    inventoryTotal === 0
+      ? 0
+      : inventoryPageSize === 0
+        ? inventoryTotal
+        : Math.min(inventoryTotal, (safeInventoryPageIndex + 1) * inventoryPageSize);
+
+  const transactionsTotal = transactions.length;
+  const transactionsPageCount =
+    transactionsPageSize === 0 ? 1 : Math.max(1, Math.ceil(transactionsTotal / transactionsPageSize));
+  const safeTransactionsPageIndex = Math.min(transactionsPageIndex, transactionsPageCount - 1);
+  const pagedTransactions =
+    transactionsPageSize === 0
+      ? transactions
+      : transactions.slice(
+          safeTransactionsPageIndex * transactionsPageSize,
+          safeTransactionsPageIndex * transactionsPageSize + transactionsPageSize
+        );
+  const transactionsStart =
+    transactionsTotal === 0
+      ? 0
+      : transactionsPageSize === 0
+        ? 1
+        : safeTransactionsPageIndex * transactionsPageSize + 1;
+  const transactionsEnd =
+    transactionsTotal === 0
+      ? 0
+      : transactionsPageSize === 0
+        ? transactionsTotal
+        : Math.min(transactionsTotal, (safeTransactionsPageIndex + 1) * transactionsPageSize);
+
+  useEffect(() => {
+    setInventoryPageIndex(0);
+  }, [inventorySearch]);
+
+  useEffect(() => {
+    if (inventoryPageIndex > inventoryPageCount - 1) setInventoryPageIndex(inventoryPageCount - 1);
+  }, [inventoryPageCount, inventoryPageIndex]);
+
+  useEffect(() => {
+    if (transactionsPageIndex > transactionsPageCount - 1) setTransactionsPageIndex(transactionsPageCount - 1);
+  }, [transactionsPageCount, transactionsPageIndex]);
+
+  if (!isLoaded) return <div className="p-8 text-center">加载中...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 p-4 md:p-8 font-sans text-gray-900 dark:text-gray-100">
@@ -613,12 +673,167 @@ export default function Home() {
                   当前存货清单
                 </h2>
               </div>
-              <div className="overflow-x-auto">
+              <div className="sm:hidden border-b border-gray-200 dark:border-zinc-800 p-4">
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="text"
+                    value={inventorySearch}
+                    onChange={(e) => setInventorySearch(e.target.value)}
+                    placeholder="关键字搜索：名称 / 编号 / 特征 / 供货商"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  />
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
+                    <div className="whitespace-nowrap">
+                      显示 {inventoryStart}-{inventoryEnd}/{inventoryTotal}（总 {inventory.length}）
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="whitespace-nowrap">每页</span>
+                        <select
+                          value={inventoryPageSize === 0 ? 'all' : String(inventoryPageSize)}
+                          onChange={(e) => {
+                            const next = e.target.value === 'all' ? 0 : parseInt(e.target.value, 10);
+                            setInventoryPageIndex(0);
+                            setInventoryPageSize(next);
+                          }}
+                          className="px-2 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
+                        >
+                          <option value="10">10</option>
+                          <option value="20">20</option>
+                          <option value="30">30</option>
+                          <option value="50">50</option>
+                          <option value="all">全部</option>
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={inventoryPageSize === 0 || safeInventoryPageIndex === 0}
+                        onClick={() => setInventoryPageIndex((p) => Math.max(0, p - 1))}
+                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        上一页
+                      </button>
+                      <div className="whitespace-nowrap">
+                        {inventoryPageSize === 0 ? '全部' : `第 ${safeInventoryPageIndex + 1}/${inventoryPageCount} 页`}
+                      </div>
+                      <button
+                        type="button"
+                        disabled={inventoryPageSize === 0 || safeInventoryPageIndex >= inventoryPageCount - 1}
+                        onClick={() => setInventoryPageIndex((p) => Math.min(inventoryPageCount - 1, p + 1))}
+                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        下一页
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="sm:hidden divide-y divide-gray-200 dark:divide-zinc-800">
+                {inventory.length === 0 ? (
+                  <div className="px-6 py-10 text-center text-gray-400">暂无库存数据</div>
+                ) : filteredInventory.length === 0 ? (
+                  <div className="px-6 py-10 text-center text-gray-400">没有匹配结果</div>
+                ) : (
+                  pagedInventory.map((item) => (
+                    <div key={item.id} className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm whitespace-normal break-words leading-5">{item.name}</div>
+                          <div className="mt-1 text-xs text-gray-500 whitespace-nowrap">{item.itemCode || '-'}</div>
+                        </div>
+                        <div className="shrink-0">
+                          {editingItemId === item.id ? (
+                            <input
+                              autoFocus
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={editingQuantity}
+                              onChange={(e) => setEditingQuantity(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') saveEditQuantity(item);
+                                if (e.key === 'Escape') cancelEditQuantity();
+                              }}
+                              onBlur={() => {
+                                if (skipNextBlurRef.current) {
+                                  skipNextBlurRef.current = false;
+                                  return;
+                                }
+                                saveEditQuantity(item);
+                              }}
+                              className="w-24 px-2 py-1 rounded border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-right"
+                            />
+                          ) : (
+                            <div
+                              onClick={() => startEditQuantity(item)}
+                              className="inline-flex items-center gap-2 cursor-text select-none"
+                              title="点击修改数量"
+                            >
+                              <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold">
+                                {item.quantity}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-gray-600 dark:text-gray-300">
+                        <div>
+                          <div className="text-gray-400 dark:text-gray-500">成本</div>
+                          <div className="mt-1 whitespace-nowrap">
+                            {Number.isFinite(item.cost) ? item.cost.toFixed(2) : '0.00'}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-gray-400 dark:text-gray-500">特征</div>
+                          <div className="mt-1 whitespace-normal break-words leading-5">{item.features || '-'}</div>
+                        </div>
+                        <div className="col-span-2">
+                          <div className="text-gray-400 dark:text-gray-500">供货商</div>
+                          <div className="mt-1">
+                            {editingSupplierItemId === item.id ? (
+                              <input
+                                autoFocus
+                                type="text"
+                                value={editingSupplier}
+                                onChange={(e) => setEditingSupplier(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') saveEditSupplier(item);
+                                  if (e.key === 'Escape') cancelEditSupplier();
+                                }}
+                                onBlur={() => {
+                                  if (skipNextBlurRef.current) {
+                                    skipNextBlurRef.current = false;
+                                    return;
+                                  }
+                                  saveEditSupplier(item);
+                                }}
+                                className="w-full px-2 py-1 rounded border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                              />
+                            ) : (
+                              <div
+                                onClick={() => startEditSupplier(item)}
+                                className="cursor-text select-none whitespace-normal break-words leading-5"
+                                title="点击修改供货商"
+                              >
+                                {item.supplier || '-'}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full text-left table-fixed">
                   <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs">
                     <tr>
                       <th colSpan={6} className="px-4 py-3 font-medium">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
                           <input
                             type="text"
                             value={inventorySearch}
@@ -626,8 +841,49 @@ export default function Home() {
                             placeholder="关键字搜索：名称 / 编号 / 特征 / 供货商"
                             className="w-full sm:w-80 max-w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                           />
-                          <div className="text-xs text-gray-500 whitespace-nowrap">
-                            {filteredInventory.length}/{inventory.length}
+                          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
+                            <div className="whitespace-nowrap">
+                              显示 {inventoryStart}-{inventoryEnd}/{inventoryTotal}（总 {inventory.length}）
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="whitespace-nowrap">每页</span>
+                                <select
+                                  value={inventoryPageSize === 0 ? 'all' : String(inventoryPageSize)}
+                                  onChange={(e) => {
+                                    const next = e.target.value === 'all' ? 0 : parseInt(e.target.value, 10);
+                                    setInventoryPageIndex(0);
+                                    setInventoryPageSize(next);
+                                  }}
+                                  className="px-2 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
+                                >
+                                  <option value="10">10</option>
+                                  <option value="20">20</option>
+                                  <option value="30">30</option>
+                                  <option value="50">50</option>
+                                  <option value="all">全部</option>
+                                </select>
+                              </div>
+                              <button
+                                type="button"
+                                disabled={inventoryPageSize === 0 || safeInventoryPageIndex === 0}
+                                onClick={() => setInventoryPageIndex((p) => Math.max(0, p - 1))}
+                                className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                上一页
+                              </button>
+                              <div className="whitespace-nowrap">
+                                {inventoryPageSize === 0 ? '全部' : `第 ${safeInventoryPageIndex + 1}/${inventoryPageCount} 页`}
+                              </div>
+                              <button
+                                type="button"
+                                disabled={inventoryPageSize === 0 || safeInventoryPageIndex >= inventoryPageCount - 1}
+                                onClick={() => setInventoryPageIndex((p) => Math.min(inventoryPageCount - 1, p + 1))}
+                                className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                下一页
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </th>
@@ -651,7 +907,7 @@ export default function Home() {
                         <td colSpan={6} className="px-6 py-10 text-center text-gray-400">没有匹配结果</td>
                       </tr>
                     ) : (
-                      filteredInventory.map((item) => (
+                      pagedInventory.map((item) => (
                         <tr
                           key={item.id}
                           className="odd:bg-white even:bg-gray-50 hover:bg-gray-100 dark:odd:bg-zinc-900 dark:even:bg-zinc-900/70 dark:hover:bg-zinc-800/40 transition-colors"
@@ -754,7 +1010,75 @@ export default function Home() {
                   入库记录 (时间顺序)
                 </h2>
               </div>
-              <div className="overflow-x-auto">
+              <div className="border-b border-gray-200 dark:border-zinc-800 p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="text-sm text-gray-500 whitespace-nowrap">
+                    {transactionsStart}-{transactionsEnd}/{transactionsTotal}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500 whitespace-nowrap">每页</span>
+                      <select
+                        value={transactionsPageSize === 0 ? 'all' : String(transactionsPageSize)}
+                        onChange={(e) => {
+                          const next = e.target.value === 'all' ? 0 : parseInt(e.target.value, 10);
+                          setTransactionsPageIndex(0);
+                          setTransactionsPageSize(next);
+                        }}
+                        className="px-2 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
+                      >
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+                        <option value="all">全部</option>
+                      </select>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={transactionsPageSize === 0 || safeTransactionsPageIndex === 0}
+                      onClick={() => setTransactionsPageIndex((p) => Math.max(0, p - 1))}
+                      className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      上一页
+                    </button>
+                    <div className="text-sm text-gray-500 whitespace-nowrap">
+                      {transactionsPageSize === 0 ? '全部' : `第 ${safeTransactionsPageIndex + 1}/${transactionsPageCount} 页`}
+                    </div>
+                    <button
+                      type="button"
+                      disabled={transactionsPageSize === 0 || safeTransactionsPageIndex >= transactionsPageCount - 1}
+                      onClick={() => setTransactionsPageIndex((p) => Math.min(transactionsPageCount - 1, p + 1))}
+                      className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      下一页
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="sm:hidden divide-y divide-gray-200 dark:divide-zinc-800">
+                {transactions.length === 0 ? (
+                  <div className="px-6 py-10 text-center text-gray-400">暂无入库记录</div>
+                ) : (
+                  pagedTransactions.map((t) => (
+                    <div key={t.id} className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="text-xs text-gray-500 flex items-center gap-2">
+                            <Clock size={14} className="text-gray-400" />
+                            {new Date(t.timestamp).toLocaleString('zh-CN')}
+                          </div>
+                          <div className="mt-1 font-medium text-sm whitespace-normal break-words leading-5">{t.itemName}</div>
+                        </div>
+                        <div className="shrink-0 text-right font-bold text-blue-600 dark:text-blue-400">+{t.quantity}</div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full text-left">
                   <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-sm">
                     <tr>
@@ -770,7 +1094,7 @@ export default function Home() {
                         <td colSpan={4} className="px-6 py-10 text-center text-gray-400">暂无入库记录</td>
                       </tr>
                     ) : (
-                      transactions.map((t) => (
+                      pagedTransactions.map((t) => (
                         <tr key={t.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition-colors">
                           <td className="px-6 py-4 text-sm flex items-center gap-2">
                             <Clock size={14} className="text-gray-400" />
