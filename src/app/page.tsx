@@ -1594,19 +1594,30 @@ export default function Home() {
                     <div key={tx.id} className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="text-xs text-gray-500 flex items-center gap-2">
+                          <div className="text-xs text-gray-500 flex items-center gap-2 tabular-nums whitespace-nowrap">
                             <Clock size={14} className="text-gray-400" />
                             {new Date(tx.timestamp).toLocaleString(locale)}
                           </div>
                           <div className="mt-1 font-medium text-sm whitespace-normal break-words leading-5">{tx.itemName}</div>
                         </div>
-                        <div
-                          className={`shrink-0 text-right font-bold ${
-                            tx.type === 'OUT' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
-                          }`}
-                        >
-                          {tx.type === 'OUT' ? '-' : '+'}
-                          {tx.quantity}
+                        <div className="shrink-0 flex flex-col items-end gap-1">
+                          {tx.type === 'OUT' ? (
+                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-md text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 whitespace-nowrap">
+                              {t('badge.out')}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 whitespace-nowrap">
+                              {t('badge.in')}
+                            </span>
+                          )}
+                          <div
+                            className={`text-right font-bold tabular-nums ${
+                              tx.type === 'OUT' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
+                            }`}
+                          >
+                            {tx.type === 'OUT' ? '-' : '+'}
+                            {tx.quantity}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1615,13 +1626,13 @@ export default function Home() {
               </div>
 
               <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-sm">
+                <table className="w-full text-left table-fixed">
+                  <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs">
                     <tr>
-                      <th className="px-6 py-3 font-medium">{t('table.time')}</th>
+                      <th className="px-6 py-3 font-medium w-[190px]">{t('table.time')}</th>
                       <th className="px-6 py-3 font-medium">{t('table.item')}</th>
-                      <th className="px-6 py-3 font-medium">{t('table.action')}</th>
-                      <th className="px-6 py-3 font-medium text-right">{t('table.quantity')}</th>
+                      <th className="px-6 py-3 font-medium text-center w-[92px]">{t('table.action')}</th>
+                      <th className="px-6 py-3 font-medium text-right w-[110px]">{t('table.quantity')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
@@ -1636,24 +1647,23 @@ export default function Home() {
                     ) : (
                       pagedTransactions.map((tx) => (
                         <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition-colors">
-                          <td className="px-6 py-4 text-sm flex items-center gap-2">
-                            <Clock size={14} className="text-gray-400" />
+                          <td className="px-6 py-4 text-xs text-gray-600 dark:text-gray-300 tabular-nums whitespace-nowrap">
                             {new Date(tx.timestamp).toLocaleString(locale)}
                           </td>
-                          <td className="px-6 py-4 font-medium">{tx.itemName}</td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-4 font-medium text-sm whitespace-normal break-words leading-5">{tx.itemName}</td>
+                          <td className="px-6 py-4 text-center">
                             {tx.type === 'OUT' ? (
-                              <span className="text-xs font-semibold px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded uppercase">
+                              <span className="inline-flex items-center justify-center min-w-[56px] px-2.5 py-1 rounded-md text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 whitespace-nowrap">
                                 {t('badge.out')}
                               </span>
                             ) : (
-                              <span className="text-xs font-semibold px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded uppercase">
+                              <span className="inline-flex items-center justify-center min-w-[56px] px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 whitespace-nowrap">
                                 {t('badge.in')}
                               </span>
                             )}
                           </td>
                           <td
-                            className={`px-6 py-4 text-right font-bold ${
+                            className={`px-6 py-4 text-right font-bold tabular-nums ${
                               tx.type === 'OUT' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
                             }`}
                           >
