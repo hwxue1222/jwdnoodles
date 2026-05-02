@@ -5,6 +5,7 @@ import { InventoryItem, Transaction } from '@/types';
 import { PlusCircle, History, Package, Clock, Trash2 } from 'lucide-react';
 
 const LAST_SELECTED_ITEM_ID_KEY = 'stock:lastSelectedItemId';
+const STATE_UPDATED_AT_KEY = 'stock:stateUpdatedAt';
 type InitialCatalogItem = Omit<InventoryItem, 'quantity' | 'lastUpdated'> & {
   openingBalance?: number;
 };
@@ -156,11 +157,15 @@ export default function Home() {
   const [inventoryPageIndex, setInventoryPageIndex] = useState(0);
   const [transactionsPageSize, setTransactionsPageSize] = useState<number>(20);
   const [transactionsPageIndex, setTransactionsPageIndex] = useState(0);
+  const [stateUpdatedAt, setStateUpdatedAt] = useState(0);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingQuantity, setEditingQuantity] = useState('');
   const [editingSupplierItemId, setEditingSupplierItemId] = useState<string | null>(null);
   const [editingSupplier, setEditingSupplier] = useState('');
   const skipNextBlurRef = useRef(false);
+  const didInitialCloudSyncRef = useRef(false);
+  const isApplyingRemoteRef = useRef(false);
+  const pushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [newItemCode, setNewItemCode] = useState('');
   const [newItemName, setNewItemName] = useState('');
   const [newItemCost, setNewItemCost] = useState('');
@@ -177,10 +182,43 @@ export default function Home() {
       : (transactions.find((t) => t.type === 'IN' && (t.itemId ? t.itemId === selectedItem.id : t.itemName === selectedItem.name))
           ?.timestamp ?? null);
 
+  const normalizeInventory = (raw: unknown[]): InventoryItem[] => {
+    return raw
+      .map((item) => (typeof item === 'object' && item ? (item as Record<string, unknown>) : null))
+      .filter(Boolean)
+      .map((item) => ({
+        id: String(item!.id ?? ''),
+        itemCode: typeof item!.itemCode === 'string' ? item!.itemCode : '',
+        name: typeof item!.name === 'string' ? item!.name : '',
+        cost: typeof item!.cost === 'number' && Number.isFinite(item!.cost) ? item!.cost : 0,
+        features: typeof item!.features === 'string' ? item!.features : '',
+        supplier: typeof item!.supplier === 'string' ? item!.supplier : '',
+        quantity: typeof item!.quantity === 'number' && Number.isFinite(item!.quantity) ? item!.quantity : 0,
+        lastUpdated: typeof item!.lastUpdated === 'number' && Number.isFinite(item!.lastUpdated) ? item!.lastUpdated : 0,
+      }))
+      .filter((i) => i.id && i.name);
+  };
+
+  const normalizeTransactions = (raw: unknown[]): Transaction[] => {
+    return raw
+      .map((t) => (typeof t === 'object' && t ? (t as Record<string, unknown>) : null))
+      .filter(Boolean)
+      .map((t) => ({
+        id: String(t!.id ?? ''),
+        itemId: typeof t!.itemId === 'string' ? t!.itemId : undefined,
+        itemName: typeof t!.itemName === 'string' ? t!.itemName : '',
+        quantity: typeof t!.quantity === 'number' && Number.isFinite(t!.quantity) ? t!.quantity : 0,
+        timestamp: typeof t!.timestamp === 'number' && Number.isFinite(t!.timestamp) ? t!.timestamp : 0,
+        type: (t!.type === 'OUT' ? 'OUT' : 'IN') as Transaction['type'],
+      }))
+      .filter((t) => t.id && t.itemName && t.quantity > 0 && t.timestamp > 0);
+  };
+
   // Load data from localStorage
   useEffect(() => {
     const savedInventory = localStorage.getItem('inventory');
     const savedTransactions = localStorage.getItem('transactions');
+    const savedStateUpdatedAt = localStorage.getItem(STATE_UPDATED_AT_KEY);
     if (savedInventory) {
       const parsed: InventoryItem[] = JSON.parse(savedInventory);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -225,6 +263,11 @@ export default function Home() {
         );
       }
     }
+
+    if (typeof savedStateUpdatedAt === 'string' && savedStateUpdatedAt.trim()) {
+      const n = Number(savedStateUpdatedAt);
+      if (Number.isFinite(n) && n > 0) setStateUpdatedAt(n);
+    }
     setIsLoaded(true);
   }, []);
 
@@ -233,8 +276,9 @@ export default function Home() {
     if (isLoaded) {
       localStorage.setItem('inventory', JSON.stringify(inventory));
       localStorage.setItem('transactions', JSON.stringify(transactions));
+      localStorage.setItem(STATE_UPDATED_AT_KEY, String(stateUpdatedAt));
     }
-  }, [inventory, transactions, isLoaded]);
+  }, [inventory, transactions, stateUpdatedAt, isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -251,6 +295,7 @@ export default function Home() {
     if (isNaN(quantity) || quantity <= 0) return;
 
     const timestamp = Date.now();
+    setStateUpdatedAt(timestamp);
     const transactionId = Math.random().toString(36).substring(2, 9);
 
     let nextInventory = inventory;
@@ -328,10 +373,12 @@ export default function Home() {
 
   const clearData = () => {
     if (confirm('确定要清除所有数据吗？')) {
+      setStateUpdatedAt(Date.now());
       setInventory([]);
       setTransactions([]);
       localStorage.removeItem('inventory');
       localStorage.removeItem('transactions');
+      localStorage.removeItem(STATE_UPDATED_AT_KEY);
     }
   };
 
@@ -356,6 +403,7 @@ export default function Home() {
     }
 
     const timestamp = Date.now();
+    setStateUpdatedAt(timestamp);
     setInventory((prev) =>
       prev.map((i) => {
         if (i.id !== item.id) return i;
@@ -385,6 +433,7 @@ export default function Home() {
   const saveEditSupplier = (item: InventoryItem) => {
     const next = editingSupplier.trim();
     const timestamp = Date.now();
+    setStateUpdatedAt(timestamp);
     setInventory((prev) =>
       prev.map((i) => {
         if (i.id !== item.id) return i;
@@ -401,6 +450,7 @@ export default function Home() {
   const overwriteInventoryFromCatalog = () => {
     if (!confirm('确定要用清单覆盖当前库存吗？这不会清除入库记录。')) return;
     const now = Date.now();
+    setStateUpdatedAt(now);
     const initialInventory: InventoryItem[] = INITIAL_INVENTORY_ITEMS.map((item) => ({
       ...item,
       quantity: item.openingBalance ?? 0,
@@ -499,6 +549,90 @@ export default function Home() {
   useEffect(() => {
     setTransactionsPageIndex(0);
   }, [transactionsSearch]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (didInitialCloudSyncRef.current) return;
+    didInitialCloudSyncRef.current = true;
+
+    const run = async () => {
+      try {
+        const res = await fetch('/api/stock-state', { method: 'GET', cache: 'no-store' });
+        if (res.status === 501) return;
+        const data = (await res.json()) as { ok: boolean; state: { inventory: unknown[]; transactions: unknown[]; updatedAt: number } | null };
+        if (!data.ok) return;
+        const remote = data.state;
+        if (!remote) {
+          if (stateUpdatedAt > 0) {
+            await fetch('/api/stock-state', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ inventory, transactions, updatedAt: stateUpdatedAt }),
+            });
+          }
+          return;
+        }
+
+        if (typeof remote.updatedAt === 'number' && remote.updatedAt > stateUpdatedAt) {
+          isApplyingRemoteRef.current = true;
+          setInventory(normalizeInventory(remote.inventory));
+          setTransactions(normalizeTransactions(remote.transactions));
+          setStateUpdatedAt(remote.updatedAt);
+          isApplyingRemoteRef.current = false;
+          return;
+        }
+
+        if (typeof remote.updatedAt === 'number' && remote.updatedAt < stateUpdatedAt) {
+          await fetch('/api/stock-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ inventory, transactions, updatedAt: stateUpdatedAt }),
+          });
+        }
+      } catch {
+        return;
+      }
+    };
+
+    void run();
+  }, [isLoaded, stateUpdatedAt, inventory, transactions]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (!didInitialCloudSyncRef.current) return;
+    if (isApplyingRemoteRef.current) return;
+
+    if (pushTimerRef.current) clearTimeout(pushTimerRef.current);
+    pushTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/stock-state', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inventory, transactions, updatedAt: stateUpdatedAt }),
+        });
+        if (res.status === 409) {
+          const data = (await res.json()) as {
+            ok: boolean;
+            state?: { inventory: unknown[]; transactions: unknown[]; updatedAt: number };
+          };
+          const remote = data.state;
+          if (remote && typeof remote.updatedAt === 'number' && remote.updatedAt > stateUpdatedAt) {
+            isApplyingRemoteRef.current = true;
+            setInventory(normalizeInventory(remote.inventory));
+            setTransactions(normalizeTransactions(remote.transactions));
+            setStateUpdatedAt(remote.updatedAt);
+            isApplyingRemoteRef.current = false;
+          }
+        }
+      } catch {
+        return;
+      }
+    }, 800);
+
+    return () => {
+      if (pushTimerRef.current) clearTimeout(pushTimerRef.current);
+    };
+  }, [inventory, transactions, stateUpdatedAt, isLoaded]);
 
   useEffect(() => {
     if (inventoryPageIndex > inventoryPageCount - 1) setInventoryPageIndex(inventoryPageCount - 1);
