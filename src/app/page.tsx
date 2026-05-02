@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { InventoryItem, Transaction } from '@/types';
-import { PlusCircle, History, Package, Clock } from 'lucide-react';
+import { PlusCircle, History, Package, Clock, Download } from 'lucide-react';
 
 const LAST_SELECTED_ITEM_ID_KEY = 'stock:lastSelectedItemId';
 const STATE_UPDATED_AT_KEY = 'stock:stateUpdatedAt';
@@ -23,6 +23,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'app.subtitle': '实时跟踪您的物品出入库与库存状态',
     'button.overwrite': '用清单覆盖库存',
     'button.syncFromCloud': '从云端同步',
+    'button.exportExcel': '导出Excel',
     'button.clearAll': '清除所有数据',
     'confirm.clearAll': '确定要清除所有数据吗？',
     'confirm.overwrite': '确定要用清单覆盖当前库存吗？这不会清除入库记录。',
@@ -93,6 +94,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'app.subtitle': 'Track stock in/out and inventory in real time',
     'button.overwrite': 'Overwrite from catalog',
     'button.syncFromCloud': 'Sync from cloud',
+    'button.exportExcel': 'Export to Excel',
     'button.clearAll': 'Clear all data',
     'confirm.clearAll': 'Are you sure you want to clear all data?',
     'confirm.overwrite': "Overwrite inventory using the catalog? This won't clear stock-in records.",
@@ -163,6 +165,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'app.subtitle': 'Jejaki stok masuk/keluar dan inventori secara masa nyata',
     'button.overwrite': 'Ganti dari katalog',
     'button.syncFromCloud': 'Segerak dari awan',
+    'button.exportExcel': 'Eksport ke Excel',
     'button.clearAll': 'Padam semua data',
     'confirm.clearAll': 'Anda pasti mahu memadam semua data?',
     'confirm.overwrite': 'Ganti inventori menggunakan katalog? Ini tidak akan memadam rekod stok masuk.',
@@ -754,6 +757,35 @@ export default function Home() {
           return searchTokens.every((token) => haystack.includes(token));
         });
 
+  const exportInventoryToCsv = () => {
+    const escapeCell = (value: unknown) => {
+      const raw = value == null ? '' : String(value);
+      if (/[",\n\r]/.test(raw)) return `"${raw.replace(/"/g, '""')}"`;
+      return raw;
+    };
+
+    const rows = filteredInventory.map((item) => [
+      item.name ?? '',
+      item.itemCode ?? '',
+      Number.isFinite(item.cost) ? item.cost.toFixed(2) : '0.00',
+      item.features ?? '',
+      String(item.quantity ?? 0),
+    ]);
+
+    const header = [t('table.name'), t('table.code'), t('table.cost'), t('table.features'), t('table.qty')];
+    const csv = [header, ...rows].map((r) => r.map(escapeCell).join(',')).join('\r\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `stock_inventory_${date}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const inventoryTotal = filteredInventory.length;
   const inventoryPageCount =
     inventoryPageSize === 0 ? 1 : Math.max(1, Math.ceil(inventoryTotal / inventoryPageSize));
@@ -1256,6 +1288,14 @@ export default function Home() {
                   <Package className="text-green-500" size={20} />
                   {t('section.inventory')}
                 </h2>
+                <button
+                  type="button"
+                  onClick={exportInventoryToCsv}
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 dark:text-gray-200 dark:border-zinc-800 dark:hover:bg-zinc-800/40 transition-colors"
+                >
+                  <Download size={16} />
+                  {t('button.exportExcel')}
+                </button>
               </div>
               <div className="sm:hidden border-b border-gray-200 dark:border-zinc-800 p-4">
                 <div className="flex flex-col gap-2">
