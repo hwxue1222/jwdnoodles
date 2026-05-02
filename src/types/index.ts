@@ -1,6 +1,10 @@
 export interface InventoryItem {
   id: string;
+  itemCode: string;
   name: string;
+  cost: number;
+  features: string;
+  supplier: string;
   quantity: number;
   lastUpdated: number;
 }
