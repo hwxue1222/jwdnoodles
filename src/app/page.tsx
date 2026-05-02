@@ -384,7 +384,8 @@ export default function Home() {
 
   const clearData = () => {
     if (confirm('确定要清除所有数据吗？')) {
-      setStateUpdatedAt(Date.now());
+      setStateUpdatedAt(0);
+      setCloudStatus('unknown');
       setInventory([]);
       setTransactions([]);
       localStorage.removeItem('inventory');
@@ -470,6 +471,32 @@ export default function Home() {
     setInventory(initialInventory);
     setSelectedItemId('');
     localStorage.removeItem(LAST_SELECTED_ITEM_ID_KEY);
+  };
+
+  const syncFromCloudNow = async () => {
+    try {
+      const res = await fetch('/api/stock-state', { method: 'GET', cache: 'no-store' });
+      if (res.status === 501) {
+        setCloudStatus('disabled');
+        return;
+      }
+      const data = (await res.json()) as { ok: boolean; state: { inventory: unknown[]; transactions: unknown[]; updatedAt: number } | null };
+      if (!data.ok) {
+        setCloudStatus('error');
+        return;
+      }
+      setCloudStatus('ready');
+      didInitialCloudSyncRef.current = true;
+      const remote = data.state;
+      if (!remote) return;
+      isApplyingRemoteRef.current = true;
+      setInventory(normalizeInventory(remote.inventory));
+      setTransactions(normalizeTransactions(remote.transactions));
+      setStateUpdatedAt(remote.updatedAt);
+      isApplyingRemoteRef.current = false;
+    } catch {
+      setCloudStatus('error');
+    }
   };
 
   const searchTokens = inventorySearch
@@ -773,6 +800,12 @@ export default function Home() {
               className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 dark:text-blue-300 dark:border-blue-900/30 dark:hover:bg-blue-900/20 transition-colors"
             >
               用清单覆盖库存
+            </button>
+            <button
+              onClick={syncFromCloudNow}
+              className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 dark:text-gray-200 dark:border-zinc-800 dark:hover:bg-zinc-800/40 transition-colors"
+            >
+              从云端同步
             </button>
             <button
               onClick={clearData}
