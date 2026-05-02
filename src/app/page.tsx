@@ -569,22 +569,26 @@ export default function Home() {
                   <Package className="text-green-500" size={20} />
                   当前存货清单
                 </h2>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={inventorySearch}
-                    onChange={(e) => setInventorySearch(e.target.value)}
-                    placeholder="搜索：名称 / 编号 / 特征 / 供货商"
-                    className="w-64 max-w-[55vw] px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
-                  />
-                  <div className="text-xs text-gray-500 whitespace-nowrap">
-                    {filteredInventory.length}/{inventory.length}
-                  </div>
-                </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left table-fixed">
                   <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs">
+                    <tr>
+                      <th colSpan={6} className="px-4 py-3 font-medium">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <input
+                            type="text"
+                            value={inventorySearch}
+                            onChange={(e) => setInventorySearch(e.target.value)}
+                            placeholder="关键字搜索：名称 / 编号 / 特征 / 供货商"
+                            className="w-full sm:w-80 max-w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                          />
+                          <div className="text-xs text-gray-500 whitespace-nowrap">
+                            {filteredInventory.length}/{inventory.length}
+                          </div>
+                        </div>
+                      </th>
+                    </tr>
                     <tr>
                       <th className="px-4 py-3 font-medium w-[26%]">物品名称</th>
                       <th className="px-4 py-3 font-medium w-[10%]">物品编号</th>
