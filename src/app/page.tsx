@@ -164,6 +164,13 @@ export default function Home() {
   const [newItemQuantity, setNewItemQuantity] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
   const isCreatingNewItem = selectedItemId === '__new__';
+  const selectedItem =
+    !selectedItemId || selectedItemId === '__new__' ? null : inventory.find((i) => i.id === selectedItemId) ?? null;
+  const lastInTimestamp =
+    !selectedItem
+      ? null
+      : (transactions.find((t) => t.type === 'IN' && (t.itemId ? t.itemId === selectedItem.id : t.itemName === selectedItem.name))
+          ?.timestamp ?? null);
 
   // Load data from localStorage
   useEffect(() => {
@@ -202,7 +209,17 @@ export default function Home() {
       }));
       setInventory(initialInventory);
     }
-    if (savedTransactions) setTransactions(JSON.parse(savedTransactions));
+    if (savedTransactions) {
+      const parsed: Transaction[] = JSON.parse(savedTransactions);
+      if (Array.isArray(parsed)) {
+        setTransactions(
+          parsed.map((t) => ({
+            ...t,
+            itemId: typeof t.itemId === 'string' ? t.itemId : undefined,
+          }))
+        );
+      }
+    }
     setIsLoaded(true);
   }, []);
 
@@ -283,6 +300,7 @@ export default function Home() {
     setTransactions([
       {
         id: transactionId,
+        itemId: createdItemId ?? selectedItemId,
         itemName: itemNameForTransaction,
         quantity,
         timestamp,
@@ -458,6 +476,31 @@ export default function Home() {
                     <option value="__new__">➕ 新增物品…</option>
                   </select>
                 </div>
+
+                {selectedItem && (
+                  <div className="rounded-lg border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/40 px-4 py-3 text-sm">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="min-w-0">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">成本</div>
+                        <div className="font-semibold">{Number.isFinite(selectedItem.cost) ? selectedItem.cost.toFixed(2) : '0.00'}</div>
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">当前数量</div>
+                        <div className="font-semibold">{selectedItem.quantity}</div>
+                      </div>
+                      <div className="col-span-2 min-w-0">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">特征</div>
+                        <div className="break-words leading-5">{selectedItem.features || '-'}</div>
+                      </div>
+                      <div className="col-span-2 min-w-0">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">上次入库时间</div>
+                        <div className="font-medium">
+                          {lastInTimestamp ? new Date(lastInTimestamp).toLocaleString('zh-CN') : '-'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {isCreatingNewItem && (
                   <>

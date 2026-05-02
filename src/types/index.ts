@@ -11,6 +11,7 @@ export interface InventoryItem {
 
 export interface Transaction {
   id: string;
+  itemId?: string;
   itemName: string;
   quantity: number;
   timestamp: number;
