@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { InventoryItem, Transaction } from '@/types';
-import { PlusCircle, History, Package, Clock, Trash2 } from 'lucide-react';
+import { PlusCircle, History, Package, Clock } from 'lucide-react';
 
 const LAST_SELECTED_ITEM_ID_KEY = 'stock:lastSelectedItemId';
 const STATE_UPDATED_AT_KEY = 'stock:stateUpdatedAt';
@@ -987,23 +987,10 @@ export default function Home() {
               <option value="ms">{t('lang.ms')}</option>
             </select>
             <button
-              onClick={overwriteInventoryFromCatalog}
-              className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 dark:text-blue-300 dark:border-blue-900/30 dark:hover:bg-blue-900/20 transition-colors"
-            >
-              {t('button.overwrite')}
-            </button>
-            <button
               onClick={syncFromCloudNow}
               className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 dark:text-gray-200 dark:border-zinc-800 dark:hover:bg-zinc-800/40 transition-colors"
             >
               {t('button.syncFromCloud')}
-            </button>
-            <button
-              onClick={clearData}
-              className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-900/20 transition-colors"
-            >
-              <Trash2 size={16} />
-              {t('button.clearAll')}
             </button>
           </div>
         </header>
