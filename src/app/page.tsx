@@ -151,6 +151,7 @@ export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedItemId, setSelectedItemId] = useState('');
   const [inventorySearch, setInventorySearch] = useState('');
+  const [transactionsSearch, setTransactionsSearch] = useState('');
   const [inventoryPageSize, setInventoryPageSize] = useState<number>(20);
   const [inventoryPageIndex, setInventoryPageIndex] = useState(0);
   const [transactionsPageSize, setTransactionsPageSize] = useState<number>(20);
@@ -444,14 +445,37 @@ export default function Home() {
         ? inventoryTotal
         : Math.min(inventoryTotal, (safeInventoryPageIndex + 1) * inventoryPageSize);
 
-  const transactionsTotal = transactions.length;
+  const transactionsSearchTokens = transactionsSearch
+    .toLowerCase()
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const inventoryLookup = inventory.reduce(
+    (acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    },
+    {} as Record<string, InventoryItem>
+  );
+
+  const filteredTransactions =
+    transactionsSearchTokens.length === 0
+      ? transactions
+      : transactions.filter((t) => {
+          const inv = t.itemId ? inventoryLookup[t.itemId] : undefined;
+          const haystack = `${t.itemName} ${inv?.itemCode ?? ''} ${inv?.features ?? ''} ${inv?.supplier ?? ''}`.toLowerCase();
+          return transactionsSearchTokens.every((token) => haystack.includes(token));
+        });
+
+  const transactionsTotal = filteredTransactions.length;
   const transactionsPageCount =
     transactionsPageSize === 0 ? 1 : Math.max(1, Math.ceil(transactionsTotal / transactionsPageSize));
   const safeTransactionsPageIndex = Math.min(transactionsPageIndex, transactionsPageCount - 1);
   const pagedTransactions =
     transactionsPageSize === 0
-      ? transactions
-      : transactions.slice(
+      ? filteredTransactions
+      : filteredTransactions.slice(
           safeTransactionsPageIndex * transactionsPageSize,
           safeTransactionsPageIndex * transactionsPageSize + transactionsPageSize
         );
@@ -471,6 +495,10 @@ export default function Home() {
   useEffect(() => {
     setInventoryPageIndex(0);
   }, [inventorySearch]);
+
+  useEffect(() => {
+    setTransactionsPageIndex(0);
+  }, [transactionsSearch]);
 
   useEffect(() => {
     if (inventoryPageIndex > inventoryPageCount - 1) setInventoryPageIndex(inventoryPageCount - 1);
@@ -1011,11 +1039,18 @@ export default function Home() {
                 </h2>
               </div>
               <div className="border-b border-gray-200 dark:border-zinc-800 p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div className="text-sm text-gray-500 whitespace-nowrap">
-                    显示 {transactionsStart}-{transactionsEnd} / {transactionsTotal}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-[minmax(260px,1fr)_auto] items-center gap-2">
+                  <input
+                    type="text"
+                    value={transactionsSearch}
+                    onChange={(e) => setTransactionsSearch(e.target.value)}
+                    placeholder="搜索入库记录：物品 / 编号 / 特征 / 供货商"
+                    className="w-full md:max-w-[420px] px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  />
+                  <div className="flex flex-wrap items-center justify-start md:justify-end gap-2">
+                    <div className="text-sm text-gray-500 whitespace-nowrap">
+                      显示 {transactionsStart}-{transactionsEnd} / {transactionsTotal}
+                    </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-500 whitespace-nowrap">每页</span>
                       <select
@@ -1060,6 +1095,8 @@ export default function Home() {
               <div className="sm:hidden divide-y divide-gray-200 dark:divide-zinc-800">
                 {transactions.length === 0 ? (
                   <div className="px-6 py-10 text-center text-gray-400">暂无入库记录</div>
+                ) : filteredTransactions.length === 0 ? (
+                  <div className="px-6 py-10 text-center text-gray-400">没有匹配结果</div>
                 ) : (
                   pagedTransactions.map((t) => (
                     <div key={t.id} className="p-4">
@@ -1092,6 +1129,10 @@ export default function Home() {
                     {transactions.length === 0 ? (
                       <tr>
                         <td colSpan={4} className="px-6 py-10 text-center text-gray-400">暂无入库记录</td>
+                      </tr>
+                    ) : filteredTransactions.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-10 text-center text-gray-400">没有匹配结果</td>
                       </tr>
                     ) : (
                       pagedTransactions.map((t) => (
