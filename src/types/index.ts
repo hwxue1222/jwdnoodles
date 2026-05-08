@@ -9,6 +9,9 @@ export interface InventoryItem {
   lastUpdated: number;
 }
 
+export const STOCK_LOCATIONS = ['Puteri harbour', 'Mutiara Rini'] as const;
+export type StockLocation = (typeof STOCK_LOCATIONS)[number];
+
 export interface Transaction {
   id: string;
   itemId?: string;
@@ -16,4 +19,5 @@ export interface Transaction {
   quantity: number;
   timestamp: number;
   type: 'IN' | 'OUT';
+  location?: StockLocation;
 }

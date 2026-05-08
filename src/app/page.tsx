@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { InventoryItem, Transaction } from '@/types';
+import { InventoryItem, STOCK_LOCATIONS, StockLocation, Transaction } from '@/types';
 import { PlusCircle, History, Package, Clock, Download } from 'lucide-react';
 
 const LAST_SELECTED_ITEM_ID_KEY = 'stock:lastSelectedItemId';
@@ -36,6 +36,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'label.cost': '成本',
     'label.features': '特征',
     'label.supplier': '供货商',
+    'label.location': '地点',
     'label.currentQty': '当前数量',
     'label.lastStockInTime': '上次入库时间',
     'label.lastStockOutTime': '上次出库时间',
@@ -57,7 +58,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'section.inventory': '当前存货清单',
     'section.transactions': '出入库记录 (时间顺序)',
     'search.inventory': '关键字搜索：名称 / 编号 / 特征',
-    'search.transactions': '搜索出入库记录：物品 / 编号 / 特征',
+    'search.transactions': '搜索出入库记录：物品 / 编号 / 特征 / 地点',
     'paging.range': ({ start, end, total }) => `显示 ${start}-${end} / ${total}`,
     'paging.perPage': '每页',
     'paging.all': '全部',
@@ -81,6 +82,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'table.supplier': '供货商',
     'table.time': '时间',
     'table.item': '物品',
+    'table.location': '地点',
     'table.action': '操作',
     'table.quantity': '数量',
     'badge.in': '入库',
@@ -107,6 +109,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'label.cost': 'Cost',
     'label.features': 'Features',
     'label.supplier': 'Supplier',
+    'label.location': 'Location',
     'label.currentQty': 'Current Qty',
     'label.lastStockInTime': 'Last stock-in time',
     'label.lastStockOutTime': 'Last stock-out time',
@@ -128,7 +131,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'section.inventory': 'Inventory List',
     'section.transactions': 'Stock Records (Newest first)',
     'search.inventory': 'Search: name / code / features',
-    'search.transactions': 'Search records: item / code / features',
+    'search.transactions': 'Search records: item / code / features / location',
     'paging.range': ({ start, end, total }) => `Showing ${start}-${end} / ${total}`,
     'paging.perPage': 'Per page',
     'paging.all': 'All',
@@ -152,6 +155,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'table.supplier': 'Supplier',
     'table.time': 'Time',
     'table.item': 'Item',
+    'table.location': 'Location',
     'table.action': 'Action',
     'table.quantity': 'Qty',
     'badge.in': 'IN',
@@ -178,6 +182,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'label.cost': 'Kos',
     'label.features': 'Ciri-ciri',
     'label.supplier': 'Pembekal',
+    'label.location': 'Lokasi',
     'label.currentQty': 'Kuantiti Semasa',
     'label.lastStockInTime': 'Masa stok masuk terakhir',
     'label.lastStockOutTime': 'Masa stok keluar terakhir',
@@ -199,7 +204,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'section.inventory': 'Senarai Inventori',
     'section.transactions': 'Rekod Stok (Terkini dahulu)',
     'search.inventory': 'Cari: nama / kod / ciri',
-    'search.transactions': 'Cari rekod: item / kod / ciri',
+    'search.transactions': 'Cari rekod: item / kod / ciri / lokasi',
     'paging.range': ({ start, end, total }) => `Paparan ${start}-${end} / ${total}`,
     'paging.perPage': 'Setiap',
     'paging.all': 'Semua',
@@ -223,6 +228,7 @@ const I18N: Record<Lang, Record<string, I18nValue>> = {
     'table.supplier': 'Pembekal',
     'table.time': 'Masa',
     'table.item': 'Item',
+    'table.location': 'Lokasi',
     'table.action': 'Tindakan',
     'table.quantity': 'Kuantiti',
     'badge.in': 'MASUK',
@@ -379,6 +385,7 @@ const INITIAL_INVENTORY_ITEMS: InitialCatalogItem[] = [
 export default function Home() {
   const [lang, setLang] = useState<Lang>('zh');
   const [stockMode, setStockMode] = useState<Transaction['type']>('IN');
+  const [stockLocation, setStockLocation] = useState<StockLocation>(STOCK_LOCATIONS[0]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedItemId, setSelectedItemId] = useState('');
@@ -423,6 +430,11 @@ export default function Home() {
   const t = (key: string, params?: I18nParams) => translate(lang, key, params);
   const locale = LOCALE_BY_LANG[lang] ?? 'en-US';
 
+  const normalizeLocation = (value: unknown): Transaction['location'] | undefined => {
+    if (typeof value !== 'string') return undefined;
+    return STOCK_LOCATIONS.includes(value as StockLocation) ? (value as StockLocation) : undefined;
+  };
+
   const normalizeInventory = (raw: unknown[]): InventoryItem[] => {
     return raw
       .map((item) => (typeof item === 'object' && item ? (item as Record<string, unknown>) : null))
@@ -451,6 +463,7 @@ export default function Home() {
         quantity: typeof t!.quantity === 'number' && Number.isFinite(t!.quantity) ? t!.quantity : 0,
         timestamp: typeof t!.timestamp === 'number' && Number.isFinite(t!.timestamp) ? t!.timestamp : 0,
         type: (t!.type === 'OUT' ? 'OUT' : 'IN') as Transaction['type'],
+        location: normalizeLocation(t!.location),
       }))
       .filter((t) => t.id && t.itemName && t.quantity > 0 && t.timestamp > 0);
   };
@@ -512,6 +525,7 @@ export default function Home() {
           parsed.map((t) => ({
             ...t,
             itemId: typeof t.itemId === 'string' ? t.itemId : undefined,
+            location: normalizeLocation((t as unknown as Record<string, unknown>)?.location),
           }))
         );
       }
@@ -583,6 +597,7 @@ export default function Home() {
           quantity,
           timestamp,
           type: 'OUT',
+          location: stockLocation,
         },
         ...transactions,
       ]);
@@ -647,6 +662,7 @@ export default function Home() {
         quantity,
         timestamp,
         type: 'IN',
+        location: stockLocation,
       },
       ...transactions,
     ]);
@@ -825,7 +841,7 @@ export default function Home() {
       ? transactions
       : transactions.filter((t) => {
           const inv = t.itemId ? inventoryLookup[t.itemId] : undefined;
-          const haystack = `${t.itemName} ${inv?.itemCode ?? ''} ${inv?.features ?? ''}`.toLowerCase();
+          const haystack = `${t.itemName} ${inv?.itemCode ?? ''} ${inv?.features ?? ''} ${t.location ?? ''}`.toLowerCase();
           return transactionsSearchTokens.every((token) => haystack.includes(token));
         });
 
@@ -1235,6 +1251,22 @@ export default function Home() {
                 )}
 
                 <div>
+                  <label className="block text-sm font-medium mb-1">{t('label.location')}</label>
+                  <select
+                    value={stockLocation}
+                    onChange={(e) => setStockLocation(e.target.value as StockLocation)}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    required
+                  >
+                    {STOCK_LOCATIONS.map((loc) => (
+                      <option key={loc} value={loc}>
+                        {loc}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium mb-1">
                     {stockMode === 'IN' ? t('label.stockInQty') : t('label.stockOutQty')}
                   </label>
@@ -1639,6 +1671,9 @@ export default function Home() {
                             {new Date(tx.timestamp).toLocaleString(locale)}
                           </div>
                           <div className="mt-1 font-medium text-sm whitespace-normal break-words leading-5">{tx.itemName}</div>
+                          {tx.location ? (
+                            <div className="mt-1 text-xs text-gray-500 whitespace-nowrap">{tx.location}</div>
+                          ) : null}
                         </div>
                         <div className="shrink-0 flex flex-col items-end gap-1">
                           {tx.type === 'OUT' ? (
@@ -1671,6 +1706,7 @@ export default function Home() {
                     <tr>
                       <th className="px-6 py-3 font-medium w-[190px]">{t('table.time')}</th>
                       <th className="px-6 py-3 font-medium">{t('table.item')}</th>
+                      <th className="px-6 py-3 font-medium w-[170px]">{t('table.location')}</th>
                       <th className="px-6 py-3 font-medium text-center w-[92px]">{t('table.action')}</th>
                       <th className="px-6 py-3 font-medium text-right w-[110px]">{t('table.quantity')}</th>
                     </tr>
@@ -1678,11 +1714,11 @@ export default function Home() {
                   <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
                     {transactions.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="px-6 py-10 text-center text-gray-400">{t('empty.transactions')}</td>
+                        <td colSpan={5} className="px-6 py-10 text-center text-gray-400">{t('empty.transactions')}</td>
                       </tr>
                     ) : filteredTransactions.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</td>
+                        <td colSpan={5} className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</td>
                       </tr>
                     ) : (
                       pagedTransactions.map((tx) => (
@@ -1691,6 +1727,9 @@ export default function Home() {
                             {new Date(tx.timestamp).toLocaleString(locale)}
                           </td>
                           <td className="px-6 py-4 font-medium text-sm whitespace-normal break-words leading-5">{tx.itemName}</td>
+                          <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                            {tx.location ?? '-'}
+                          </td>
                           <td className="px-6 py-4 text-center">
                             {tx.type === 'OUT' ? (
                               <span className="inline-flex items-center justify-center min-w-[56px] px-2.5 py-1 rounded-md text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 whitespace-nowrap">
