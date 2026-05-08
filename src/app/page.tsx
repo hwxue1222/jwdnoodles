@@ -385,7 +385,9 @@ const INITIAL_INVENTORY_ITEMS: InitialCatalogItem[] = [
 export default function Home() {
   const [lang, setLang] = useState<Lang>('zh');
   const [stockMode, setStockMode] = useState<Transaction['type']>('IN');
-  const [stockLocation, setStockLocation] = useState<StockLocation>(STOCK_LOCATIONS[0]);
+  const defaultStockLocation = (STOCK_LOCATIONS.find((loc) => loc === 'Puteri harbour') ?? STOCK_LOCATIONS[0]) as StockLocation;
+  const inventoryLocation: StockLocation = 'Puteri harbour';
+  const [stockLocation, setStockLocation] = useState<StockLocation>(defaultStockLocation);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedItemId, setSelectedItemId] = useState('');
@@ -783,12 +785,13 @@ export default function Home() {
     const rows = filteredInventory.map((item) => [
       item.name ?? '',
       item.itemCode ?? '',
+      inventoryLocation,
       Number.isFinite(item.cost) ? item.cost.toFixed(2) : '0.00',
       item.features ?? '',
       String(item.quantity ?? 0),
     ]);
 
-    const header = [t('table.name'), t('table.code'), t('table.cost'), t('table.features'), t('table.qty')];
+    const header = [t('table.name'), t('table.code'), t('table.location'), t('table.cost'), t('table.features'), t('table.qty')];
     const csv = [header, ...rows].map((r) => r.map(escapeCell).join(',')).join('\r\n');
     const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -1447,6 +1450,10 @@ export default function Home() {
                             )}
                           </div>
                         </div>
+                        <div className="col-span-2">
+                          <div className="text-gray-400 dark:text-gray-500">{t('label.location')}</div>
+                          <div className="mt-1 whitespace-nowrap">{inventoryLocation}</div>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -1457,7 +1464,7 @@ export default function Home() {
                 <table className="w-full text-left table-auto">
                   <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs">
                     <tr>
-                      <th colSpan={5} className="px-4 py-3 font-medium">
+                      <th colSpan={6} className="px-4 py-3 font-medium">
                         <div className="grid grid-cols-1 md:grid-cols-[minmax(260px,1fr)_auto] items-center gap-2">
                           <input
                             type="text"
@@ -1518,6 +1525,7 @@ export default function Home() {
                     <tr>
                       <th className="px-4 py-3 font-medium">{t('table.name')}</th>
                       <th className="px-4 py-3 font-medium w-[92px] whitespace-nowrap">{t('table.code')}</th>
+                      <th className="px-4 py-3 font-medium w-[170px] whitespace-nowrap">{t('table.location')}</th>
                       <th className="px-4 py-3 font-medium w-[88px] whitespace-nowrap">{t('table.cost')}</th>
                       <th className="px-4 py-3 font-medium">{t('table.features')}</th>
                       <th className="px-4 py-3 font-medium w-[110px] whitespace-nowrap">{t('table.qty')}</th>
@@ -1526,11 +1534,11 @@ export default function Home() {
                   <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
                     {inventory.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="px-6 py-10 text-center text-gray-400">{t('empty.inventory')}</td>
+                        <td colSpan={6} className="px-6 py-10 text-center text-gray-400">{t('empty.inventory')}</td>
                       </tr>
                     ) : filteredInventory.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</td>
+                        <td colSpan={6} className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</td>
                       </tr>
                     ) : (
                       pagedInventory.map((item) => (
@@ -1545,6 +1553,9 @@ export default function Home() {
                           </td>
                           <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">
                             {item.itemCode || '-'}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                            {inventoryLocation}
                           </td>
                           <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">
                             {Number.isFinite(item.cost) ? item.cost.toFixed(2) : '0.00'}
