@@ -9,7 +9,7 @@ export interface InventoryItem {
   lastUpdated: number;
 }
 
-export const STOCK_LOCATIONS = ['Puteri harbour', 'Mutiara Rini'] as const;
+export const STOCK_LOCATIONS = ['总部', 'Puteri harbour', 'Commune,Kulai', 'Mutiara Rini'] as const;
 export type StockLocation = (typeof STOCK_LOCATIONS)[number];
 
 export interface Transaction {
