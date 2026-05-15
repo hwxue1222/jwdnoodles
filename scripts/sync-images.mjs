@@ -130,6 +130,16 @@ const tasks = [
     to: path.join(publicDir, 'images', 'brand', 'en.png'),
     outMime: 'image/png',
   },
+  {
+    fromBase: 'halal-cert-1',
+    to: path.join(publicDir, 'images', 'halal', 'cert-1.jpg'),
+    outMime: 'image/jpeg',
+  },
+  {
+    fromBase: 'halal-cert-2',
+    to: path.join(publicDir, 'images', 'halal', 'cert-2.jpg'),
+    outMime: 'image/jpeg',
+  },
 ];
 
 if (!(await exists(inputDir))) {
