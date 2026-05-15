@@ -58,8 +58,8 @@ export const SOCIAL_LINKS = {
 } as const;
 
 export const CONTACT = {
-  phone: '+60 12-345 6789',
-  email: 'hello@example.com',
+  phone: '+60 17-812 6685',
+  email: 'jinweide.my@gmail.com',
 } as const;
 
 export const STORES: Store[] = [
