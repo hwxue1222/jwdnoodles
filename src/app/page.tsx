@@ -1,1775 +1,593 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { InventoryItem, STOCK_LOCATIONS, StockLocation, Transaction } from '@/types';
-import { PlusCircle, History, Package, Clock, Download } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { BrandLogo } from '@/components/BrandLogo';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { Lightbox } from '@/components/Lightbox';
+import { SafeImg } from '@/components/SafeImg';
+import { SocialLinks } from '@/components/SocialLinks';
+import { t } from '@/lib/i18n';
+import { useLang } from '@/lib/useLang';
+import { BRAND, CONTACT, MENU, MENU_PAGES, NEWS, STORES, Store } from '@/lib/siteData';
 
-const LAST_SELECTED_ITEM_ID_KEY = 'stock:lastSelectedItemId';
-const STATE_UPDATED_AT_KEY = 'stock:stateUpdatedAt';
-const LANG_STORAGE_KEY = 'stock:lang';
+const RESERVATION_STORE_KEY = 'lanzhou:reservation:storeId';
 
-type Lang = 'zh' | 'en' | 'ms';
-const LOCALE_BY_LANG: Record<Lang, string> = { zh: 'zh-CN', en: 'en-US', ms: 'ms-MY' };
+function mapEmbedUrl(store: Store) {
+  return `https://www.google.com/maps?q=${encodeURIComponent(store.map.placeQuery)}&output=embed`;
+}
 
-type I18nParams = Record<string, string | number>;
-type I18nValue = string | ((params: I18nParams) => string);
+function mapOpenUrl(store: Store) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.map.placeQuery)}`;
+}
 
-const I18N: Record<Lang, Record<string, I18nValue>> = {
-  zh: {
-    'lang.zh': '中文',
-    'lang.en': 'English',
-    'lang.ms': 'Bahasa Melayu',
-    'app.title': '存货管理系统',
-    'app.subtitle': '实时跟踪您的物品出入库与库存状态',
-    'button.overwrite': '用清单覆盖库存',
-    'button.syncFromCloud': '从云端同步',
-    'button.exportExcel': '导出Excel',
-    'button.clearAll': '清除所有数据',
-    'confirm.clearAll': '确定要清除所有数据吗？',
-    'confirm.overwrite': '确定要用清单覆盖当前库存吗？这不会清除入库记录。',
-    'loading': '加载中...',
-    'section.stockIn': '物品入库',
-    'section.stockOut': '物品出库',
-    'label.itemName': '物品名称',
-    'label.itemCode': '物品编号',
-    'label.newItemName': '新物品名称',
-    'label.cost': '成本',
-    'label.features': '特征',
-    'label.supplier': '供货商',
-    'label.location': '地点',
-    'label.currentQty': '当前数量',
-    'label.lastStockInTime': '上次入库时间',
-    'label.lastStockOutTime': '上次出库时间',
-    'label.stockInQty': '入库数量',
-    'label.stockOutQty': '出库数量',
-    'placeholder.selectItem': '请选择物品',
-    'option.addNewItem': '➕ 新增物品…',
-    'placeholder.itemCode': '例如: SKU-001',
-    'placeholder.newItemName': '例如: 苹果, 笔记本',
-    'placeholder.cost': '例如: 12.5',
-    'placeholder.features': '例如: 红色 / 500g / 有机',
-    'placeholder.supplier': '例如: XX供应商',
-    'placeholder.stockInQty': '输入正整数',
-    'button.confirmStockIn': '确认入库',
-    'button.confirmStockOut': '确认出库',
-    'section.overview': '概览',
-    'stat.itemTypes': '物品种类',
-    'stat.totalQty': '总库存量',
-    'section.inventory': '当前存货清单',
-    'section.transactions': '出入库记录 (时间顺序)',
-    'search.inventory': '关键字搜索：名称 / 编号 / 特征',
-    'search.transactions': '搜索出入库记录：物品 / 编号 / 特征 / 地点',
-    'paging.range': ({ start, end, total }) => `显示 ${start}-${end} / ${total}`,
-    'paging.perPage': '每页',
-    'paging.all': '全部',
-    'paging.prev': '上一页',
-    'paging.next': '下一页',
-    'paging.page': ({ page, pages }) => `第 ${page}/${pages} 页`,
-    'empty.inventory': '暂无库存数据',
-    'empty.transactions': '暂无出入库记录',
-    'empty.noMatch': '没有匹配结果',
-    'hint.editQtyClick': '点击修改数量',
-    'hint.editSupplierClick': '点击修改供货商',
-    'hint.editQtyDbl': '双击修改数量',
-    'hint.editSupplierDbl': '双击修改供货商',
-    'hint.editFeaturesClick': '点击修改特征',
-    'hint.editFeaturesDbl': '双击修改特征',
-    'table.name': '物品名称',
-    'table.code': '物品编号',
-    'table.cost': '成本',
-    'table.features': '特征',
-    'table.qty': '当前数量',
-    'table.supplier': '供货商',
-    'table.time': '时间',
-    'table.item': '物品',
-    'table.location': '地点',
-    'table.action': '操作',
-    'table.quantity': '数量',
-    'badge.in': '入库',
-    'badge.out': '出库',
-  },
-  en: {
-    'lang.zh': '中文',
-    'lang.en': 'English',
-    'lang.ms': 'Bahasa Melayu',
-    'app.title': 'Inventory Management',
-    'app.subtitle': 'Track stock in/out and inventory in real time',
-    'button.overwrite': 'Overwrite from catalog',
-    'button.syncFromCloud': 'Sync from cloud',
-    'button.exportExcel': 'Export to Excel',
-    'button.clearAll': 'Clear all data',
-    'confirm.clearAll': 'Are you sure you want to clear all data?',
-    'confirm.overwrite': "Overwrite inventory using the catalog? This won't clear stock-in records.",
-    'loading': 'Loading...',
-    'section.stockIn': 'Stock In',
-    'section.stockOut': 'Stock Out',
-    'label.itemName': 'Item',
-    'label.itemCode': 'Item Code',
-    'label.newItemName': 'New Item Name',
-    'label.cost': 'Cost',
-    'label.features': 'Features',
-    'label.supplier': 'Supplier',
-    'label.location': 'Location',
-    'label.currentQty': 'Current Qty',
-    'label.lastStockInTime': 'Last stock-in time',
-    'label.lastStockOutTime': 'Last stock-out time',
-    'label.stockInQty': 'Stock-in Qty',
-    'label.stockOutQty': 'Stock-out Qty',
-    'placeholder.selectItem': 'Select an item',
-    'option.addNewItem': '➕ Add new item…',
-    'placeholder.itemCode': 'e.g. SKU-001',
-    'placeholder.newItemName': 'e.g. Apple, Notebook',
-    'placeholder.cost': 'e.g. 12.5',
-    'placeholder.features': 'e.g. Red / 500g / Organic',
-    'placeholder.supplier': 'e.g. Supplier A',
-    'placeholder.stockInQty': 'Enter a positive integer',
-    'button.confirmStockIn': 'Confirm stock-in',
-    'button.confirmStockOut': 'Confirm stock-out',
-    'section.overview': 'Overview',
-    'stat.itemTypes': 'Item types',
-    'stat.totalQty': 'Total quantity',
-    'section.inventory': 'Inventory List',
-    'section.transactions': 'Stock Records (Newest first)',
-    'search.inventory': 'Search: name / code / features',
-    'search.transactions': 'Search records: item / code / features / location',
-    'paging.range': ({ start, end, total }) => `Showing ${start}-${end} / ${total}`,
-    'paging.perPage': 'Per page',
-    'paging.all': 'All',
-    'paging.prev': 'Prev',
-    'paging.next': 'Next',
-    'paging.page': ({ page, pages }) => `Page ${page}/${pages}`,
-    'empty.inventory': 'No inventory data',
-    'empty.transactions': 'No stock records',
-    'empty.noMatch': 'No matches',
-    'hint.editQtyClick': 'Click to edit quantity',
-    'hint.editSupplierClick': 'Click to edit supplier',
-    'hint.editQtyDbl': 'Double click to edit quantity',
-    'hint.editSupplierDbl': 'Double click to edit supplier',
-    'hint.editFeaturesClick': 'Click to edit features',
-    'hint.editFeaturesDbl': 'Double click to edit features',
-    'table.name': 'Name',
-    'table.code': 'Code',
-    'table.cost': 'Cost',
-    'table.features': 'Features',
-    'table.qty': 'Quantity',
-    'table.supplier': 'Supplier',
-    'table.time': 'Time',
-    'table.item': 'Item',
-    'table.location': 'Location',
-    'table.action': 'Action',
-    'table.quantity': 'Qty',
-    'badge.in': 'IN',
-    'badge.out': 'OUT',
-  },
-  ms: {
-    'lang.zh': '中文',
-    'lang.en': 'English',
-    'lang.ms': 'Bahasa Melayu',
-    'app.title': 'Pengurusan Inventori',
-    'app.subtitle': 'Jejaki stok masuk/keluar dan inventori secara masa nyata',
-    'button.overwrite': 'Ganti dari katalog',
-    'button.syncFromCloud': 'Segerak dari awan',
-    'button.exportExcel': 'Eksport ke Excel',
-    'button.clearAll': 'Padam semua data',
-    'confirm.clearAll': 'Anda pasti mahu memadam semua data?',
-    'confirm.overwrite': 'Ganti inventori menggunakan katalog? Ini tidak akan memadam rekod stok masuk.',
-    'loading': 'Memuatkan...',
-    'section.stockIn': 'Stok Masuk',
-    'section.stockOut': 'Stok Keluar',
-    'label.itemName': 'Item',
-    'label.itemCode': 'Kod Item',
-    'label.newItemName': 'Nama Item Baharu',
-    'label.cost': 'Kos',
-    'label.features': 'Ciri-ciri',
-    'label.supplier': 'Pembekal',
-    'label.location': 'Lokasi',
-    'label.currentQty': 'Kuantiti Semasa',
-    'label.lastStockInTime': 'Masa stok masuk terakhir',
-    'label.lastStockOutTime': 'Masa stok keluar terakhir',
-    'label.stockInQty': 'Kuantiti stok masuk',
-    'label.stockOutQty': 'Kuantiti stok keluar',
-    'placeholder.selectItem': 'Pilih item',
-    'option.addNewItem': '➕ Tambah item baharu…',
-    'placeholder.itemCode': 'cth. SKU-001',
-    'placeholder.newItemName': 'cth. Epal, Buku nota',
-    'placeholder.cost': 'cth. 12.5',
-    'placeholder.features': 'cth. Merah / 500g / Organik',
-    'placeholder.supplier': 'cth. Pembekal A',
-    'placeholder.stockInQty': 'Masukkan nombor bulat positif',
-    'button.confirmStockIn': 'Sahkan stok masuk',
-    'button.confirmStockOut': 'Sahkan stok keluar',
-    'section.overview': 'Ringkasan',
-    'stat.itemTypes': 'Jenis item',
-    'stat.totalQty': 'Jumlah kuantiti',
-    'section.inventory': 'Senarai Inventori',
-    'section.transactions': 'Rekod Stok (Terkini dahulu)',
-    'search.inventory': 'Cari: nama / kod / ciri',
-    'search.transactions': 'Cari rekod: item / kod / ciri / lokasi',
-    'paging.range': ({ start, end, total }) => `Paparan ${start}-${end} / ${total}`,
-    'paging.perPage': 'Setiap',
-    'paging.all': 'Semua',
-    'paging.prev': 'Sebelumnya',
-    'paging.next': 'Seterusnya',
-    'paging.page': ({ page, pages }) => `Halaman ${page}/${pages}`,
-    'empty.inventory': 'Tiada data inventori',
-    'empty.transactions': 'Tiada rekod stok',
-    'empty.noMatch': 'Tiada padanan',
-    'hint.editQtyClick': 'Klik untuk ubah kuantiti',
-    'hint.editSupplierClick': 'Klik untuk ubah pembekal',
-    'hint.editQtyDbl': 'Klik dua kali untuk ubah kuantiti',
-    'hint.editSupplierDbl': 'Klik dua kali untuk ubah pembekal',
-    'hint.editFeaturesClick': 'Klik untuk ubah ciri',
-    'hint.editFeaturesDbl': 'Klik dua kali untuk ubah ciri',
-    'table.name': 'Nama',
-    'table.code': 'Kod',
-    'table.cost': 'Kos',
-    'table.features': 'Ciri',
-    'table.qty': 'Kuantiti',
-    'table.supplier': 'Pembekal',
-    'table.time': 'Masa',
-    'table.item': 'Item',
-    'table.location': 'Lokasi',
-    'table.action': 'Tindakan',
-    'table.quantity': 'Kuantiti',
-    'badge.in': 'MASUK',
-    'badge.out': 'KELUAR',
-  },
-};
-
-const translate = (lang: Lang, key: string, params?: I18nParams) => {
-  const val = I18N[lang]?.[key] ?? I18N.zh[key] ?? key;
-  if (typeof val === 'function') return val(params ?? {});
-  return val;
-};
-type InitialCatalogItem = Omit<InventoryItem, 'quantity' | 'lastUpdated'> & {
-  openingBalance?: number;
-};
-
-const INITIAL_INVENTORY_ITEMS: InitialCatalogItem[] = [
-  { id: 'CG001', itemCode: 'CG001', name: 'Hairnet (防尘帽)', cost: 0, features: '', supplier: '' },
-  { id: 'CG002', itemCode: 'CG002', name: 'Disposable mask (一次性口罩)', cost: 0, features: '', supplier: '' },
-  { id: 'CG003', itemCode: 'CG003', name: 'Glove (一次性手套)', cost: 0, features: '', supplier: '' },
-  { id: 'CG004', itemCode: 'CG004', name: 'Transparent mask (透明口罩)', cost: 0, features: '', supplier: '' },
-  { id: 'CG005', itemCode: 'CG005', name: 'Punch card (考勤卡)', cost: 0, features: '', supplier: '' },
-  { id: 'CG006', itemCode: 'CG006', name: 'Toothpick (牙签)', cost: 0, features: '', supplier: '' },
-  { id: 'CG007', itemCode: 'CG007', name: 'Printer paper roll (80*60) (后厨打印机纸)', cost: 0, features: '80*60', supplier: '' },
-  { id: 'CG008', itemCode: 'CG008', name: 'POS card machine paper roll (刷卡机打印纸)', cost: 0, features: '', supplier: '' },
-  { id: 'CG009', itemCode: 'CG009', name: 'Napkins (餐巾纸)', cost: 0, features: '', supplier: '' },
-
-  { id: 'DB001', itemCode: 'DB001', name: 'Mineral water (矿泉水)', cost: 0, features: '', supplier: '' },
-  { id: 'DB002', itemCode: 'DB002', name: '100+ (100+)', cost: 0, features: '', supplier: '' },
-  { id: 'DB003', itemCode: 'DB003', name: 'Coca-cola (可乐)', cost: 0, features: '', supplier: '' },
-  { id: 'DB004', itemCode: 'DB004', name: 'Ba bao cha (八宝茶)', cost: 0, features: '', supplier: '' },
-  { id: 'DB005', itemCode: 'DB005', name: 'Condensed milk (炼乳)', cost: 0, features: '', supplier: '' },
-
-  { id: 'GB001', itemCode: 'GB001', name: 'Garbage bag(36*48) (垃圾袋 36*48)', cost: 0, features: '36*48', supplier: '' },
-  { id: 'GB002', itemCode: 'GB002', name: 'Garbage bag (45*50) (垃圾袋 45*50)', cost: 0, features: '45*50', supplier: '' },
-  { id: 'GB003', itemCode: 'GB003', name: 'Garbage bag (90*120) (垃圾袋 90*120)', cost: 0, features: '90*120', supplier: '' },
-  { id: 'GB004', itemCode: 'GB004', name: 'Rubbish bin (240L) (垃圾桶 240L)', cost: 0, features: '240L', supplier: '' },
-
-  { id: 'HS001', itemCode: 'HS001', name: 'Floor cleaner (地板清洁液)', cost: 0, features: '', supplier: '' },
-  { id: 'HS002', itemCode: 'HS002', name: 'Table cleaner (桌椅清洁液)', cost: 0, features: '', supplier: '' },
-  { id: 'HS003', itemCode: 'HS003', name: 'Dish wash liquid (洗碗液)', cost: 0, features: '', supplier: '' },
-
-  { id: 'PB001', itemCode: 'PB001', name: 'Plastic bag (9x12) (塑料袋)', cost: 0, features: '9*12', supplier: '' },
-  { id: 'PB002', itemCode: 'PB002', name: 'Plastic bag (17x20) (塑料袋)', cost: 0, features: '17*20', supplier: '' },
-  { id: 'PB003', itemCode: 'PB003', name: 'Plastic bag (24x28) (塑料袋)', cost: 0, features: '24*28', supplier: '' },
-  { id: 'PB004', itemCode: 'PB004', name: 'Plastic bag (20*32) (塑料袋)', cost: 0, features: '20*32', supplier: '' },
-  { id: 'PB005', itemCode: 'PB005', name: 'Plastic bag (26*42) (塑料袋)', cost: 0, features: '26*42', supplier: '' },
-  { id: 'PB006', itemCode: 'PB006', name: 'Tea bag (10*30) (饮料打包袋)', cost: 0, features: '10*30', supplier: '' },
-  { id: 'PB007', itemCode: 'PB007', name: 'Beef patty paper bag (16*10.50) (牛肉饼纸袋)', cost: 0, features: '16*10.50', supplier: '' },
-
-  { id: 'RG001', itemCode: 'RG001', name: 'Ramen Bowl - 19*9cm (拉面大碗)', cost: 0, features: '陶瓷，口径19cm，高9cm，带标，36个/件', supplier: '' },
-  { id: 'RG002', itemCode: 'RG002', name: 'Small Ramen Bowl- 12*9cm (拉面小碗)', cost: 0, features: '陶瓷，口径12cm，高9cm，带标，36个/件', supplier: '' },
-  { id: 'RG003', itemCode: 'RG003', name: 'Fry noodle plate- 250*25 (炒面盘)', cost: 0, features: '钢化密胺，双色收口，250*25', supplier: '' },
-  { id: 'RG004', itemCode: 'RG004', name: 'Beef Small Plate - 150mm (小牛肉盘)', cost: 0, features: '钢化密胺，直径150mm，带LOGO', supplier: '' },
-  { id: 'RG005', itemCode: 'RG005', name: 'Long-Handled Soup Ladle (长柄汤勺 - 20cm)', cost: 0, features: '20cm', supplier: '' },
-  { id: 'RG006', itemCode: 'RG006', name: 'Long-Handled Bamboo Ladle (长柄竹勺 - 21cm)', cost: 0, features: '21cm', supplier: '' },
-  { id: 'RG007', itemCode: 'RG007', name: 'Blue and White Porcelain Bowl (青花瓷碗（含底座）-35cm)', cost: 0, features: '（装辣椒油/蒜苗/肉丁）直径35cm', supplier: '' },
-  { id: 'RG008', itemCode: 'RG008', name: 'Stainless steel chili oil spoon (不锈钢辣椒油勺)', cost: 0, features: '调辣椒油、凉面调料等', supplier: '' },
-  { id: 'RG009', itemCode: 'RG009', name: 'Chili/Vinegar cruet (辣椒油醋壶)', cost: 0, features: '醋，辣椒，底板，三件套', supplier: '' },
-  { id: 'RG010', itemCode: 'RG010', name: 'Stainless steel soup container(3.5L) (不锈钢汤罐)', cost: 0, features: '不锈钢，带把，容量3.5升', supplier: '' },
-  { id: 'RG011', itemCode: 'RG011', name: 'Chef Uniform (厨师制服)', cost: 0, features: '上衣，围裙，帽子，绣标绣字', supplier: '' },
-  { id: 'RG012', itemCode: 'RG012', name: 'T-shirt Uniform (Short Sleeves) (服务员制服T恤)', cost: 0, features: '黑色T恤+棒球帽', supplier: '' },
-  { id: 'RG013', itemCode: 'RG013', name: 'Promotional Video USB Drive (宣传片U盘)', cost: 0, features: '店内播放宣传片', supplier: '' },
-  { id: 'RG014', itemCode: 'RG014', name: 'Plaque (Etched Plaque) (奖牌（腐蚀牌）)', cost: 0, features: '奖牌', supplier: '' },
-  { id: 'RG015', itemCode: 'RG015', name: 'Chopstick Sterilizer - 240mm (筷子消毒机)', cost: 0, features: '240mm', supplier: '' },
-  { id: 'RG016', itemCode: 'RG016', name: 'Chopsticks - 240mm (筷子)', cost: 0, features: '240mm', supplier: '' },
-  { id: 'RG017', itemCode: 'RG017', name: 'Knife and Fork (刀叉)', cost: 0, features: '', supplier: '' },
-  { id: 'RG018', itemCode: 'RG018', name: 'Potato grater (土豆擦丝器)', cost: 0, features: '', supplier: '' },
-  { id: 'RG019', itemCode: 'RG019', name: 'Strainer (漏勺)', cost: 0, features: '', supplier: '' },
-  { id: 'RG020', itemCode: 'RG020', name: 'Fine-Mesh Strainer - middle size (密漏)', cost: 0, features: '', supplier: '' },
-  { id: 'RG021', itemCode: 'RG021', name: 'Stove Filter - big (灶滤)', cost: 0, features: '', supplier: '' },
-  { id: 'RG022', itemCode: 'RG022', name: 'Kitchen Knife (菜刀)', cost: 0, features: '', supplier: '' },
-  { id: 'RG023', itemCode: 'RG023', name: 'Cleaver (剁刀)', cost: 0, features: '', supplier: '' },
-  { id: 'RG024', itemCode: 'RG024', name: 'Scissors (剪刀)', cost: 0, features: '', supplier: '' },
-  { id: 'RG025', itemCode: 'RG025', name: 'Oil canister (油罐子)', cost: 0, features: '', supplier: '' },
-  { id: 'RG026', itemCode: 'RG026', name: 'Stainless Steel bucket (70cm) (不锈钢桶)', cost: 0, features: '70cm', supplier: '' },
-  { id: 'RG027', itemCode: 'RG027', name: 'Stainless Steel bucket (60cm) (不锈钢桶)', cost: 0, features: '60cm', supplier: '' },
-  { id: 'RG028', itemCode: 'RG028', name: 'Stainless Steel bucket (40cm) (不锈钢桶)', cost: 0, features: '40cm', supplier: '' },
-  { id: 'RG029', itemCode: 'RG029', name: 'Stainless Steel bucket (30L) (不锈钢桶)', cost: 0, features: '30L', supplier: '' },
-  { id: 'RG030', itemCode: 'RG030', name: 'Stainless steel basin- 50cm (不锈钢盆)', cost: 0, features: '50cm', supplier: '' },
-  { id: 'RG031', itemCode: 'RG031', name: 'Storage Container - 44*33*21 (周转箱)', cost: 0, features: '44*33*21', supplier: '' },
-  { id: 'RG032', itemCode: 'RG032', name: 'Long Chopsticks (长筷子)', cost: 0, features: '', supplier: '' },
-  { id: 'RG033', itemCode: 'RG033', name: 'Soup ladle (舀汤勺)', cost: 0, features: '', supplier: '' },
-  { id: 'RG034', itemCode: 'RG034', name: 'Stainless Steel Tray - 60*40 (不锈钢盘)', cost: 0, features: '60*40', supplier: '' },
-  { id: 'RG035', itemCode: 'RG035', name: 'Electronic Scale - 33*32 (电子称)', cost: 0, features: '33*32', supplier: '' },
-  { id: 'RG036', itemCode: 'RG036', name: 'Seasoning pack - 20*25 (调料包)', cost: 0, features: '20*25', supplier: '' },
-  { id: 'RG037', itemCode: 'RG037', name: 'Tray- 35.5*25.5 (托盘)', cost: 0, features: '35.5*25.5', supplier: '' },
-  { id: 'RG038', itemCode: 'RG038', name: 'Plastic wrap- 25*650 (保鲜膜)', cost: 0, features: '25*650', supplier: '' },
-  { id: 'RG039', itemCode: 'RG039', name: 'Dough Scraper- 18.8*14 (刮板)', cost: 0, features: '18.8*14', supplier: '' },
-  { id: 'RG040', itemCode: 'RG040', name: 'Ramen powder dilution bottle- 650ml (拉面剂稀释瓶)', cost: 0, features: '650ml', supplier: '' },
-  { id: 'RG041', itemCode: 'RG041', name: 'Order bell (出菜铃)', cost: 0, features: '', supplier: '' },
-  { id: 'RG042', itemCode: 'RG042', name: 'Place card holder (席位卡夹)', cost: 0, features: '', supplier: '' },
-  { id: 'RG043', itemCode: 'RG043', name: 'Hook (挂钩)', cost: 0, features: '', supplier: '' },
-  { id: 'RG044', itemCode: 'RG044', name: 'Chopstick Holder (筷子笼)', cost: 0, features: '', supplier: '' },
-  { id: 'RG045', itemCode: 'RG045', name: 'Tissue Box (纸巾盒)', cost: 0, features: '', supplier: '' },
-  { id: 'RG046', itemCode: 'RG046', name: "Children's Chair (儿童椅)", cost: 0, features: '', supplier: '' },
-  { id: 'RG047', itemCode: 'RG047', name: 'Takeout Order Clamp - 50cm (外卖夹单器)', cost: 0, features: '50cm', supplier: '' },
-  { id: 'RG048', itemCode: 'RG048', name: 'Skewers (烧烤签)', cost: 0, features: '', supplier: '' },
-  { id: 'RG049', itemCode: 'RG049', name: 'Floor Brush - 24*89 (地刷)', cost: 0, features: '24*89', supplier: '' },
-  { id: 'RG050', itemCode: 'RG050', name: 'Duster cloth (抹布)', cost: 0, features: '', supplier: '' },
-  { id: 'RG051', itemCode: 'RG051', name: 'Pan brush (锅刷)', cost: 0, features: '', supplier: '' },
-  { id: 'RG052', itemCode: 'RG052', name: 'Meat hook (肉勾子)', cost: 0, features: '', supplier: '' },
-  { id: 'RG053', itemCode: 'RG053', name: 'Movable stainless steel pallet (100*60*10) (不锈钢托盘（带轮子）)', cost: 0, features: '100*60*10', supplier: '' },
-  { id: 'RG054', itemCode: 'RG054', name: 'Flavor bag (18*18) (卤味笼)', cost: 0, features: '18*18', supplier: '' },
-  { id: 'RG055', itemCode: 'RG055', name: 'Apron (围裙)', cost: 0, features: '', supplier: '' },
-
-  { id: 'SS001', itemCode: 'SS001', name: 'JWD soup powder (出口调汤料)', cost: 0, features: '', supplier: '金味德' },
-  { id: 'SS002', itemCode: 'SS002', name: 'JWD meat stew powder (出口煮肉料)', cost: 0, features: '', supplier: '金味德' },
-  { id: 'SS003', itemCode: 'SS003', name: 'JWD chilli powder (出口辣椒粉)', cost: 0, features: '', supplier: '金味德' },
-  { id: 'SS004', itemCode: 'SS004', name: 'JWD BBQ chili powder (出口烧烤辣椒面)', cost: 0, features: '', supplier: '金味德' },
-  { id: 'SS005', itemCode: 'SS005', name: 'JWD noodle fry/sauerkraut powder (炒面料/酸菜料)', cost: 0, features: '', supplier: '金味德' },
-  { id: 'SS006', itemCode: 'SS006', name: 'JWD meat grill powder (烤肉料)', cost: 0, features: '', supplier: '金味德' },
-  { id: 'SS007', itemCode: 'SS007', name: 'JWD beef seasoning powder (牛肉馅料)', cost: 0, features: '', supplier: '金味德' },
-  { id: 'SS008', itemCode: 'SS008', name: 'JWD noodle pulling powder (出口拉面剂)', cost: 0, features: '', supplier: '金味德' },
-
-  { id: 'TA001', itemCode: 'TA001', name: 'Aluminum Foil Takeout Thermal Handbag (铝箔外卖保温手提袋+B20)', cost: 0, features: '24*15*24', supplier: '' },
-  { id: 'TA002', itemCode: 'TA002', name: 'Soup bag - 500ml (汤袋)', cost: 0, features: '500mL', supplier: '' },
-  { id: 'TA003', itemCode: 'TA003', name: 'Disposable chopstick (一次性筷子)', cost: 0, features: '', supplier: '' },
-  { id: 'TA004', itemCode: 'TA004', name: 'Disposable spoon (一次性勺子)', cost: 0, features: '', supplier: '' },
-  { id: 'TA005', itemCode: 'TA005', name: 'Disposable fork (一次性叉子)', cost: 0, features: '', supplier: '' },
-  { id: 'TA006', itemCode: 'TA006', name: 'Straw (吸管)', cost: 0, features: '', supplier: '' },
-  { id: 'TA007', itemCode: 'TA007', name: 'Lid (盖子)', cost: 0, features: '', supplier: '' },
-  { id: 'TA008', itemCode: 'TA008', name: 'Take-away cup \"cold\" - 500ml (打包冷饮杯)', cost: 0, features: '500ml', supplier: '' },
-  { id: 'TA009', itemCode: 'TA009', name: 'Take away cup \"hot\" - 400ml (打包热饮杯)', cost: 0, features: '400ml', supplier: '' },
-  { id: 'TA010', itemCode: 'TA010', name: 'Take-away round container 320ml (外卖餐盒（锁扣，防滑盒身）)', cost: 0, features: '320ml，带LOGO', supplier: '' },
-  { id: 'TA011', itemCode: 'TA011', name: 'Take-away round container - 1280ml (外卖餐盒（锁扣）)', cost: 0, features: '1280mL，带LOGO', supplier: '' },
-  { id: 'TA012', itemCode: 'TA012', name: 'Chili oil sauce cup - 35ml (辣椒油酱料杯)', cost: 0, features: '35ml', supplier: '' },
-  { id: 'TA013', itemCode: 'TA013', name: 'Take-away round box - 1000ml (普通打包圆盒)', cost: 0, features: '1000ml', supplier: '' },
-  { id: 'TA014', itemCode: 'TA014', name: 'Take-away rectangle box - 1000 (普通打包方盒)', cost: 0, features: '', supplier: '' },
-
-  { id: 'FA001', itemCode: 'FA001', name: 'Kitchen printer USB+Lan (后厨打印机)', cost: 0, features: 'USB+Lan', supplier: '' },
-  { id: 'FA002', itemCode: 'FA002', name: 'Fry Pan/Wok (炒锅)', cost: 0, features: '', supplier: '' },
-  { id: 'FA003', itemCode: 'FA003', name: 'Induction cooker (电磁炉)', cost: 0, features: '4500w', supplier: '' },
-  { id: 'FA004', itemCode: 'FA004', name: 'Air purifier (空气净化机)', cost: 0, features: '', supplier: '' },
-  { id: 'FA005', itemCode: 'FA005', name: 'Meat grinder (绞肉机)', cost: 0, features: '6000w', supplier: '' },
-  { id: 'FA006', itemCode: 'FA006', name: 'Electric ceramic stove (电陶炉)', cost: 0, features: '', supplier: '' },
-  { id: 'FA007', itemCode: 'FA007', name: 'Dough sheeter machine (压面机)', cost: 0, features: '380V | 1500w', supplier: '' },
-  { id: 'FA008', itemCode: 'FA008', name: 'Commercial Dough Mixer (和面机)', cost: 0, features: '380V | 1500w', supplier: '' },
-  { id: 'FA009', itemCode: 'FA009', name: 'Refrigerated Flat Cabinet (平冷柜)', cost: 0, features: '220V | 1320w', supplier: '' },
-  { id: 'FA010', itemCode: 'FA010', name: 'Commercial freezer (四门冷柜)', cost: 0, features: '280w', supplier: '' },
-  { id: 'FA011', itemCode: 'FA011', name: 'Commercial Electric Griddle (电饼铛)', cost: 0, features: '5500w', supplier: '' },
-  { id: 'FA012', itemCode: 'FA012', name: 'Electric grill for BBQ (电烤炉)', cost: 0, features: '4800w', supplier: '' },
-  { id: 'FA013', itemCode: 'FA013', name: 'Ultrasound washing machine (超声波洗碗机)', cost: 0, features: '1800w', supplier: '' },
-  { id: 'FA014', itemCode: 'FA014', name: 'Slicing machine (切肉机)', cost: 0, features: '550w', supplier: '' },
-  { id: 'FA015', itemCode: 'FA015', name: 'Electric fry stove (电炒炉)', cost: 0, features: '1500w', supplier: '' },
-  { id: 'FA016', itemCode: 'FA016', name: 'Electric Soup boiler (矮汤炉)', cost: 0, features: '8000w', supplier: '' },
-  { id: 'FA017', itemCode: 'FA017', name: 'Electric Soup stove (商用汤锅)', cost: 0, features: '1500w', supplier: '' },
-  { id: 'FA018', itemCode: 'FA018', name: 'Commercial Food Warmer (保脆展示柜)', cost: 0, features: '600w', supplier: '' },
-  { id: 'FA019', itemCode: 'FA019', name: 'Chest freezer (冰柜)', cost: 0, features: '300w', supplier: '' },
-  { id: 'FA020', itemCode: 'FA020', name: 'Chiller (保鲜柜)', cost: 0, features: '500w', supplier: '' },
-  { id: 'FA021', itemCode: 'FA021', name: 'Coway water dispenser (饮水机)', cost: 0, features: '600w', supplier: '' },
-];
+function Section({
+  id,
+  title,
+  subtitle,
+  children,
+}: {
+  id: string;
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} className="scroll-mt-24">
+      <div className="max-w-6xl mx-auto px-4 md:px-8">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#274126]">{title}</h2>
+            {subtitle ? <p className="mt-2 text-[#486449]">{subtitle}</p> : null}
+          </div>
+        </div>
+        <div className="mt-6">{children}</div>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
-  const [lang, setLang] = useState<Lang>('zh');
-  const [stockMode, setStockMode] = useState<Transaction['type']>('IN');
-  const defaultStockLocation = (STOCK_LOCATIONS.find((loc) => loc === 'Puteri harbour') ?? STOCK_LOCATIONS[0]) as StockLocation;
-  const inventoryLocation: StockLocation = 'Puteri harbour';
-  const [stockLocation, setStockLocation] = useState<StockLocation>(defaultStockLocation);
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [selectedItemId, setSelectedItemId] = useState('');
-  const [inventorySearch, setInventorySearch] = useState('');
-  const [transactionsSearch, setTransactionsSearch] = useState('');
-  const [inventoryPageSize, setInventoryPageSize] = useState<number>(20);
-  const [inventoryPageIndex, setInventoryPageIndex] = useState(0);
-  const [transactionsPageSize, setTransactionsPageSize] = useState<number>(20);
-  const [transactionsPageIndex, setTransactionsPageIndex] = useState(0);
-  const [stateUpdatedAt, setStateUpdatedAt] = useState(0);
-  const [cloudStatus, setCloudStatus] = useState<'unknown' | 'disabled' | 'ready' | 'error'>('unknown');
-  const [editingFeaturesItemId, setEditingFeaturesItemId] = useState<string | null>(null);
-  const [editingFeatures, setEditingFeatures] = useState('');
-  const skipNextBlurRef = useRef(false);
-  const didInitialCloudSyncRef = useRef(false);
-  const isApplyingRemoteRef = useRef(false);
-  const pushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cloudSyncInFlightRef = useRef(false);
-  const inventoryRef = useRef<InventoryItem[]>([]);
-  const transactionsRef = useRef<Transaction[]>([]);
-  const stateUpdatedAtRef = useRef(0);
-  const [newItemCode, setNewItemCode] = useState('');
-  const [newItemName, setNewItemName] = useState('');
-  const [newItemCost, setNewItemCost] = useState('');
-  const [newItemFeatures, setNewItemFeatures] = useState('');
-  const [newItemSupplier, setNewItemSupplier] = useState('');
-  const [newItemQuantity, setNewItemQuantity] = useState('');
-  const [isLoaded, setIsLoaded] = useState(false);
-  const isCreatingNewItem = selectedItemId === '__new__';
-  const selectedItem =
-    !selectedItemId || selectedItemId === '__new__' ? null : inventory.find((i) => i.id === selectedItemId) ?? null;
-  const lastInTimestamp =
-    !selectedItem
-      ? null
-      : (transactions.find((t) => t.type === 'IN' && (t.itemId ? t.itemId === selectedItem.id : t.itemName === selectedItem.name))
-          ?.timestamp ?? null);
-  const lastOutTimestamp =
-    !selectedItem
-      ? null
-      : (transactions.find((t) => t.type === 'OUT' && (t.itemId ? t.itemId === selectedItem.id : t.itemName === selectedItem.name))
-          ?.timestamp ?? null);
-  const t = (key: string, params?: I18nParams) => translate(lang, key, params);
-  const locale = LOCALE_BY_LANG[lang] ?? 'en-US';
+  const { lang, setLang, ready } = useLang();
+  const tt = (key: string, params?: Record<string, string | number>) => t(lang, key, params);
 
-  const normalizeLocation = (value: unknown): Transaction['location'] | undefined => {
-    if (typeof value !== 'string') return undefined;
-    return STOCK_LOCATIONS.includes(value as StockLocation) ? (value as StockLocation) : undefined;
-  };
+  const [lightbox, setLightbox] = useState<{ open: boolean; src?: string; alt: string }>({ open: false, alt: '' });
 
-  const normalizeInventory = (raw: unknown[]): InventoryItem[] => {
-    return raw
-      .map((item) => (typeof item === 'object' && item ? (item as Record<string, unknown>) : null))
-      .filter(Boolean)
-      .map((item) => ({
-        id: String(item!.id ?? ''),
-        itemCode: typeof item!.itemCode === 'string' ? item!.itemCode : '',
-        name: typeof item!.name === 'string' ? item!.name : '',
-        cost: typeof item!.cost === 'number' && Number.isFinite(item!.cost) ? item!.cost : 0,
-        features: typeof item!.features === 'string' ? item!.features : '',
-        supplier: typeof item!.supplier === 'string' ? item!.supplier : '',
-        quantity: typeof item!.quantity === 'number' && Number.isFinite(item!.quantity) ? item!.quantity : 0,
-        lastUpdated: typeof item!.lastUpdated === 'number' && Number.isFinite(item!.lastUpdated) ? item!.lastUpdated : 0,
-      }))
-      .filter((i) => i.id && i.name);
-  };
+  const openLightbox = (src: string | undefined, alt: string) => setLightbox({ open: true, src, alt });
+  const closeLightbox = () => setLightbox((s) => ({ ...s, open: false }));
 
-  const normalizeTransactions = (raw: unknown[]): Transaction[] => {
-    return raw
-      .map((t) => (typeof t === 'object' && t ? (t as Record<string, unknown>) : null))
-      .filter(Boolean)
-      .map((t) => ({
-        id: String(t!.id ?? ''),
-        itemId: typeof t!.itemId === 'string' ? t!.itemId : undefined,
-        itemName: typeof t!.itemName === 'string' ? t!.itemName : '',
-        quantity: typeof t!.quantity === 'number' && Number.isFinite(t!.quantity) ? t!.quantity : 0,
-        timestamp: typeof t!.timestamp === 'number' && Number.isFinite(t!.timestamp) ? t!.timestamp : 0,
-        type: (t!.type === 'OUT' ? 'OUT' : 'IN') as Transaction['type'],
-        location: normalizeLocation(t!.location),
-      }))
-      .filter((t) => t.id && t.itemName && t.quantity > 0 && t.timestamp > 0);
-  };
+  const reservableStores = STORES.filter((s) => s.acceptsReservation);
+  const defaultStoreId = reservableStores[0]?.id ?? '';
+  const [reservationStoreId, setReservationStoreId] = useState(defaultStoreId);
+  const [reservationName, setReservationName] = useState('');
+  const [reservationPhone, setReservationPhone] = useState('');
+  const [reservationDate, setReservationDate] = useState('');
+  const [reservationTime, setReservationTime] = useState('');
+  const [reservationPax, setReservationPax] = useState('2');
+  const [reservationNote, setReservationNote] = useState('');
 
   useEffect(() => {
-    inventoryRef.current = inventory;
-    transactionsRef.current = transactions;
-    stateUpdatedAtRef.current = stateUpdatedAt;
-  }, [inventory, transactions, stateUpdatedAt]);
-
-  // Load data from localStorage
-  useEffect(() => {
-    const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
-    const browserLang = (typeof navigator !== 'undefined' ? navigator.language : '').toLowerCase();
-    const detected: Lang = browserLang.startsWith('zh') ? 'zh' : browserLang.startsWith('ms') ? 'ms' : 'en';
-    const nextLang: Lang = savedLang === 'zh' || savedLang === 'en' || savedLang === 'ms' ? savedLang : detected;
-    setLang(nextLang);
-
-    const savedInventory = localStorage.getItem('inventory');
-    const savedTransactions = localStorage.getItem('transactions');
-    const savedStateUpdatedAt = localStorage.getItem(STATE_UPDATED_AT_KEY);
-    if (savedInventory) {
-      const parsed: InventoryItem[] = JSON.parse(savedInventory);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const lastSelectedItemId = localStorage.getItem(LAST_SELECTED_ITEM_ID_KEY) ?? '';
-        const normalized = parsed.map((item) => ({
-          ...item,
-          itemCode: item.itemCode ?? '',
-          cost: item.cost ?? 0,
-          features: item.features ?? '',
-          supplier: item.supplier ?? '',
-        }));
-        setInventory(normalized);
-        if (lastSelectedItemId && normalized.some((i) => i.id === lastSelectedItemId)) {
-          setSelectedItemId(lastSelectedItemId);
-        }
-      } else {
-        const now = Date.now();
-        const initialInventory: InventoryItem[] = INITIAL_INVENTORY_ITEMS.map((item) => ({
-          ...item,
-          quantity: item.openingBalance ?? 0,
-          lastUpdated: now,
-        }));
-        setInventory(initialInventory);
-      }
-    } else {
-      const now = Date.now();
-      const initialInventory: InventoryItem[] = INITIAL_INVENTORY_ITEMS.map((item) => ({
-        ...item,
-        quantity: item.openingBalance ?? 0,
-        lastUpdated: now,
-      }));
-      setInventory(initialInventory);
-    }
-    if (savedTransactions) {
-      const parsed: Transaction[] = JSON.parse(savedTransactions);
-      if (Array.isArray(parsed)) {
-        setTransactions(
-          parsed.map((t) => ({
-            ...t,
-            itemId: typeof t.itemId === 'string' ? t.itemId : undefined,
-            location: normalizeLocation((t as unknown as Record<string, unknown>)?.location),
-          }))
-        );
-      }
-    }
-
-    if (typeof savedStateUpdatedAt === 'string' && savedStateUpdatedAt.trim()) {
-      const n = Number(savedStateUpdatedAt);
-      if (Number.isFinite(n) && n > 0) setStateUpdatedAt(n);
-    }
-    setIsLoaded(true);
-  }, []);
-
-  // Save data to localStorage
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem(LANG_STORAGE_KEY, lang);
-      localStorage.setItem('inventory', JSON.stringify(inventory));
-      localStorage.setItem('transactions', JSON.stringify(transactions));
-      localStorage.setItem(STATE_UPDATED_AT_KEY, String(stateUpdatedAt));
-    }
-  }, [lang, inventory, transactions, stateUpdatedAt, isLoaded]);
+    if (!ready) return;
+    const saved = localStorage.getItem(RESERVATION_STORE_KEY);
+    const next = reservableStores.some((s) => s.id === saved) ? (saved as string) : defaultStoreId;
+    setReservationStoreId(next);
+  }, [ready, defaultStoreId, reservableStores]);
 
   useEffect(() => {
-    if (!isLoaded) return;
-    if (!selectedItemId) return;
-    if (selectedItemId === '__new__') return;
-    localStorage.setItem(LAST_SELECTED_ITEM_ID_KEY, selectedItemId);
-  }, [selectedItemId, isLoaded]);
+    if (!ready) return;
+    if (!reservationStoreId) return;
+    localStorage.setItem(RESERVATION_STORE_KEY, reservationStoreId);
+  }, [reservationStoreId, ready]);
 
-  useEffect(() => {
-    if (stockMode === 'OUT' && selectedItemId === '__new__') {
-      setSelectedItemId('');
-    }
-  }, [stockMode, selectedItemId]);
+  const reservationStore = reservableStores.find((s) => s.id === reservationStoreId) ?? reservableStores[0];
 
-  const handleStockSubmit = (e: React.FormEvent) => {
+  const onSubmitReservation = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedItemId || !newItemQuantity) return;
+    if (!reservationStore) return;
 
-    const quantity = parseInt(newItemQuantity);
-    if (isNaN(quantity) || quantity <= 0) return;
+    const parts = [
+      `${BRAND.chineseName} / ${BRAND.name}`,
+      `${tt('reservation.store')}: ${reservationStore.name[lang]}`,
+      `${tt('reservation.name')}: ${reservationName}`,
+      `${tt('reservation.phone')}: ${reservationPhone}`,
+      `${tt('reservation.date')}: ${reservationDate || '-'}`,
+      `${tt('reservation.time')}: ${reservationTime || '-'}`,
+      `${tt('reservation.pax')}: ${reservationPax}`,
+      reservationNote.trim() ? `${tt('reservation.note')}: ${reservationNote.trim()}` : null,
+    ].filter(Boolean);
 
-    const timestamp = Date.now();
-    setStateUpdatedAt(timestamp);
-    const transactionId = Math.random().toString(36).substring(2, 9);
-
-    if (stockMode === 'OUT') {
-      if (selectedItemId === '__new__') return;
-      const existingItemIndex = inventory.findIndex((item) => item.id === selectedItemId);
-      if (existingItemIndex === -1) return;
-      const target = inventory[existingItemIndex];
-      if (quantity > target.quantity) return;
-
-      setInventory(
-        inventory.map((item) => {
-          if (item.id !== selectedItemId) return item;
-          return {
-            ...item,
-            quantity: Math.max(0, item.quantity - quantity),
-            lastUpdated: timestamp,
-          };
-        })
-      );
-      setTransactions([
-        {
-          id: transactionId,
-          itemId: selectedItemId,
-          itemName: target.name,
-          quantity,
-          timestamp,
-          type: 'OUT',
-          location: stockLocation,
-        },
-        ...transactions,
-      ]);
-      setNewItemQuantity('');
-      return;
-    }
-
-    let nextInventory = inventory;
-    let itemNameForTransaction = '';
-    let createdItemId: string | null = null;
-
-    if (isCreatingNewItem) {
-      const trimmedCode = newItemCode.trim();
-      const trimmedName = newItemName.trim();
-      const trimmedFeatures = newItemFeatures.trim();
-      const trimmedSupplier = newItemSupplier.trim();
-      const cost = Number(newItemCost);
-
-      if (!trimmedCode || !trimmedName || !trimmedFeatures) return;
-      if (!Number.isFinite(cost) || cost < 0) return;
-      if (inventory.some((i) => i.name === trimmedName)) return;
-      if (inventory.some((i) => i.itemCode === trimmedCode)) return;
-
-      const newItemId = Math.random().toString(36).substring(2, 9);
-      const newItem: InventoryItem = {
-        id: newItemId,
-        itemCode: trimmedCode,
-        name: trimmedName,
-        cost,
-        features: trimmedFeatures,
-        supplier: trimmedSupplier,
-        quantity,
-        lastUpdated: timestamp,
-      };
-
-      nextInventory = [...inventory, newItem];
-      itemNameForTransaction = newItem.name;
-      createdItemId = newItemId;
-    } else {
-      const existingItemIndex = inventory.findIndex((item) => item.id === selectedItemId);
-      if (existingItemIndex === -1) return;
-
-      const target = inventory[existingItemIndex];
-      itemNameForTransaction = target.name;
-
-      nextInventory = inventory.map((item) => {
-        if (item.id !== selectedItemId) return item;
-        return {
-          ...item,
-          quantity: item.quantity + quantity,
-          lastUpdated: timestamp,
-        };
-      });
-    }
-
-    setInventory(nextInventory);
-    setTransactions([
-      {
-        id: transactionId,
-        itemId: createdItemId ?? selectedItemId,
-        itemName: itemNameForTransaction,
-        quantity,
-        timestamp,
-        type: 'IN',
-        location: stockLocation,
-      },
-      ...transactions,
-    ]);
-
-    if (createdItemId) {
-      setSelectedItemId(createdItemId);
-    }
-
-    setNewItemCode('');
-    setNewItemName('');
-    setNewItemCost('');
-    setNewItemFeatures('');
-    setNewItemSupplier('');
-    setNewItemQuantity('');
+    const msg = parts.join('\n');
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(whatsappUrl, '_blank', 'noreferrer');
   };
-
-  const clearData = () => {
-    if (confirm(t('confirm.clearAll'))) {
-      setStateUpdatedAt(0);
-      setCloudStatus('unknown');
-      setInventory([]);
-      setTransactions([]);
-      localStorage.removeItem('inventory');
-      localStorage.removeItem('transactions');
-      localStorage.removeItem(STATE_UPDATED_AT_KEY);
-    }
-  };
-
-  const startEditFeatures = (item: InventoryItem) => {
-    setEditingFeaturesItemId(item.id);
-    setEditingFeatures(item.features ?? '');
-  };
-
-  const cancelEditFeatures = () => {
-    skipNextBlurRef.current = true;
-    setEditingFeaturesItemId(null);
-    setEditingFeatures('');
-  };
-
-  const saveEditFeatures = (item: InventoryItem) => {
-    const next = editingFeatures.trim();
-    const timestamp = Date.now();
-    setStateUpdatedAt(timestamp);
-    setInventory((prev) =>
-      prev.map((i) => {
-        if (i.id !== item.id) return i;
-        return {
-          ...i,
-          features: next,
-          lastUpdated: timestamp,
-        };
-      })
-    );
-    cancelEditFeatures();
-  };
-
-  const overwriteInventoryFromCatalog = () => {
-    if (!confirm(t('confirm.overwrite'))) return;
-    const now = Date.now();
-    setStateUpdatedAt(now);
-    const initialInventory: InventoryItem[] = INITIAL_INVENTORY_ITEMS.map((item) => ({
-      ...item,
-      quantity: item.openingBalance ?? 0,
-      lastUpdated: now,
-    }));
-    setInventory(initialInventory);
-    setSelectedItemId('');
-    localStorage.removeItem(LAST_SELECTED_ITEM_ID_KEY);
-  };
-
-  const syncFromCloudNow = async () => {
-    try {
-      const res = await fetch('/api/stock-state', { method: 'GET', cache: 'no-store' });
-      if (res.status === 501) {
-        setCloudStatus('disabled');
-        return;
-      }
-      const data = (await res.json()) as { ok: boolean; state: { inventory: unknown[]; transactions: unknown[]; updatedAt: number } | null };
-      if (!data.ok) {
-        setCloudStatus('error');
-        return;
-      }
-      setCloudStatus('ready');
-      didInitialCloudSyncRef.current = true;
-      const remote = data.state;
-      if (!remote) return;
-      isApplyingRemoteRef.current = true;
-      setInventory(normalizeInventory(remote.inventory));
-      setTransactions(normalizeTransactions(remote.transactions));
-      setStateUpdatedAt(remote.updatedAt);
-      isApplyingRemoteRef.current = false;
-    } catch {
-      setCloudStatus('error');
-    }
-  };
-
-  const searchTokens = inventorySearch
-    .toLowerCase()
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-
-  const filteredInventory =
-    searchTokens.length === 0
-      ? inventory
-      : inventory.filter((item) => {
-          const haystack = `${item.itemCode} ${item.name} ${item.features}`.toLowerCase();
-          return searchTokens.every((token) => haystack.includes(token));
-        });
-
-  const exportInventoryToCsv = () => {
-    const escapeCell = (value: unknown) => {
-      const raw = value == null ? '' : String(value);
-      if (/[",\n\r]/.test(raw)) return `"${raw.replace(/"/g, '""')}"`;
-      return raw;
-    };
-
-    const rows = filteredInventory.map((item) => [
-      item.name ?? '',
-      item.itemCode ?? '',
-      inventoryLocation,
-      Number.isFinite(item.cost) ? item.cost.toFixed(2) : '0.00',
-      item.features ?? '',
-      String(item.quantity ?? 0),
-    ]);
-
-    const header = [t('table.name'), t('table.code'), t('table.location'), t('table.cost'), t('table.features'), t('table.qty')];
-    const csv = [header, ...rows].map((r) => r.map(escapeCell).join(',')).join('\r\n');
-    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const date = new Date().toISOString().slice(0, 10);
-    a.href = url;
-    a.download = `stock_inventory_${date}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
-
-  const inventoryTotal = filteredInventory.length;
-  const inventoryPageCount =
-    inventoryPageSize === 0 ? 1 : Math.max(1, Math.ceil(inventoryTotal / inventoryPageSize));
-  const safeInventoryPageIndex = Math.min(inventoryPageIndex, inventoryPageCount - 1);
-  const pagedInventory =
-    inventoryPageSize === 0
-      ? filteredInventory
-      : filteredInventory.slice(
-          safeInventoryPageIndex * inventoryPageSize,
-          safeInventoryPageIndex * inventoryPageSize + inventoryPageSize
-        );
-  const inventoryStart =
-    inventoryTotal === 0 ? 0 : inventoryPageSize === 0 ? 1 : safeInventoryPageIndex * inventoryPageSize + 1;
-  const inventoryEnd =
-    inventoryTotal === 0
-      ? 0
-      : inventoryPageSize === 0
-        ? inventoryTotal
-        : Math.min(inventoryTotal, (safeInventoryPageIndex + 1) * inventoryPageSize);
-
-  const transactionsSearchTokens = transactionsSearch
-    .toLowerCase()
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-
-  const inventoryLookup = inventory.reduce(
-    (acc, item) => {
-      acc[item.id] = item;
-      return acc;
-    },
-    {} as Record<string, InventoryItem>
-  );
-
-  const filteredTransactions =
-    transactionsSearchTokens.length === 0
-      ? transactions
-      : transactions.filter((t) => {
-          const inv = t.itemId ? inventoryLookup[t.itemId] : undefined;
-          const haystack = `${t.itemName} ${inv?.itemCode ?? ''} ${inv?.features ?? ''} ${t.location ?? ''}`.toLowerCase();
-          return transactionsSearchTokens.every((token) => haystack.includes(token));
-        });
-
-  const transactionsTotal = filteredTransactions.length;
-  const transactionsPageCount =
-    transactionsPageSize === 0 ? 1 : Math.max(1, Math.ceil(transactionsTotal / transactionsPageSize));
-  const safeTransactionsPageIndex = Math.min(transactionsPageIndex, transactionsPageCount - 1);
-  const pagedTransactions =
-    transactionsPageSize === 0
-      ? filteredTransactions
-      : filteredTransactions.slice(
-          safeTransactionsPageIndex * transactionsPageSize,
-          safeTransactionsPageIndex * transactionsPageSize + transactionsPageSize
-        );
-  const transactionsStart =
-    transactionsTotal === 0
-      ? 0
-      : transactionsPageSize === 0
-        ? 1
-        : safeTransactionsPageIndex * transactionsPageSize + 1;
-  const transactionsEnd =
-    transactionsTotal === 0
-      ? 0
-      : transactionsPageSize === 0
-        ? transactionsTotal
-        : Math.min(transactionsTotal, (safeTransactionsPageIndex + 1) * transactionsPageSize);
-
-  useEffect(() => {
-    setInventoryPageIndex(0);
-  }, [inventorySearch]);
-
-  useEffect(() => {
-    setTransactionsPageIndex(0);
-  }, [transactionsSearch]);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    if (cloudSyncInFlightRef.current) return;
-    cloudSyncInFlightRef.current = true;
-
-    const run = async () => {
-      try {
-        const res = await fetch('/api/stock-state', { method: 'GET', cache: 'no-store' });
-        if (res.status === 501) {
-          setCloudStatus('disabled');
-          return;
-        }
-        const data = (await res.json()) as { ok: boolean; state: { inventory: unknown[]; transactions: unknown[]; updatedAt: number } | null };
-        if (!data.ok) {
-          setCloudStatus('error');
-          return;
-        }
-        setCloudStatus('ready');
-        didInitialCloudSyncRef.current = true;
-
-        const remote = data.state;
-        const localInventory = inventoryRef.current;
-        const localTransactions = transactionsRef.current;
-        const localUpdatedAt = stateUpdatedAtRef.current;
-
-        if (!remote) {
-          if (localUpdatedAt > 0 || localTransactions.length > 0) {
-            const ts = localUpdatedAt > 0 ? localUpdatedAt : Date.now();
-            if (localUpdatedAt === 0) setStateUpdatedAt(ts);
-            await fetch('/api/stock-state', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ inventory: localInventory, transactions: localTransactions, updatedAt: ts }),
-            });
-          }
-          return;
-        }
-
-        if (typeof remote.updatedAt === 'number' && remote.updatedAt > localUpdatedAt) {
-          isApplyingRemoteRef.current = true;
-          setInventory(normalizeInventory(remote.inventory));
-          setTransactions(normalizeTransactions(remote.transactions));
-          setStateUpdatedAt(remote.updatedAt);
-          isApplyingRemoteRef.current = false;
-          return;
-        }
-
-        if (typeof remote.updatedAt === 'number' && remote.updatedAt < localUpdatedAt && localUpdatedAt > 0) {
-          await fetch('/api/stock-state', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ inventory: localInventory, transactions: localTransactions, updatedAt: localUpdatedAt }),
-          });
-        }
-      } catch {
-        setCloudStatus('error');
-        return;
-      } finally {
-        cloudSyncInFlightRef.current = false;
-      }
-    };
-
-    void run();
-  }, [isLoaded]);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    const onFocus = () => {
-      if (cloudStatus !== 'ready') setCloudStatus('unknown');
-    };
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && cloudStatus !== 'ready') setCloudStatus('unknown');
-    };
-    window.addEventListener('focus', onFocus);
-    document.addEventListener('visibilitychange', onVisibilityChange);
-    return () => {
-      window.removeEventListener('focus', onFocus);
-      document.removeEventListener('visibilitychange', onVisibilityChange);
-    };
-  }, [isLoaded, cloudStatus]);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    if (cloudStatus === 'unknown') {
-      if (cloudSyncInFlightRef.current) return;
-      cloudSyncInFlightRef.current = true;
-      void (async () => {
-        try {
-          const res = await fetch('/api/stock-state', { method: 'GET', cache: 'no-store' });
-          if (res.status === 501) {
-            setCloudStatus('disabled');
-            return;
-          }
-          const data = (await res.json()) as { ok: boolean; state: { inventory: unknown[]; transactions: unknown[]; updatedAt: number } | null };
-          if (!data.ok) {
-            setCloudStatus('error');
-            return;
-          }
-          setCloudStatus('ready');
-          didInitialCloudSyncRef.current = true;
-
-          const remote = data.state;
-          const localInventory = inventoryRef.current;
-          const localTransactions = transactionsRef.current;
-          const localUpdatedAt = stateUpdatedAtRef.current;
-
-          if (!remote) {
-            if (localUpdatedAt > 0 || localTransactions.length > 0) {
-              const ts = localUpdatedAt > 0 ? localUpdatedAt : Date.now();
-              if (localUpdatedAt === 0) setStateUpdatedAt(ts);
-              await fetch('/api/stock-state', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ inventory: localInventory, transactions: localTransactions, updatedAt: ts }),
-              });
-            }
-            return;
-          }
-
-          if (typeof remote.updatedAt === 'number' && remote.updatedAt > localUpdatedAt) {
-            isApplyingRemoteRef.current = true;
-            setInventory(normalizeInventory(remote.inventory));
-            setTransactions(normalizeTransactions(remote.transactions));
-            setStateUpdatedAt(remote.updatedAt);
-            isApplyingRemoteRef.current = false;
-            return;
-          }
-
-          if (typeof remote.updatedAt === 'number' && remote.updatedAt < localUpdatedAt && localUpdatedAt > 0) {
-            await fetch('/api/stock-state', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ inventory: localInventory, transactions: localTransactions, updatedAt: localUpdatedAt }),
-            });
-          }
-        } catch {
-          setCloudStatus('error');
-          return;
-        } finally {
-          cloudSyncInFlightRef.current = false;
-        }
-      })();
-    }
-  }, [cloudStatus, isLoaded]);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    if (cloudStatus !== 'ready') return;
-    if (isApplyingRemoteRef.current) return;
-    if (stateUpdatedAt <= 0) return;
-
-    if (pushTimerRef.current) clearTimeout(pushTimerRef.current);
-    pushTimerRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch('/api/stock-state', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ inventory, transactions, updatedAt: stateUpdatedAt }),
-        });
-        if (res.status === 501) {
-          setCloudStatus('disabled');
-          return;
-        }
-        if (res.status === 409) {
-          const data = (await res.json()) as {
-            ok: boolean;
-            state?: { inventory: unknown[]; transactions: unknown[]; updatedAt: number };
-          };
-          const remote = data.state;
-          if (remote && typeof remote.updatedAt === 'number' && remote.updatedAt > stateUpdatedAt) {
-            isApplyingRemoteRef.current = true;
-            setInventory(normalizeInventory(remote.inventory));
-            setTransactions(normalizeTransactions(remote.transactions));
-            setStateUpdatedAt(remote.updatedAt);
-            isApplyingRemoteRef.current = false;
-          }
-        }
-      } catch {
-        return;
-      }
-    }, 800);
-
-    return () => {
-      if (pushTimerRef.current) clearTimeout(pushTimerRef.current);
-    };
-  }, [inventory, transactions, stateUpdatedAt, isLoaded]);
-
-  useEffect(() => {
-    if (inventoryPageIndex > inventoryPageCount - 1) setInventoryPageIndex(inventoryPageCount - 1);
-  }, [inventoryPageCount, inventoryPageIndex]);
-
-  useEffect(() => {
-    if (transactionsPageIndex > transactionsPageCount - 1) setTransactionsPageIndex(transactionsPageCount - 1);
-  }, [transactionsPageCount, transactionsPageIndex]);
-
-  if (!isLoaded) return <div className="p-8 text-center">{t('loading')}</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 p-4 md:p-8 font-sans text-gray-900 dark:text-gray-100">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('app.title')}</h1>
-            <p className="text-gray-500 dark:text-gray-400">{t('app.subtitle')}</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value as Lang)}
-              className="px-3 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 dark:bg-zinc-900 dark:text-gray-200 dark:border-zinc-800 dark:hover:bg-zinc-800/40 transition-colors"
-            >
-              <option value="zh">{t('lang.zh')}</option>
-              <option value="en">{t('lang.en')}</option>
-              <option value="ms">{t('lang.ms')}</option>
-            </select>
-            <button
-              onClick={syncFromCloudNow}
-              className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 dark:text-gray-200 dark:border-zinc-800 dark:hover:bg-zinc-800/40 transition-colors"
-            >
-              {t('button.syncFromCloud')}
-            </button>
-          </div>
-        </header>
+    <div className="min-h-screen bg-[#e8f2dd] text-[#1c2a1c]">
+      <Lightbox open={lightbox.open} src={lightbox.src} alt={lightbox.alt} onClose={closeLightbox} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Input Section */}
-          <section className="lg:col-span-1 space-y-6">
-            <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800">
-              <div className="flex items-center justify-between gap-3 mb-4">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
-                  <PlusCircle className="text-blue-500" size={20} />
-                  {stockMode === 'IN' ? t('section.stockIn') : t('section.stockOut')}
-                </h2>
-                <div className="flex items-center rounded-lg border border-gray-200 dark:border-zinc-800 overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => setStockMode('IN')}
-                    className={`px-3 py-2 text-sm font-medium ${
-                      stockMode === 'IN'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-transparent text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-zinc-800/40'
-                    }`}
-                  >
-                    {t('badge.in')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setStockMode('OUT')}
-                    className={`px-3 py-2 text-sm font-medium ${
-                      stockMode === 'OUT'
-                        ? 'bg-red-600 text-white'
-                        : 'bg-transparent text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-zinc-800/40'
-                    }`}
-                  >
-                    {t('badge.out')}
-                  </button>
-                </div>
+      <header className="sticky top-0 z-40 border-b border-[#c7d8b5] bg-[#f7faf1]/80 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-3">
+          <a href="#top" className="min-w-0">
+            <BrandLogo />
+          </a>
+
+          <nav className="hidden lg:flex items-center gap-5 text-sm text-[#2f4a31]">
+            <a className="hover:underline underline-offset-4" href="#about">
+              {tt('nav.about')}
+            </a>
+            <a className="hover:underline underline-offset-4" href="#stores">
+              {tt('nav.stores')}
+            </a>
+            <a className="hover:underline underline-offset-4" href="#menu">
+              {tt('nav.menu')}
+            </a>
+            <a className="hover:underline underline-offset-4" href="#halal">
+              {tt('nav.halal')}
+            </a>
+            <a className="hover:underline underline-offset-4" href="#news">
+              {tt('nav.news')}
+            </a>
+            <a className="hover:underline underline-offset-4" href="#reservation">
+              {tt('nav.reservation')}
+            </a>
+            <a className="hover:underline underline-offset-4" href="#contact">
+              {tt('nav.contact')}
+            </a>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden md:block">
+              <SocialLinks />
+            </div>
+            <LanguageSwitcher lang={lang} onChange={setLang} />
+          </div>
+        </div>
+        <div className="lg:hidden px-4 md:px-8 pb-3">
+          <div className="flex items-center gap-3 overflow-x-auto text-sm text-[#2f4a31]">
+            <a className="whitespace-nowrap hover:underline underline-offset-4" href="#about">
+              {tt('nav.about')}
+            </a>
+            <a className="whitespace-nowrap hover:underline underline-offset-4" href="#stores">
+              {tt('nav.stores')}
+            </a>
+            <a className="whitespace-nowrap hover:underline underline-offset-4" href="#menu">
+              {tt('nav.menu')}
+            </a>
+            <a className="whitespace-nowrap hover:underline underline-offset-4" href="#halal">
+              {tt('nav.halal')}
+            </a>
+            <a className="whitespace-nowrap hover:underline underline-offset-4" href="#news">
+              {tt('nav.news')}
+            </a>
+            <a className="whitespace-nowrap hover:underline underline-offset-4" href="#reservation">
+              {tt('nav.reservation')}
+            </a>
+            <a className="whitespace-nowrap hover:underline underline-offset-4" href="#contact">
+              {tt('nav.contact')}
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <main id="top">
+        <section className="py-12 md:py-16">
+          <div className="max-w-6xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr] gap-10 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#c7d8b5] bg-[#f7faf1] text-[#2f4a31] text-sm">
+                <span className="h-2 w-2 rounded-full bg-[#3b5b3e]" />
+                {BRAND.tagline[lang]}
               </div>
+              <h1 className="mt-5 text-3xl md:text-5xl font-semibold tracking-tight text-[#213821]">
+                {tt('hero.title')}
+              </h1>
+              <p className="mt-4 text-[#486449] text-base md:text-lg leading-relaxed">{tt('hero.subtitle')}</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <a
+                  href="#menu"
+                  className="h-11 px-5 rounded-full bg-[#3b5b3e] text-white hover:bg-[#2f4a31] transition inline-flex items-center justify-center"
+                >
+                  {tt('hero.cta.menu')}
+                </a>
+                <a
+                  href="#reservation"
+                  className="h-11 px-5 rounded-full border border-[#3b5b3e] bg-[#f7faf1] text-[#2f4a31] hover:bg-white transition inline-flex items-center justify-center"
+                >
+                  {tt('hero.cta.reserve')}
+                </a>
+              </div>
+              <div className="mt-8 md:hidden">
+                <SocialLinks />
+              </div>
+            </div>
 
-              <form onSubmit={handleStockSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">{t('label.itemName')}</label>
-                  <select
-                    value={selectedItemId}
-                    onChange={(e) => setSelectedItemId(e.target.value)}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                    required
-                  >
-                    <option value="" disabled>
-                      {t('placeholder.selectItem')}
-                    </option>
-                    {inventory.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.itemCode ? `${item.itemCode} - ${item.name}` : item.name}
-                      </option>
-                    ))}
-                    {stockMode === 'IN' ? <option value="__new__">{t('option.addNewItem')}</option> : null}
-                  </select>
-                </div>
+            <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-4">
+              <div className="rounded-xl overflow-hidden">
+                <SafeImg
+                  src="/images/hero/noodles.jpg"
+                  alt="Hero"
+                  className="w-full h-[320px] md:h-[420px] object-cover cursor-zoom-in"
+                  onClick={() => openLightbox('/images/hero/noodles.jpg', 'Hero')}
+                />
+              </div>
+              <p className="mt-3 text-sm text-[#486449]">{tt('menu.subtitle')}</p>
+            </div>
+          </div>
+        </section>
 
-                {selectedItem && (
-                  <div className="rounded-lg border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/40 px-4 py-3 text-sm">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="min-w-0">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{t('label.cost')}</div>
-                        <div className="font-semibold">{Number.isFinite(selectedItem.cost) ? selectedItem.cost.toFixed(2) : '0.00'}</div>
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{t('label.currentQty')}</div>
-                        <div className="font-semibold">{selectedItem.quantity}</div>
-                      </div>
-                      <div className="col-span-2 min-w-0">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{t('label.features')}</div>
-                        <div className="break-words leading-5">{selectedItem.features || '-'}</div>
-                      </div>
-                      <div className="col-span-2 min-w-0">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{t('label.lastStockInTime')}</div>
-                        <div className="font-medium">
-                          {lastInTimestamp ? new Date(lastInTimestamp).toLocaleString(locale) : '-'}
+        <Section id="about" title={tt('section.about.title')}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6 text-[#2f4a31] leading-relaxed">
+              <p>{tt('section.about.p1')}</p>
+              <p className="mt-4">{tt('section.about.p2')}</p>
+            </div>
+            <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
+              <div className="grid grid-cols-2 gap-4">
+                <SafeImg
+                  src="/images/gallery/1.jpg"
+                  alt="Gallery 1"
+                  className="w-full h-40 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
+                  onClick={() => openLightbox('/images/gallery/1.jpg', 'Gallery 1')}
+                />
+                <SafeImg
+                  src="/images/gallery/2.jpg"
+                  alt="Gallery 2"
+                  className="w-full h-40 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
+                  onClick={() => openLightbox('/images/gallery/2.jpg', 'Gallery 2')}
+                />
+                <SafeImg
+                  src="/images/gallery/3.jpg"
+                  alt="Gallery 3"
+                  className="w-full h-40 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
+                  onClick={() => openLightbox('/images/gallery/3.jpg', 'Gallery 3')}
+                />
+                <SafeImg
+                  src="/images/gallery/4.jpg"
+                  alt="Gallery 4"
+                  className="w-full h-40 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
+                  onClick={() => openLightbox('/images/gallery/4.jpg', 'Gallery 4')}
+                />
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        <div className="py-12 md:py-14" />
+
+        <Section id="stores" title={tt('section.stores.title')} subtitle={tt('section.stores.subtitle')}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {STORES.map((store) => (
+              <div key={store.id} className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden">
+                <SafeImg
+                  src={store.photoSrc}
+                  alt={store.name[lang]}
+                  className="w-full h-56 object-cover cursor-zoom-in"
+                  onClick={() => openLightbox(store.photoSrc, store.name[lang])}
+                />
+                <div className="p-6">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="text-xl font-semibold text-[#274126] truncate">{store.name[lang]}</h3>
+                      <p className="mt-1 text-sm text-[#486449]">
+                        {store.status === 'opening_soon'
+                          ? tt('store.openingSoon', { date: store.openingDate[lang] })
+                          : tt('store.opened', { date: store.openingDate[lang] })}
+                      </p>
+                      <p className="mt-3 text-[#2f4a31]">{store.address[lang]}</p>
+                      {store.note ? <p className="mt-1 text-sm text-[#486449]">{store.note[lang]}</p> : null}
+                      {store.hours ? (
+                        <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3">
+                          <div className="text-xs font-semibold tracking-wide text-[#486449]">{tt('store.hours')}</div>
+                          <div className="mt-1 text-sm text-[#2f4a31]">{store.hours[lang]}</div>
                         </div>
-                      </div>
-                      <div className="col-span-2 min-w-0">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{t('label.lastStockOutTime')}</div>
-                        <div className="font-medium">
-                          {lastOutTimestamp ? new Date(lastOutTimestamp).toLocaleString(locale) : '-'}
-                        </div>
-                      </div>
+                      ) : null}
                     </div>
                   </div>
-                )}
-
-                {stockMode === 'IN' && isCreatingNewItem && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">{t('label.itemCode')}</label>
-                      <input
-                        type="text"
-                        value={newItemCode}
-                        onChange={(e) => setNewItemCode(e.target.value)}
-                        placeholder={t('placeholder.itemCode')}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">{t('label.newItemName')}</label>
-                      <input
-                        type="text"
-                        value={newItemName}
-                        onChange={(e) => setNewItemName(e.target.value)}
-                        placeholder={t('placeholder.newItemName')}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">{t('label.cost')}</label>
-                      <input
-                        type="number"
-                        value={newItemCost}
-                        onChange={(e) => setNewItemCost(e.target.value)}
-                        placeholder={t('placeholder.cost')}
-                        min="0"
-                        step="0.01"
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">{t('label.features')}</label>
-                      <input
-                        type="text"
-                        value={newItemFeatures}
-                        onChange={(e) => setNewItemFeatures(e.target.value)}
-                        placeholder={t('placeholder.features')}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">{t('label.supplier')}</label>
-                      <input
-                        type="text"
-                        value={newItemSupplier}
-                        onChange={(e) => setNewItemSupplier(e.target.value)}
-                        placeholder={t('placeholder.supplier')}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                      />
-                    </div>
-                  </>
-                )}
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">{t('label.location')}</label>
-                  <select
-                    value={stockLocation}
-                    onChange={(e) => setStockLocation(e.target.value as StockLocation)}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                    required
-                  >
-                    {STOCK_LOCATIONS.map((loc) => (
-                      <option key={loc} value={loc}>
-                        {loc}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="mt-4">
+                    <a
+                      href={mapOpenUrl(store)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center h-10 px-4 rounded-full border border-[#3b5b3e] text-[#2f4a31] bg-[#edf4e5] hover:bg-white transition"
+                    >
+                      {tt('store.viewOnMaps')}
+                    </a>
+                  </div>
+                  <div className="mt-5 rounded-xl overflow-hidden border border-[#d5e6c3] bg-[#edf4e5]">
+                    <iframe
+                      src={mapEmbedUrl(store)}
+                      className="w-full h-56"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title={`Map-${store.id}`}
+                    />
+                  </div>
                 </div>
+              </div>
+            ))}
+          </div>
+        </Section>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    {stockMode === 'IN' ? t('label.stockInQty') : t('label.stockOutQty')}
-                  </label>
-                  <input
-                    type="number"
-                    value={newItemQuantity}
-                    onChange={(e) => setNewItemQuantity(e.target.value)}
-                    placeholder={t('placeholder.stockInQty')}
-                    min="1"
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                    required
-                  />
+        <div className="py-12 md:py-14" />
+
+        <Section id="menu" title={tt('section.menu.title')} subtitle={tt('menu.subtitle')}>
+          <div className="rounded-2xl border border-[#c7d8b5] bg-[#edf4e5] overflow-hidden">
+            <div className="px-6 py-6 border-b border-[#c7d8b5] bg-[#f7faf1]">
+              <div className="text-2xl font-semibold text-[#274126]">{BRAND.name}</div>
+              <div className="mt-1 text-[#486449]">{BRAND.tagline[lang]}</div>
+            </div>
+
+            <div className="p-6 space-y-10">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {MENU_PAGES.map((p) => (
+                  <button
+                    key={p.src}
+                    type="button"
+                    className="text-left rounded-xl border border-[#d5e6c3] bg-white/60 hover:bg-white transition overflow-hidden"
+                    onClick={() => openLightbox(p.src, p.label[lang])}
+                  >
+                    <SafeImg src={p.src} alt={p.label[lang]} className="w-full h-36 object-cover" />
+                    <div className="px-3 py-2 text-xs text-[#486449]">{p.label[lang]}</div>
+                  </button>
+                ))}
+              </div>
+
+              {MENU.map((cat) => (
+                <div key={cat.id}>
+                  <div className="text-xl font-semibold text-[#2f4a31]">{cat.title[lang]}</div>
+                  {cat.subtitle ? <div className="mt-1 text-sm text-[#486449]">{cat.subtitle[lang]}</div> : null}
+                  <div className="mt-4 divide-y divide-[#c7d8b5] border-t border-[#c7d8b5]">
+                    {cat.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className={`py-5 grid grid-cols-1 ${item.photoSrc ? 'md:grid-cols-[1fr_auto]' : ''} gap-6`}
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <div className="text-sm tracking-wide text-[#486449]">{item.code}</div>
+                              <div className="mt-1 text-lg font-semibold text-[#274126]">{item.name[lang]}</div>
+                            </div>
+                            <div className="shrink-0 text-[#2f4a31] font-semibold tabular-nums">
+                              {item.priceText?.[lang]
+                                ? item.priceText[lang]
+                                : typeof item.priceMYR === 'number'
+                                  ? tt('menu.price', { value: item.priceMYR.toFixed(2) })
+                                  : ''}
+                            </div>
+                          </div>
+                          {item.desc[lang] ? <div className="mt-2 text-[#486449]">{item.desc[lang]}</div> : null}
+                          <div className="mt-3 text-xs text-[#5b775a]">
+                            <div className={`${lang === 'ms' ? 'font-semibold text-[#2f4a31]' : ''}`}>{item.name.ms}</div>
+                            <div className={`${lang === 'en' ? 'font-semibold text-[#2f4a31]' : ''}`}>{item.name.en}</div>
+                            <div className={`${lang === 'zh' ? 'font-semibold text-[#2f4a31]' : ''}`}>{item.name.zh}</div>
+                          </div>
+                        </div>
+                        {item.photoSrc ? (
+                          <div className="flex md:justify-end">
+                            <SafeImg
+                              src={item.photoSrc}
+                              alt={item.name[lang]}
+                              className="w-full md:w-44 h-32 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
+                              onClick={() => openLightbox(item.photoSrc, item.name[lang])}
+                            />
+                          </div>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Section>
+
+        <div className="py-12 md:py-14" />
+
+        <Section id="halal" title={tt('section.halal.title')}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_.9fr] gap-6">
+            <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#edf4e5] border border-[#c7d8b5] text-[#2f4a31] text-sm">
+                <span className="h-2 w-2 rounded-full bg-[#3b5b3e]" />
+                {tt('halal.badge')}
+              </div>
+              <p className="mt-4 text-[#2f4a31] leading-relaxed">{tt('halal.p1')}</p>
+              <p className="mt-3 text-[#486449] leading-relaxed">{tt('halal.p2')}</p>
+              <div className="mt-6">
+                <a
+                  href="#contact"
+                  className="inline-flex items-center justify-center h-11 px-5 rounded-full bg-[#3b5b3e] text-white hover:bg-[#2f4a31] transition"
+                >
+                  WhatsApp
+                </a>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
+              <div className="text-[#274126] font-semibold">Certificates</div>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <SafeImg
+                  src="/images/halal/cert-1.jpg"
+                  alt="Certificate 1"
+                  className="w-full h-44 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
+                  onClick={() => openLightbox('/images/halal/cert-1.jpg', 'Certificate 1')}
+                />
+                <SafeImg
+                  src="/images/halal/cert-2.jpg"
+                  alt="Certificate 2"
+                  className="w-full h-44 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
+                  onClick={() => openLightbox('/images/halal/cert-2.jpg', 'Certificate 2')}
+                />
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        <div className="py-12 md:py-14" />
+
+        <Section id="news" title={tt('section.news.title')} subtitle={tt('news.subtitle')}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {NEWS.map((n) => (
+              <div key={n.id} className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden">
+                <SafeImg
+                  src={n.photoSrc}
+                  alt={n.title[lang]}
+                  className="w-full h-48 object-cover cursor-zoom-in"
+                  onClick={() => openLightbox(n.photoSrc, n.title[lang])}
+                />
+                <div className="p-6">
+                  <div className="text-sm text-[#486449] tabular-nums">{n.dateISO}</div>
+                  <div className="mt-1 text-xl font-semibold text-[#274126]">{n.title[lang]}</div>
+                  <div className="mt-3 text-[#2f4a31] leading-relaxed">{n.body[lang]}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <div className="py-12 md:py-14" />
+
+        <Section id="reservation" title={tt('section.reservation.title')} subtitle={tt('reservation.subtitle')}>
+          <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
+            <form onSubmit={onSubmitReservation} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-[#2f4a31]">{tt('reservation.store')}</label>
+                <select
+                  value={reservationStoreId}
+                  onChange={(e) => setReservationStoreId(e.target.value)}
+                  className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
+                  required
+                >
+                  {reservableStores.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name[lang]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-[#2f4a31]">{tt('reservation.pax')}</label>
+                <input
+                  value={reservationPax}
+                  onChange={(e) => setReservationPax(e.target.value)}
+                  inputMode="numeric"
+                  className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[#2f4a31]">{tt('reservation.name')}</label>
+                <input
+                  value={reservationName}
+                  onChange={(e) => setReservationName(e.target.value)}
+                  className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[#2f4a31]">{tt('reservation.phone')}</label>
+                <input
+                  value={reservationPhone}
+                  onChange={(e) => setReservationPhone(e.target.value)}
+                  className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[#2f4a31]">{tt('reservation.date')}</label>
+                <input
+                  type="date"
+                  value={reservationDate}
+                  onChange={(e) => setReservationDate(e.target.value)}
+                  className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[#2f4a31]">{tt('reservation.time')}</label>
+                <input
+                  type="time"
+                  value={reservationTime}
+                  onChange={(e) => setReservationTime(e.target.value)}
+                  className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm text-[#2f4a31]">{tt('reservation.note')}</label>
+                <textarea
+                  value={reservationNote}
+                  onChange={(e) => setReservationNote(e.target.value)}
+                  placeholder={tt('reservation.placeholder.note')}
+                  className="mt-1 w-full min-h-[96px] px-4 py-3 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
+                />
+              </div>
+              <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3">
+                <div className="text-sm text-[#486449]">
+                  {CONTACT.phone} · {CONTACT.email}
                 </div>
                 <button
                   type="submit"
-                  className={`w-full py-2 text-white font-semibold rounded-lg transition-colors shadow-md ${
-                    stockMode === 'IN'
-                      ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20'
-                      : 'bg-red-600 hover:bg-red-700 shadow-red-500/20'
-                  }`}
+                  className="h-11 px-6 rounded-full bg-[#3b5b3e] text-white hover:bg-[#2f4a31] transition"
                 >
-                  {stockMode === 'IN' ? t('button.confirmStockIn') : t('button.confirmStockOut')}
-                </button>
-              </form>
-            </div>
-
-            {/* Stats Summary */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-900/30">
-              <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-2">{t('section.overview')}</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{inventory.length}</p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">{t('stat.itemTypes')}</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                    {inventory.reduce((sum, item) => sum + item.quantity, 0)}
-                  </p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">{t('stat.totalQty')}</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Display Section */}
-          <section className="lg:col-span-2 space-y-8">
-            {/* Inventory List */}
-            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
-              <div className="p-6 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
-                  <Package className="text-green-500" size={20} />
-                  {t('section.inventory')}
-                </h2>
-                <button
-                  type="button"
-                  onClick={exportInventoryToCsv}
-                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 dark:text-gray-200 dark:border-zinc-800 dark:hover:bg-zinc-800/40 transition-colors"
-                >
-                  <Download size={16} />
-                  {t('button.exportExcel')}
+                  {tt('reservation.submit')}
                 </button>
               </div>
-              <div className="sm:hidden border-b border-gray-200 dark:border-zinc-800 p-4">
-                <div className="flex flex-col gap-2">
-                  <input
-                    type="text"
-                    value={inventorySearch}
-                    onChange={(e) => setInventorySearch(e.target.value)}
-                    placeholder={t('search.inventory')}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                  />
-                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
-                    <div className="whitespace-nowrap">
-                      {t('paging.range', { start: inventoryStart, end: inventoryEnd, total: inventoryTotal })}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="whitespace-nowrap">{t('paging.perPage')}</span>
-                        <select
-                          value={inventoryPageSize === 0 ? 'all' : String(inventoryPageSize)}
-                          onChange={(e) => {
-                            const next = e.target.value === 'all' ? 0 : parseInt(e.target.value, 10);
-                            setInventoryPageIndex(0);
-                            setInventoryPageSize(next);
-                          }}
-                          className="px-2 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
-                        >
-                          <option value="10">10</option>
-                          <option value="20">20</option>
-                          <option value="30">30</option>
-                          <option value="50">50</option>
-                          <option value="all">{t('paging.all')}</option>
-                        </select>
-                      </div>
-                      <button
-                        type="button"
-                        disabled={inventoryPageSize === 0 || safeInventoryPageIndex === 0}
-                        onClick={() => setInventoryPageIndex((p) => Math.max(0, p - 1))}
-                        className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {t('paging.prev')}
-                      </button>
-                      <div className="whitespace-nowrap">
-                        {inventoryPageSize === 0
-                          ? t('paging.all')
-                          : t('paging.page', { page: safeInventoryPageIndex + 1, pages: inventoryPageCount })}
-                      </div>
-                      <button
-                        type="button"
-                        disabled={inventoryPageSize === 0 || safeInventoryPageIndex >= inventoryPageCount - 1}
-                        onClick={() => setInventoryPageIndex((p) => Math.min(inventoryPageCount - 1, p + 1))}
-                        className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {t('paging.next')}
-                      </button>
-                    </div>
-                  </div>
+            </form>
+          </div>
+        </Section>
+
+        <div className="py-12 md:py-14" />
+
+        <Section id="contact" title={tt('section.contact.title')} subtitle={tt('contact.subtitle')}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
+              <div className="grid grid-cols-1 gap-4 text-[#2f4a31]">
+                <div>
+                  <div className="text-sm text-[#486449]">{tt('contact.phone')}</div>
+                  <div className="mt-1 font-semibold">{CONTACT.phone}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-[#486449]">{tt('contact.email')}</div>
+                  <div className="mt-1 font-semibold">{CONTACT.email}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-[#486449]">{tt('contact.address')}</div>
+                  <div className="mt-1">{reservationStore?.address?.[lang] ?? STORES[0]?.address?.[lang] ?? ''}</div>
                 </div>
               </div>
-
-              <div className="sm:hidden divide-y divide-gray-200 dark:divide-zinc-800">
-                {inventory.length === 0 ? (
-                  <div className="px-6 py-10 text-center text-gray-400">{t('empty.inventory')}</div>
-                ) : filteredInventory.length === 0 ? (
-                  <div className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</div>
-                ) : (
-                  pagedInventory.map((item) => (
-                    <div key={item.id} className="p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="font-medium text-sm whitespace-normal break-words leading-5">{item.name}</div>
-                          <div className="mt-1 text-xs text-gray-500 whitespace-nowrap">{item.itemCode || '-'}</div>
-                        </div>
-                        <div className="shrink-0">
-                          <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold">
-                            {item.quantity}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-gray-600 dark:text-gray-300">
-                        <div>
-                          <div className="text-gray-400 dark:text-gray-500">{t('label.cost')}</div>
-                          <div className="mt-1 whitespace-nowrap">
-                            {Number.isFinite(item.cost) ? item.cost.toFixed(2) : '0.00'}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-gray-400 dark:text-gray-500">{t('label.features')}</div>
-                          <div className="mt-1">
-                            {editingFeaturesItemId === item.id ? (
-                              <input
-                                autoFocus
-                                type="text"
-                                value={editingFeatures}
-                                onChange={(e) => setEditingFeatures(e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') saveEditFeatures(item);
-                                  if (e.key === 'Escape') cancelEditFeatures();
-                                }}
-                                onBlur={() => {
-                                  if (skipNextBlurRef.current) {
-                                    skipNextBlurRef.current = false;
-                                    return;
-                                  }
-                                  saveEditFeatures(item);
-                                }}
-                                className="w-full min-w-0 px-2 py-1 rounded border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
-                              />
-                            ) : (
-                              <div
-                                onClick={() => startEditFeatures(item)}
-                                className="cursor-text select-none whitespace-normal break-words leading-5"
-                                title={t('hint.editFeaturesClick')}
-                              >
-                                {item.features || '-'}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-span-2">
-                          <div className="text-gray-400 dark:text-gray-500">{t('label.location')}</div>
-                          <div className="mt-1 whitespace-nowrap">{inventoryLocation}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full text-left table-auto">
-                  <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs">
-                    <tr>
-                      <th colSpan={6} className="px-4 py-3 font-medium">
-                        <div className="grid grid-cols-1 md:grid-cols-[minmax(260px,1fr)_auto] items-center gap-2">
-                          <input
-                            type="text"
-                            value={inventorySearch}
-                            onChange={(e) => setInventorySearch(e.target.value)}
-                            placeholder={t('search.inventory')}
-                            className="w-full md:max-w-[420px] px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                          />
-                          <div className="flex flex-wrap items-center justify-start md:justify-end gap-2 text-xs text-gray-500">
-                            <div className="whitespace-nowrap">
-                              {t('paging.range', { start: inventoryStart, end: inventoryEnd, total: inventoryTotal })}
-                            </div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <div className="flex items-center gap-2">
-                                <span className="whitespace-nowrap">{t('paging.perPage')}</span>
-                                <select
-                                  value={inventoryPageSize === 0 ? 'all' : String(inventoryPageSize)}
-                                  onChange={(e) => {
-                                    const next = e.target.value === 'all' ? 0 : parseInt(e.target.value, 10);
-                                    setInventoryPageIndex(0);
-                                    setInventoryPageSize(next);
-                                  }}
-                                  className="px-2 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
-                                >
-                                  <option value="10">10</option>
-                                  <option value="20">20</option>
-                                  <option value="30">30</option>
-                                  <option value="50">50</option>
-                                  <option value="all">{t('paging.all')}</option>
-                                </select>
-                              </div>
-                              <button
-                                type="button"
-                                disabled={inventoryPageSize === 0 || safeInventoryPageIndex === 0}
-                                onClick={() => setInventoryPageIndex((p) => Math.max(0, p - 1))}
-                                className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                {t('paging.prev')}
-                              </button>
-                              <div className="whitespace-nowrap">
-                                {inventoryPageSize === 0
-                                  ? t('paging.all')
-                                  : t('paging.page', { page: safeInventoryPageIndex + 1, pages: inventoryPageCount })}
-                              </div>
-                              <button
-                                type="button"
-                                disabled={inventoryPageSize === 0 || safeInventoryPageIndex >= inventoryPageCount - 1}
-                                onClick={() => setInventoryPageIndex((p) => Math.min(inventoryPageCount - 1, p + 1))}
-                                className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                {t('paging.next')}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </th>
-                    </tr>
-                    <tr>
-                      <th className="px-4 py-3 font-medium">{t('table.name')}</th>
-                      <th className="px-4 py-3 font-medium w-[92px] whitespace-nowrap">{t('table.code')}</th>
-                      <th className="px-4 py-3 font-medium w-[170px] whitespace-nowrap">{t('table.location')}</th>
-                      <th className="px-4 py-3 font-medium w-[88px] whitespace-nowrap">{t('table.cost')}</th>
-                      <th className="px-4 py-3 font-medium">{t('table.features')}</th>
-                      <th className="px-4 py-3 font-medium w-[110px] whitespace-nowrap">{t('table.qty')}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
-                    {inventory.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="px-6 py-10 text-center text-gray-400">{t('empty.inventory')}</td>
-                      </tr>
-                    ) : filteredInventory.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</td>
-                      </tr>
-                    ) : (
-                      pagedInventory.map((item) => (
-                        <tr
-                          key={item.id}
-                          className="odd:bg-white even:bg-gray-50 hover:bg-gray-100 dark:odd:bg-zinc-900 dark:even:bg-zinc-900/70 dark:hover:bg-zinc-800/40 transition-colors"
-                        >
-                          <td className="px-4 py-3 font-medium text-sm">
-                            <span title={item.name} className="block whitespace-normal break-words leading-5">
-                              {item.name}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                            {item.itemCode || '-'}
-                          </td>
-                          <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                            {inventoryLocation}
-                          </td>
-                          <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                            {Number.isFinite(item.cost) ? item.cost.toFixed(2) : '0.00'}
-                          </td>
-                          <td className="px-4 py-3 text-xs text-gray-600 dark:text-gray-300">
-                            {editingFeaturesItemId === item.id ? (
-                              <input
-                                autoFocus
-                                type="text"
-                                value={editingFeatures}
-                                onChange={(e) => setEditingFeatures(e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') saveEditFeatures(item);
-                                  if (e.key === 'Escape') cancelEditFeatures();
-                                }}
-                                onBlur={() => {
-                                  if (skipNextBlurRef.current) {
-                                    skipNextBlurRef.current = false;
-                                    return;
-                                  }
-                                  saveEditFeatures(item);
-                                }}
-                                className="w-full min-w-0 px-2 py-1 rounded border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
-                              />
-                            ) : (
-                              <div
-                                onDoubleClick={() => startEditFeatures(item)}
-                                className="cursor-text select-none whitespace-normal break-words leading-5"
-                                title={t('hint.editFeaturesDbl')}
-                              >
-                                {item.features || '-'}
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="inline-flex items-center justify-center min-w-[52px] px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-sm font-bold tabular-nums">
-                              {item.quantity}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Transaction History */}
-            <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
-              <div className="p-6 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
-                  <History className="text-purple-500" size={20} />
-                  {t('section.transactions')}
-                </h2>
-              </div>
-              <div className="border-b border-gray-200 dark:border-zinc-800 p-4">
-                <div className="grid grid-cols-1 md:grid-cols-[minmax(260px,1fr)_auto] items-center gap-2">
-                  <input
-                    type="text"
-                    value={transactionsSearch}
-                    onChange={(e) => setTransactionsSearch(e.target.value)}
-                    placeholder={t('search.transactions')}
-                    className="w-full md:max-w-[420px] px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                  />
-                  <div className="flex flex-wrap items-center justify-start md:justify-end gap-2">
-                    <div className="text-sm text-gray-500 whitespace-nowrap">
-                      {t('paging.range', { start: transactionsStart, end: transactionsEnd, total: transactionsTotal })}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500 whitespace-nowrap">{t('paging.perPage')}</span>
-                      <select
-                        value={transactionsPageSize === 0 ? 'all' : String(transactionsPageSize)}
-                        onChange={(e) => {
-                          const next = e.target.value === 'all' ? 0 : parseInt(e.target.value, 10);
-                          setTransactionsPageIndex(0);
-                          setTransactionsPageSize(next);
-                        }}
-                        className="px-2 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-sm text-gray-900 dark:text-gray-100"
-                      >
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="30">30</option>
-                        <option value="50">50</option>
-                        <option value="all">{t('paging.all')}</option>
-                      </select>
-                    </div>
-                    <button
-                      type="button"
-                      disabled={transactionsPageSize === 0 || safeTransactionsPageIndex === 0}
-                      onClick={() => setTransactionsPageIndex((p) => Math.max(0, p - 1))}
-                      className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {t('paging.prev')}
-                    </button>
-                    <div className="text-sm text-gray-500 whitespace-nowrap">
-                      {transactionsPageSize === 0
-                        ? t('paging.all')
-                        : t('paging.page', { page: safeTransactionsPageIndex + 1, pages: transactionsPageCount })}
-                    </div>
-                    <button
-                      type="button"
-                      disabled={transactionsPageSize === 0 || safeTransactionsPageIndex >= transactionsPageCount - 1}
-                      onClick={() => setTransactionsPageIndex((p) => Math.min(transactionsPageCount - 1, p + 1))}
-                      className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {t('paging.next')}
-                    </button>
-                  </div>
+              <div className="mt-6">
+                <div className="text-sm text-[#486449]">{tt('contact.follow')}</div>
+                <div className="mt-3">
+                  <SocialLinks />
                 </div>
               </div>
-
-              <div className="sm:hidden divide-y divide-gray-200 dark:divide-zinc-800">
-                {transactions.length === 0 ? (
-                  <div className="px-6 py-10 text-center text-gray-400">{t('empty.transactions')}</div>
-                ) : filteredTransactions.length === 0 ? (
-                  <div className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</div>
-                ) : (
-                  pagedTransactions.map((tx) => (
-                    <div key={tx.id} className="p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="text-xs text-gray-500 flex items-center gap-2 tabular-nums whitespace-nowrap">
-                            <Clock size={14} className="text-gray-400" />
-                            {new Date(tx.timestamp).toLocaleString(locale)}
-                          </div>
-                          <div className="mt-1 font-medium text-sm whitespace-normal break-words leading-5">{tx.itemName}</div>
-                          {tx.location ? (
-                            <div className="mt-1 text-xs text-gray-500 whitespace-nowrap">{tx.location}</div>
-                          ) : null}
-                        </div>
-                        <div className="shrink-0 flex flex-col items-end gap-1">
-                          {tx.type === 'OUT' ? (
-                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-md text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 whitespace-nowrap">
-                              {t('badge.out')}
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 whitespace-nowrap">
-                              {t('badge.in')}
-                            </span>
-                          )}
-                          <div
-                            className={`text-right font-bold tabular-nums ${
-                              tx.type === 'OUT' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
-                            }`}
-                          >
-                            {tx.type === 'OUT' ? '-' : '+'}
-                            {tx.quantity}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full text-left table-fixed">
-                  <thead className="bg-gray-50 dark:bg-zinc-800/50 text-gray-500 dark:text-gray-400 text-xs">
-                    <tr>
-                      <th className="px-6 py-3 font-medium w-[190px]">{t('table.time')}</th>
-                      <th className="px-6 py-3 font-medium">{t('table.item')}</th>
-                      <th className="px-6 py-3 font-medium w-[170px]">{t('table.location')}</th>
-                      <th className="px-6 py-3 font-medium text-center w-[92px]">{t('table.action')}</th>
-                      <th className="px-6 py-3 font-medium text-right w-[110px]">{t('table.quantity')}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-zinc-800">
-                    {transactions.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="px-6 py-10 text-center text-gray-400">{t('empty.transactions')}</td>
-                      </tr>
-                    ) : filteredTransactions.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="px-6 py-10 text-center text-gray-400">{t('empty.noMatch')}</td>
-                      </tr>
-                    ) : (
-                      pagedTransactions.map((tx) => (
-                        <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition-colors">
-                          <td className="px-6 py-4 text-xs text-gray-600 dark:text-gray-300 tabular-nums whitespace-nowrap">
-                            {new Date(tx.timestamp).toLocaleString(locale)}
-                          </td>
-                          <td className="px-6 py-4 font-medium text-sm whitespace-normal break-words leading-5">{tx.itemName}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                            {tx.location ?? '-'}
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            {tx.type === 'OUT' ? (
-                              <span className="inline-flex items-center justify-center min-w-[56px] px-2.5 py-1 rounded-md text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 whitespace-nowrap">
-                                {t('badge.out')}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center justify-center min-w-[56px] px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 whitespace-nowrap">
-                                {t('badge.in')}
-                              </span>
-                            )}
-                          </td>
-                          <td
-                            className={`px-6 py-4 text-right font-bold tabular-nums ${
-                              tx.type === 'OUT' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'
-                            }`}
-                          >
-                            {tx.type === 'OUT' ? '-' : '+'}
-                            {tx.quantity}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+            </div>
+            <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
+              <div className="text-[#274126] font-semibold">Photos</div>
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <SafeImg
+                  src="/images/gallery/5.jpg"
+                  alt="Gallery 5"
+                  className="w-full h-44 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
+                  onClick={() => openLightbox('/images/gallery/5.jpg', 'Gallery 5')}
+                />
+                <SafeImg
+                  src="/images/gallery/6.jpg"
+                  alt="Gallery 6"
+                  className="w-full h-44 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
+                  onClick={() => openLightbox('/images/gallery/6.jpg', 'Gallery 6')}
+                />
               </div>
             </div>
-          </section>
+          </div>
+        </Section>
+      </main>
+
+      <footer className="mt-14 border-t border-[#c7d8b5] bg-[#f7faf1]">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <BrandLogo />
+            <div className="mt-2 text-sm text-[#486449]">{t(lang, 'footer.rights', { year: new Date().getFullYear() })}</div>
+          </div>
+          <SocialLinks />
         </div>
-      </div>
+      </footer>
     </div>
   );
 }
