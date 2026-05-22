@@ -33,7 +33,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'section.about.p2':
       '“金味德，一个始于兰州的传奇”，品牌以正宗传统兰州牛肉拉面为主导，辅以西北特色如肉夹馍、烤肉、凉菜、小吃等。荣获“2018年中国快餐70强”、“改革开放40年中国餐饮行业模式创新突出贡献企业”等多项荣誉。',
 
-    'section.stores.title': '门店与开业时间',
+    'section.stores.title': '门店与营业时间',
     'section.stores.subtitle': '公共假期照常营业',
     'store.opened': ({ date }) => `开业：${date}`,
     'store.openingSoon': ({ date }) => `即将开业：${date}`,
@@ -94,7 +94,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'section.about.p2':
       '“Jinweide, a legend originating from Lanzhou.” The brand focuses on authentic traditional Lanzhou beef noodles, complemented by northwest specialties such as roujiamo (Chinese hamburger), roasted meat, cold dishes, and snacks. It has received honors including “China Fast Food Top 70 (2018)” and “Outstanding Contribution Enterprise in Catering Model Innovation (40 Years of Reform and Opening-up)”.',
 
-    'section.stores.title': 'Stores & Opening Dates',
+    'section.stores.title': 'Stores & Operating',
     'section.stores.subtitle': 'We are open on public holidays.',
     'store.opened': ({ date }) => `Opened: ${date}`,
     'store.openingSoon': ({ date }) => `Opening soon: ${date}`,
@@ -156,7 +156,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'section.about.p2':
       '“Jinweide, legenda yang bermula dari Lanzhou.” Jenama ini menumpukan mee sup daging Lanzhou tradisional yang asli, serta hidangan istimewa barat laut seperti roujiamo, daging panggang, hidangan sejuk dan snek. Ia juga menerima pelbagai anugerah termasuk “China Fast Food Top 70 (2018)” dan “Outstanding Contribution Enterprise in Catering Model Innovation (40 Years of Reform and Opening-up)”.',
 
-    'section.stores.title': 'Cawangan & Tarikh Pembukaan',
+    'section.stores.title': 'Cawangan & Waktu Operasi',
     'section.stores.subtitle': 'Kami dibuka pada cuti umum.',
     'store.opened': ({ date }) => `Dibuka: ${date}`,
     'store.openingSoon': ({ date }) => `Akan dibuka: ${date}`,
