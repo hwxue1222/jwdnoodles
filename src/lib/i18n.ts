@@ -71,7 +71,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'contact.address': '地址',
     'contact.follow': '关注我们',
 
-    'footer.rights': ({ year }) => `© ${year} 兰州牛肉面（马来西亚） 保留所有权利`,
+    'footer.rights': () => `© 2022 JWD Mee Tarik (M)`,
   },
   en: {
     'nav.about': 'About',
@@ -133,7 +133,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'contact.address': 'Address',
     'contact.follow': 'Follow',
 
-    'footer.rights': ({ year }) => `© ${year} Lanzhou Beef Noodles (Malaysia). All rights reserved.`,
+    'footer.rights': () => `© 2022 JWD Mee Tarik (M)`,
   },
   ms: {
     'nav.about': 'Tentang',
@@ -195,7 +195,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'contact.address': 'Alamat',
     'contact.follow': 'Ikuti',
 
-    'footer.rights': ({ year }) => `© ${year} Mee Tarik Lanzhou (Malaysia). Hak cipta terpelihara.`,
+    'footer.rights': () => `© 2022 JWD Mee Tarik (M)`,
   },
 };
 
