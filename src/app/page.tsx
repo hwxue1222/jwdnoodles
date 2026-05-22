@@ -335,16 +335,17 @@ export default function Home() {
                   <div className="text-xl font-semibold text-[#2f4a31]">{cat.title[lang]}</div>
                   {cat.subtitle ? <div className="mt-1 text-sm text-[#486449]">{cat.subtitle[lang]}</div> : null}
                   <div className="mt-4 divide-y divide-[#c7d8b5] border-t border-[#c7d8b5]">
-                    {cat.items.map((item) => (
-                      <div
-                        key={item.id}
-                        className={`py-5 grid grid-cols-1 ${item.photoSrc ? 'md:grid-cols-[1fr_auto]' : ''} gap-6`}
-                      >
+                    {cat.items.map((item) => {
+                      const dishSrc = item.photoSrc ?? `/images/dishes/${item.code}.jpg`;
+                      return (
+                      <div key={item.id} className="py-5 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6">
                         <div className="min-w-0">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
                               <div className="text-sm tracking-wide text-[#486449]">{item.code}</div>
-                              <div className="mt-1 text-lg font-semibold text-[#274126]">{item.name[lang]}</div>
+                              <div className="mt-1 text-lg font-semibold text-[#274126] truncate" title={item.name.ms}>
+                                {item.name.ms}
+                              </div>
                             </div>
                             <div className="shrink-0 text-[#2f4a31] font-semibold tabular-nums">
                               {item.priceText?.[lang]
@@ -355,24 +356,27 @@ export default function Home() {
                             </div>
                           </div>
                           {item.desc[lang] ? <div className="mt-2 text-[#486449]">{item.desc[lang]}</div> : null}
-                          <div className="mt-3 text-xs text-[#5b775a]">
-                            <div className={`${lang === 'ms' ? 'font-semibold text-[#2f4a31]' : ''}`}>{item.name.ms}</div>
-                            <div className={`${lang === 'en' ? 'font-semibold text-[#2f4a31]' : ''}`}>{item.name.en}</div>
-                            <div className={`${lang === 'zh' ? 'font-semibold text-[#2f4a31]' : ''}`}>{item.name.zh}</div>
+                          <div className="mt-2 text-sm text-[#486449]">
+                            <div className="truncate" title={item.name.en}>
+                              {item.name.en}
+                            </div>
+                            <div className="truncate" title={item.name.zh}>
+                              {item.name.zh}
+                            </div>
                           </div>
                         </div>
-                        {item.photoSrc ? (
-                          <div className="flex md:justify-end">
-                            <SafeImg
-                              src={item.photoSrc}
-                              alt={item.name[lang]}
-                              className="w-full md:w-44 h-32 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
-                              onClick={() => openLightbox(item.photoSrc, item.name[lang])}
-                            />
-                          </div>
-                        ) : null}
+                        <div className="flex md:justify-end">
+                          <SafeImg
+                            src={dishSrc}
+                            alt={item.name.ms}
+                            placeholderLabel={null}
+                            className="w-full md:w-44 h-32 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in bg-[#edf4e5]"
+                            onClick={() => openLightbox(dishSrc, item.name.ms)}
+                          />
+                        </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}

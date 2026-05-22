@@ -142,13 +142,55 @@ const tasks = [
   },
 ];
 
+const discoverDishTasks = async () => {
+  try {
+    const files = await fs.readdir(inputDir);
+    const dishTasks = [];
+    const seen = new Set();
+
+    for (const f of files) {
+      const ext = path.extname(f).toLowerCase();
+      if (!IMAGE_EXTS.includes(ext)) continue;
+      const base = path.parse(f).name;
+
+      let code = '';
+      let fromBase = '';
+      const m1 = base.match(/^[A-Za-z][0-9]{1,2}$/);
+      const m2 = base.match(/^dish-([A-Za-z][0-9]{1,2})$/);
+      if (m1) {
+        code = base.toUpperCase();
+        fromBase = base;
+      } else if (m2) {
+        code = m2[1].toUpperCase();
+        fromBase = base;
+      } else {
+        continue;
+      }
+
+      if (seen.has(code)) continue;
+      seen.add(code);
+
+      dishTasks.push({
+        fromBase,
+        to: path.join(publicDir, 'images', 'dishes', `${code}.jpg`),
+        outMime: 'image/jpeg',
+      });
+    }
+
+    return dishTasks;
+  } catch {
+    return [];
+  }
+};
+
 if (!(await exists(inputDir))) {
   await ensureDir(inputDir);
   console.log(`Created: ${path.relative(projectRoot, inputDir)}`);
 }
 
 const results = [];
-for (const t of tasks) results.push(await enhanceAndCopyIfExists(t));
+const dishTasks = await discoverDishTasks();
+for (const t of [...tasks, ...dishTasks]) results.push(await enhanceAndCopyIfExists(t));
 
 const copied = results.filter((r) => r.ok);
 const missing = results.filter((r) => !r.ok);
