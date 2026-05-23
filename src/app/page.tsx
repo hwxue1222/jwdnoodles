@@ -31,6 +31,45 @@ function toWhatsAppPhone(raw: string | undefined) {
   return digits;
 }
 
+type Meridiem = 'AM' | 'PM';
+
+function formatTime12Input(raw: string) {
+  const digits = raw.replace(/\D/g, '').slice(0, 4);
+  if (!digits) return '';
+  if (digits.length <= 2) return digits;
+  const hh = digits.length === 3 ? digits.slice(0, 1) : digits.slice(0, 2);
+  const mm = digits.length === 3 ? digits.slice(1) : digits.slice(2);
+  return `${hh.padStart(2, '0')}:${mm}`;
+}
+
+function normalizeTime12(raw: string) {
+  const digits = raw.replace(/\D/g, '').slice(0, 4);
+  if (!digits) return '';
+
+  let hh = 0;
+  let mm = 0;
+
+  if (digits.length <= 2) {
+    hh = Number(digits);
+    mm = 0;
+  } else if (digits.length === 3) {
+    hh = Number(digits.slice(0, 1));
+    mm = Number(digits.slice(1, 3));
+  } else {
+    hh = Number(digits.slice(0, 2));
+    mm = Number(digits.slice(2, 4));
+  }
+
+  if (!Number.isFinite(hh) || !Number.isFinite(mm)) return '';
+
+  if (hh <= 0) hh = 12;
+  if (hh > 12) hh = ((hh - 1) % 12) + 1;
+  if (mm < 0) mm = 0;
+  if (mm > 59) mm = 59;
+
+  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+}
+
 function Section({
   id,
   title,
@@ -72,7 +111,8 @@ export default function Home() {
   const [reservationName, setReservationName] = useState('');
   const [reservationPhone, setReservationPhone] = useState('');
   const [reservationDate, setReservationDate] = useState('');
-  const [reservationTime, setReservationTime] = useState('');
+  const [reservationTimeHHMM, setReservationTimeHHMM] = useState('');
+  const [reservationMeridiem, setReservationMeridiem] = useState<Meridiem>('PM');
   const [reservationPax, setReservationPax] = useState('2');
   const [reservationNote, setReservationNote] = useState('');
 
@@ -95,13 +135,16 @@ export default function Home() {
     e.preventDefault();
     if (!reservationStore) return;
 
+    const normalizedTime = normalizeTime12(reservationTimeHHMM);
+    const timeText = normalizedTime ? `${normalizedTime} ${reservationMeridiem}` : '-';
+
     const parts = [
       `${BRAND.chineseName} / ${BRAND.name}`,
       `${tt('reservation.store')}: ${reservationStore.name[lang]}`,
       `${tt('reservation.name')}: ${reservationName}`,
       `${tt('reservation.phone')}: ${reservationPhone}`,
       `${tt('reservation.date')}: ${reservationDate || '-'}`,
-      `${tt('reservation.time')}: ${reservationTime || '-'}`,
+      `${tt('reservation.time')}: ${timeText}`,
       `${tt('reservation.pax')}: ${reservationPax}`,
       reservationNote.trim() ? `${tt('reservation.note')}: ${reservationNote.trim()}` : null,
     ].filter(Boolean);
@@ -534,14 +577,25 @@ export default function Home() {
               </div>
               <div>
                 <label className="block text-sm text-[#2f4a31]">{tt('reservation.time')}</label>
-                <input
-                  type="text"
-                  inputMode="text"
-                  placeholder="HH:MM"
-                  value={reservationTime}
-                  onChange={(e) => setReservationTime(e.target.value)}
-                  className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
-                />
+                <div className="mt-1 flex items-center gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="e.g. 330"
+                    value={formatTime12Input(reservationTimeHHMM)}
+                    onChange={(e) => setReservationTimeHHMM(formatTime12Input(e.target.value))}
+                    onBlur={() => setReservationTimeHHMM(normalizeTime12(reservationTimeHHMM))}
+                    className="w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
+                  />
+                  <select
+                    value={reservationMeridiem}
+                    onChange={(e) => setReservationMeridiem(e.target.value as Meridiem)}
+                    className="h-11 px-3 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
+                  >
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm text-[#2f4a31]">{tt('reservation.note')}</label>
