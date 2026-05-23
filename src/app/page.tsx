@@ -33,7 +33,7 @@ function toWhatsAppPhone(raw: string | undefined) {
 
 function normalizeTimeValue(raw: string) {
   const v = raw.trim();
-  const m = v.match(/^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$/);
+  const m = v.match(/^(\d{1,2}):(\d{2})[\s\u00a0\u202f]*([AaPp][Mm])$/);
   if (m) {
     let hh = Number(m[1]);
     const mm = Number(m[2]);
@@ -45,6 +45,8 @@ function normalizeTimeValue(raw: string) {
   }
   const m2 = v.match(/^(\d{1,2}):(\d{2})$/);
   if (m2) return `${String(Number(m2[1])).padStart(2, '0')}:${m2[2]}`;
+  const m3 = v.match(/^(\d{1,2}):(\d{2}):(\d{2})$/);
+  if (m3) return `${String(Number(m3[1])).padStart(2, '0')}:${m3[2]}`;
   return v;
 }
 
@@ -108,6 +110,20 @@ export default function Home() {
   const [reservationTime, setReservationTime] = useState('');
   const [reservationPax, setReservationPax] = useState('2');
   const [reservationNote, setReservationNote] = useState('');
+
+  useEffect(() => {
+    if (!ready) return;
+    if (!reservationTime) return;
+    const next = normalizeTimeValue(reservationTime);
+    if (next !== reservationTime) setReservationTime(next);
+  }, [ready, reservationTime]);
+
+  useEffect(() => {
+    if (!ready) return;
+    if (!reservationDate) return;
+    const next = normalizeDateValue(reservationDate);
+    if (next !== reservationDate) setReservationDate(next);
+  }, [ready, reservationDate]);
 
   useEffect(() => {
     if (!ready) return;
@@ -569,7 +585,7 @@ export default function Home() {
                 <label className="block text-sm text-[#2f4a31]">{tt('reservation.time')}</label>
                 <input
                   type="time"
-                  value={reservationTime}
+                  value={normalizeTimeValue(reservationTime)}
                   onChange={(e) => setReservationTime(normalizeTimeValue(e.target.value))}
                   className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
                 />
