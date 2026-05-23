@@ -12,6 +12,7 @@ import { useLang } from '@/lib/useLang';
 import { BRAND, CONTACT, GLOBAL_LOCATIONS, MENU, MENU_PAGES, NEWS, STORES, Store } from '@/lib/siteData';
 
 const RESERVATION_STORE_KEY = 'lanzhou:reservation:storeId';
+const MENU_CATEGORY_KEY = 'lanzhou:menu:categoryId';
 
 function mapEmbedUrl(store: Store) {
   return `https://www.google.com/maps?q=${encodeURIComponent(store.map.placeQuery)}&output=embed`;
@@ -100,6 +101,12 @@ export default function Home() {
   const { lang, setLang } = useLang();
   const tt = (key: string, params?: Record<string, string | number>) => t(lang, key, params);
 
+  const [menuCategoryId, setMenuCategoryId] = useState(() => {
+    const fallback = MENU[0]?.id ?? '';
+    if (typeof window === 'undefined') return fallback;
+    return localStorage.getItem(MENU_CATEGORY_KEY) ?? fallback;
+  });
+
   const [lightbox, setLightbox] = useState<{ open: boolean; src?: string; alt: string }>({ open: false, alt: '' });
 
   const openLightbox = (src: string | undefined, alt: string) => setLightbox({ open: true, src, alt });
@@ -140,6 +147,24 @@ export default function Home() {
   const [reservationNote, setReservationNote] = useState('');
 
   const reservationStore = reservableStores.find((s) => s.id === reservationStoreId) ?? reservableStores[0];
+
+  const menuCategoriesToShow = useMemo(() => {
+    if (!menuCategoryId) return MENU;
+    const found = MENU.find((c) => c.id === menuCategoryId);
+    return found ? [found] : MENU;
+  }, [menuCategoryId]);
+
+  const menuCatCode = (catTitle: string) => {
+    const m = catTitle.match(/[A-Z]\./);
+    return m ? m[0].slice(0, 1) : catTitle.slice(0, 1);
+  };
+
+  const onPickMenuCategory = (nextId: string) => {
+    setMenuCategoryId(nextId);
+    try {
+      localStorage.setItem(MENU_CATEGORY_KEY, nextId);
+    } catch {}
+  };
 
   const onSubmitReservation = (e: React.FormEvent) => {
     e.preventDefault();
@@ -398,7 +423,30 @@ export default function Home() {
                 ))}
               </div>
 
-              {MENU.map((cat) => (
+              <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                {MENU.map((cat) => {
+                  const code = menuCatCode(cat.title.en);
+                  const active = cat.id === menuCategoryId;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      title={cat.title[lang]}
+                      onClick={() => onPickMenuCategory(cat.id)}
+                      className={[
+                        'shrink-0 h-9 min-w-9 px-3 rounded-full border text-sm font-semibold transition',
+                        active
+                          ? 'bg-[#3b5b3e] text-white border-[#3b5b3e]'
+                          : 'bg-white/70 text-[#2f4a31] border-[#c7d8b5] hover:bg-white',
+                      ].join(' ')}
+                    >
+                      {code}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {menuCategoriesToShow.map((cat) => (
                 <div key={cat.id}>
                   <div className="text-xl font-semibold text-[#2f4a31]">{cat.title[lang]}</div>
                   {cat.subtitle ? <div className="mt-1 text-sm text-[#486449]">{cat.subtitle[lang]}</div> : null}
