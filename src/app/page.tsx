@@ -31,6 +31,39 @@ function toWhatsAppPhone(raw: string | undefined) {
   return digits;
 }
 
+function normalizeTimeValue(raw: string) {
+  const v = raw.trim();
+  const m = v.match(/^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$/);
+  if (m) {
+    let hh = Number(m[1]);
+    const mm = Number(m[2]);
+    const ap = m[3].toUpperCase();
+    if (Number.isNaN(hh) || Number.isNaN(mm)) return '';
+    hh = hh % 12;
+    if (ap === 'PM') hh += 12;
+    return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+  }
+  const m2 = v.match(/^(\d{1,2}):(\d{2})$/);
+  if (m2) return `${String(Number(m2[1])).padStart(2, '0')}:${m2[2]}`;
+  return v;
+}
+
+function normalizeDateValue(raw: string) {
+  const v = raw.trim();
+  const m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) {
+    const a = Number(m[1]);
+    const b = Number(m[2]);
+    const y = Number(m[3]);
+    if (Number.isNaN(a) || Number.isNaN(b) || Number.isNaN(y)) return '';
+    const month = a > 12 && b <= 12 ? b : a;
+    const day = a > 12 && b <= 12 ? a : b;
+    if (month < 1 || month > 12 || day < 1 || day > 31) return '';
+    return `${String(y).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  }
+  return v;
+}
+
 function Section({
   id,
   title,
@@ -528,7 +561,7 @@ export default function Home() {
                 <input
                   type="date"
                   value={reservationDate}
-                  onChange={(e) => setReservationDate(e.target.value)}
+                  onChange={(e) => setReservationDate(normalizeDateValue(e.target.value))}
                   className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
                 />
               </div>
@@ -537,7 +570,7 @@ export default function Home() {
                 <input
                   type="time"
                   value={reservationTime}
-                  onChange={(e) => setReservationTime(e.target.value)}
+                  onChange={(e) => setReservationTime(normalizeTimeValue(e.target.value))}
                   className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
                 />
               </div>
