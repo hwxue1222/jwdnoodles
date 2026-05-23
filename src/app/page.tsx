@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BrandLogo } from '@/components/BrandLogo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Lightbox } from '@/components/Lightbox';
@@ -29,51 +29,6 @@ function toWhatsAppPhone(raw: string | undefined) {
   if (trimmed.startsWith('+0')) return `60${digits.slice(1)}`;
   if (trimmed.startsWith('0')) return `60${digits.slice(1)}`;
   return digits;
-}
-
-function normalizeTimeValue(raw: string) {
-  const v = raw.trim();
-  const m = v.match(/^(\d{1,2}):(\d{2})[\s\u00a0\u202f]*([AaPp][Mm])$/);
-  if (m) {
-    let hh = Number(m[1]);
-    const mm = Number(m[2]);
-    const ap = m[3].toUpperCase();
-    if (Number.isNaN(hh) || Number.isNaN(mm)) return '';
-    hh = hh % 12;
-    if (ap === 'PM') hh += 12;
-    return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
-  }
-  const m2 = v.match(/^(\d{1,2}):(\d{2})$/);
-  if (m2) return `${String(Number(m2[1])).padStart(2, '0')}:${m2[2]}`;
-  const m3 = v.match(/^(\d{1,2}):(\d{2}):(\d{2})$/);
-  if (m3) return `${String(Number(m3[1])).padStart(2, '0')}:${m3[2]}`;
-  return '';
-}
-
-function normalizeDateValue(raw: string) {
-  const v = raw.trim();
-  const m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (m) {
-    const a = Number(m[1]);
-    const b = Number(m[2]);
-    const y = Number(m[3]);
-    if (Number.isNaN(a) || Number.isNaN(b) || Number.isNaN(y)) return '';
-    const month = a > 12 && b <= 12 ? b : a;
-    const day = a > 12 && b <= 12 ? a : b;
-    if (month < 1 || month > 12 || day < 1 || day > 31) return '';
-    return `${String(y).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  }
-  return v;
-}
-
-function safeTimeValue(raw: string) {
-  const v = normalizeTimeValue(raw);
-  return /^\d{2}:\d{2}$/.test(v) ? v : '';
-}
-
-function safeDateValue(raw: string) {
-  const v = normalizeDateValue(raw);
-  return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '';
 }
 
 function Section({
@@ -120,44 +75,6 @@ export default function Home() {
   const [reservationTime, setReservationTime] = useState('');
   const [reservationPax, setReservationPax] = useState('2');
   const [reservationNote, setReservationNote] = useState('');
-
-  const reservationTimeRef = useRef<HTMLInputElement>(null);
-  const reservationDateRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (!ready) return;
-    const sync = () => {
-      const domTime = reservationTimeRef.current?.value ?? '';
-      const nextTime = safeTimeValue(domTime);
-      if (nextTime && nextTime !== reservationTime) setReservationTime(nextTime);
-
-      const domDate = reservationDateRef.current?.value ?? '';
-      const nextDate = safeDateValue(domDate);
-      if (nextDate && nextDate !== reservationDate) setReservationDate(nextDate);
-    };
-
-    sync();
-    const t1 = setTimeout(sync, 0);
-    const t2 = setTimeout(sync, 250);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
-  }, [ready, reservationTime, reservationDate]);
-
-  useEffect(() => {
-    if (!ready) return;
-    if (!reservationTime) return;
-    const next = safeTimeValue(reservationTime);
-    if (next !== reservationTime) setReservationTime(next);
-  }, [ready, reservationTime]);
-
-  useEffect(() => {
-    if (!ready) return;
-    if (!reservationDate) return;
-    const next = safeDateValue(reservationDate);
-    if (next !== reservationDate) setReservationDate(next);
-  }, [ready, reservationDate]);
 
   useEffect(() => {
     if (!ready) return;
@@ -610,23 +527,19 @@ export default function Home() {
                 <label className="block text-sm text-[#2f4a31]">{tt('reservation.date')}</label>
                 <input
                   type="date"
-                  ref={reservationDateRef}
-                  value={safeDateValue(reservationDate)}
+                  value={reservationDate}
                   onChange={(e) => setReservationDate(e.target.value)}
-                  onInput={(e) => setReservationDate((e.target as HTMLInputElement).value)}
-                  onBlur={() => setReservationDate(safeDateValue(reservationDateRef.current?.value ?? ''))}
                   className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
                 />
               </div>
               <div>
                 <label className="block text-sm text-[#2f4a31]">{tt('reservation.time')}</label>
                 <input
-                  type="time"
-                  ref={reservationTimeRef}
-                  value={safeTimeValue(reservationTime)}
+                  type="text"
+                  inputMode="text"
+                  placeholder="HH:MM"
+                  value={reservationTime}
                   onChange={(e) => setReservationTime(e.target.value)}
-                  onInput={(e) => setReservationTime((e.target as HTMLInputElement).value)}
-                  onBlur={() => setReservationTime(safeTimeValue(reservationTimeRef.current?.value ?? ''))}
                   className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
                 />
               </div>
