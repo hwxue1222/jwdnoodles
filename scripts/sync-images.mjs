@@ -118,6 +118,36 @@ const tasks = [
     outMime: 'image/jpeg',
   },
   {
+    fromBase: 'gallery-1',
+    to: path.join(publicDir, 'images', 'gallery', '1.jpg'),
+    outMime: 'image/jpeg',
+  },
+  {
+    fromBase: 'gallery-2',
+    to: path.join(publicDir, 'images', 'gallery', '2.jpg'),
+    outMime: 'image/jpeg',
+  },
+  {
+    fromBase: 'gallery-3',
+    to: path.join(publicDir, 'images', 'gallery', '3.jpg'),
+    outMime: 'image/jpeg',
+  },
+  {
+    fromBase: 'gallery-4',
+    to: path.join(publicDir, 'images', 'gallery', '4.jpg'),
+    outMime: 'image/jpeg',
+  },
+  {
+    fromBase: 'gallery-5',
+    to: path.join(publicDir, 'images', 'gallery', '5.jpg'),
+    outMime: 'image/jpeg',
+  },
+  {
+    fromBase: 'gallery-6',
+    to: path.join(publicDir, 'images', 'gallery', '6.jpg'),
+    outMime: 'image/jpeg',
+  },
+  {
     fromBase: 'brand-icon',
     to: path.join(publicDir, 'images', 'brand', 'icon.png'),
     outMime: 'image/png',

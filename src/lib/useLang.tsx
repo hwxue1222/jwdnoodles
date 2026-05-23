@@ -1,24 +1,31 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 import { detectLang, Lang, LANG_STORAGE_KEY } from '@/lib/i18n';
 
 export function useLang() {
-  const [lang, setLang] = useState<Lang>('zh');
-  const [ready, setReady] = useState(false);
+  const lang = useSyncExternalStore<Lang>(
+    (onStoreChange) => {
+      window.addEventListener('storage', onStoreChange);
+      window.addEventListener('lanzhou:lang', onStoreChange);
+      return () => {
+        window.removeEventListener('storage', onStoreChange);
+        window.removeEventListener('lanzhou:lang', onStoreChange);
+      };
+    },
+    () => {
+      const saved = localStorage.getItem(LANG_STORAGE_KEY);
+      const next: Lang =
+        saved === 'zh' || saved === 'en' || saved === 'ms' ? saved : detectLang(typeof navigator === 'undefined' ? '' : navigator.language);
+      return next;
+    },
+    () => 'zh',
+  );
 
-  useEffect(() => {
-    const saved = localStorage.getItem(LANG_STORAGE_KEY);
-    const next: Lang =
-      saved === 'zh' || saved === 'en' || saved === 'ms' ? saved : detectLang(typeof navigator === 'undefined' ? '' : navigator.language);
-    setLang(next);
-    setReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-    localStorage.setItem(LANG_STORAGE_KEY, lang);
-  }, [lang, ready]);
+  const setLang = (next: Lang) => {
+    localStorage.setItem(LANG_STORAGE_KEY, next);
+    window.dispatchEvent(new Event('lanzhou:lang'));
+  };
 
   const locale = useMemo(() => {
     if (lang === 'zh') return 'zh-CN';
@@ -26,6 +33,5 @@ export function useLang() {
     return 'en-US';
   }, [lang]);
 
-  return { lang, setLang, locale, ready };
+  return { lang, setLang, locale };
 }
-

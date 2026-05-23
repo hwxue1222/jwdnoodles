@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import { BrandLogo } from '@/components/BrandLogo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Lightbox } from '@/components/Lightbox';
@@ -97,7 +97,7 @@ function Section({
 }
 
 export default function Home() {
-  const { lang, setLang, ready } = useLang();
+  const { lang, setLang } = useLang();
   const tt = (key: string, params?: Record<string, string | number>) => t(lang, key, params);
 
   const [lightbox, setLightbox] = useState<{ open: boolean; src?: string; alt: string }>({ open: false, alt: '' });
@@ -107,7 +107,30 @@ export default function Home() {
 
   const reservableStores = useMemo(() => STORES.filter((s) => s.acceptsReservation), []);
   const defaultStoreId = reservableStores[0]?.id ?? '';
-  const [reservationStoreId, setReservationStoreId] = useState(defaultStoreId);
+  const reservationStoreId = useSyncExternalStore(
+    (onStoreChange) => {
+      if (typeof window === 'undefined') return () => {};
+      window.addEventListener('storage', onStoreChange);
+      window.addEventListener('lanzhou:reservation:storeId', onStoreChange);
+      return () => {
+        window.removeEventListener('storage', onStoreChange);
+        window.removeEventListener('lanzhou:reservation:storeId', onStoreChange);
+      };
+    },
+    () => {
+      if (typeof window === 'undefined') return defaultStoreId;
+      const saved = localStorage.getItem(RESERVATION_STORE_KEY);
+      const next = reservableStores.some((s) => s.id === saved) ? (saved as string) : defaultStoreId;
+      return next;
+    },
+    () => defaultStoreId,
+  );
+
+  const setReservationStoreId = (next: string) => {
+    if (!next) return;
+    localStorage.setItem(RESERVATION_STORE_KEY, next);
+    window.dispatchEvent(new Event('lanzhou:reservation:storeId'));
+  };
   const [reservationName, setReservationName] = useState('');
   const [reservationPhone, setReservationPhone] = useState('');
   const [reservationDate, setReservationDate] = useState('');
@@ -115,19 +138,6 @@ export default function Home() {
   const [reservationMeridiem, setReservationMeridiem] = useState<Meridiem>('PM');
   const [reservationPax, setReservationPax] = useState('2');
   const [reservationNote, setReservationNote] = useState('');
-
-  useEffect(() => {
-    if (!ready) return;
-    const saved = localStorage.getItem(RESERVATION_STORE_KEY);
-    const next = reservableStores.some((s) => s.id === saved) ? (saved as string) : defaultStoreId;
-    setReservationStoreId(next);
-  }, [ready, defaultStoreId, reservableStores]);
-
-  useEffect(() => {
-    if (!ready) return;
-    if (!reservationStoreId) return;
-    localStorage.setItem(RESERVATION_STORE_KEY, reservationStoreId);
-  }, [reservationStoreId, ready]);
 
   const reservationStore = reservableStores.find((s) => s.id === reservationStoreId) ?? reservableStores[0];
 
@@ -278,31 +288,16 @@ export default function Home() {
               <p className="mt-4">{tt('section.about.p2')}</p>
             </div>
             <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
-              <div className="grid grid-cols-2 gap-4">
-                <SafeImg
-                  src="/images/gallery/1.jpg"
-                  alt="Gallery 1"
-                  className="w-full h-40 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
-                  onClick={() => openLightbox('/images/gallery/1.jpg', 'Gallery 1')}
-                />
-                <SafeImg
-                  src="/images/gallery/2.jpg"
-                  alt="Gallery 2"
-                  className="w-full h-40 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
-                  onClick={() => openLightbox('/images/gallery/2.jpg', 'Gallery 2')}
-                />
-                <SafeImg
-                  src="/images/gallery/3.jpg"
-                  alt="Gallery 3"
-                  className="w-full h-40 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
-                  onClick={() => openLightbox('/images/gallery/3.jpg', 'Gallery 3')}
-                />
-                <SafeImg
-                  src="/images/gallery/4.jpg"
-                  alt="Gallery 4"
-                  className="w-full h-40 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
-                  onClick={() => openLightbox('/images/gallery/4.jpg', 'Gallery 4')}
-                />
+              <div className="rounded-xl overflow-hidden border border-[#d5e6c3] bg-[#edf4e5]">
+                <div className="relative w-full aspect-[16/9]">
+                  <video
+                    className="absolute inset-0 w-full h-full object-contain"
+                    src="/videos/about.mp4"
+                    controls
+                    playsInline
+                    preload="auto"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -542,9 +537,12 @@ export default function Home() {
               <div>
                 <label className="block text-sm text-[#2f4a31]">{tt('reservation.pax')}</label>
                 <input
+                  type="number"
                   value={reservationPax}
                   onChange={(e) => setReservationPax(e.target.value)}
                   inputMode="numeric"
+                  min={1}
+                  step={1}
                   className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
                   required
                 />
@@ -554,6 +552,7 @@ export default function Home() {
                 <input
                   value={reservationName}
                   onChange={(e) => setReservationName(e.target.value)}
+                  autoComplete="name"
                   className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
                   required
                 />
@@ -561,8 +560,11 @@ export default function Home() {
               <div>
                 <label className="block text-sm text-[#2f4a31]">{tt('reservation.phone')}</label>
                 <input
+                  type="tel"
                   value={reservationPhone}
                   onChange={(e) => setReservationPhone(e.target.value)}
+                  inputMode="tel"
+                  autoComplete="tel"
                   className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
                   required
                 />
@@ -574,6 +576,7 @@ export default function Home() {
                   value={reservationDate}
                   onChange={(e) => setReservationDate(e.target.value)}
                   className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
+                  required
                 />
               </div>
               <div>
@@ -587,6 +590,8 @@ export default function Home() {
                     onChange={(e) => setReservationTimeHHMM(formatTime12Input(e.target.value))}
                     onBlur={() => setReservationTimeHHMM(normalizeTime12(reservationTimeHHMM))}
                     className="w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
+                    pattern="\\d{1,2}(:\\d{2})?"
+                    required
                   />
                   <select
                     value={reservationMeridiem}
@@ -607,16 +612,22 @@ export default function Home() {
                   className="mt-1 w-full min-h-[96px] px-4 py-3 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
                 />
               </div>
-              <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3">
-                <div className="text-sm text-[#486449]">
-                  {reservationStore?.reservationWhatsAppPhone ?? CONTACT.phone}
+              <div className="md:col-span-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="text-[#486449] leading-relaxed">
+                  <div className="text-xs font-semibold tracking-wide text-[#2f4a31]">Disclaimer</div>
+                  <div className="mt-1 text-sm">{tt('reservation.disclaimer')}</div>
                 </div>
-                <button
-                  type="submit"
-                  className="h-11 px-6 rounded-full bg-[#3b5b3e] text-white hover:bg-[#2f4a31] transition"
-                >
-                  {tt('reservation.submit')}
-                </button>
+                <div className="flex flex-wrap items-center justify-between gap-3 md:flex-nowrap md:justify-end">
+                  <div className="text-sm text-[#486449] md:text-right">
+                    {reservationStore?.reservationWhatsAppPhone ?? CONTACT.phone}
+                  </div>
+                  <button
+                    type="submit"
+                    className="h-11 px-6 rounded-full bg-[#3b5b3e] text-white hover:bg-[#2f4a31] transition"
+                  >
+                    {tt('reservation.submit')}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -625,7 +636,7 @@ export default function Home() {
         <div className="py-12 md:py-14" />
 
         <Section id="contact" title={tt('section.contact.title')} subtitle={tt('contact.subtitle')}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="max-w-3xl mx-auto">
             <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
               <div className="grid grid-cols-1 gap-4 text-[#2f4a31]">
                 <div>
@@ -638,7 +649,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="text-sm text-[#486449]">{tt('contact.address')}</div>
-                  <div className="mt-1">{reservationStore?.address?.[lang] ?? STORES[0]?.address?.[lang] ?? ''}</div>
+                  <div className="mt-1">{CONTACT.address[lang]}</div>
                 </div>
               </div>
               <div className="mt-6">
@@ -646,23 +657,6 @@ export default function Home() {
                 <div className="mt-3">
                   <SocialLinks />
                 </div>
-              </div>
-            </div>
-            <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
-              <div className="text-[#274126] font-semibold">Photos</div>
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <SafeImg
-                  src="/images/gallery/5.jpg"
-                  alt="Gallery 5"
-                  className="w-full h-44 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
-                  onClick={() => openLightbox('/images/gallery/5.jpg', 'Gallery 5')}
-                />
-                <SafeImg
-                  src="/images/gallery/6.jpg"
-                  alt="Gallery 6"
-                  className="w-full h-44 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
-                  onClick={() => openLightbox('/images/gallery/6.jpg', 'Gallery 6')}
-                />
               </div>
             </div>
           </div>

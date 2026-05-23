@@ -59,15 +59,20 @@ export const BRAND = {
 };
 
 export const SOCIAL_LINKS = {
-  facebook: 'https://www.facebook.com/',
-  tiktok: 'https://www.tiktok.com/',
-  xiaohongshu: 'https://www.xiaohongshu.com/',
+  facebook: 'https://www.facebook.com/JWDfood',
+  tiktok: 'https://www.tiktok.com/@jwdmeetarik',
+  xiaohongshu: 'https://www.xiaohongshu.com/user/profile/5482367737',
   whatsapp: 'https://wa.me/60123456789',
 } as const;
 
 export const CONTACT = {
   phone: '+60 17-812 6685',
   email: 'jinweide.my@gmail.com',
+  address: {
+    zh: 'RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000, Iskandar Puteri, Johor, Malaysia',
+    en: 'RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000, Iskandar Puteri, Johor, Malaysia',
+    ms: 'RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000, Iskandar Puteri, Johor, Malaysia',
+  } satisfies Record<Lang, string>,
 } as const;
 
 export const STORES: Store[] = [
@@ -149,74 +154,92 @@ export const GLOBAL_LOCATIONS: GlobalLocation[] = [
   {
     id: 'lanzhou_china',
     label: { zh: '兰州，中国', en: 'Lanzhou, China', ms: 'Lanzhou, China' },
-    pin: { xPct: 77.1, yPct: 30.0 },
+    pin: { xPct: 76.0, yPct: 31.4 },
     photoSrc: '/images/global/lanzhou-china.jpg',
   },
   {
     id: 'san_francisco',
     label: { zh: '旧金山，美国', en: 'San Francisco, USA', ms: 'San Francisco, USA' },
-    pin: { xPct: 18.0, yPct: 29.2 },
+    pin: { xPct: 7.8, yPct: 30.4 },
     photoSrc: '/images/global/san-francisco.jpg',
   },
   {
     id: 'london',
     label: { zh: '伦敦，英国', en: 'London, UK', ms: 'London, UK' },
-    pin: { xPct: 50.0, yPct: 23.1 },
+    pin: { xPct: 44.7, yPct: 19.3 },
     photoSrc: '/images/global/london.jpg',
   },
   {
     id: 'amsterdam',
     label: { zh: '阿姆斯特丹，荷兰', en: 'Amsterdam, Netherlands', ms: 'Amsterdam, Netherlands' },
-    pin: { xPct: 51.3, yPct: 22.7 },
+    pin: { xPct: 46.2, yPct: 19.3 },
     photoSrc: '/images/global/amsterdam.jpg',
   },
   {
     id: 'frankfurt',
     label: { zh: '法兰克福，德国', en: 'Frankfurt, Germany', ms: 'Frankfurt, Germany' },
-    pin: { xPct: 52.3, yPct: 23.7 },
+    pin: { xPct: 47.8, yPct: 21.1 },
     photoSrc: '/images/global/frankfurt.jpg',
   },
   {
     id: 'spain',
-    label: { zh: '西班牙', en: 'Spain', ms: 'Sepanyol' },
-    pin: { xPct: 49.0, yPct: 28.0 },
-    photoSrc: '/images/global/spain.jpg',
+    label: { zh: '巴塞罗那，西班牙', en: 'Barcelona, Spain', ms: 'Barcelona, Sepanyol' },
+    pin: { xPct: 45.4, yPct: 23.1 },
+    photoSrc: '/images/global/barcelona.jpg',
   },
   {
     id: 'turkmenistan',
     label: { zh: '土库曼斯坦', en: 'Turkmenistan', ms: 'Turkmenistan' },
-    pin: { xPct: 65.2, yPct: 29.1 },
+    pin: { xPct: 61.3, yPct: 27.6 },
     photoSrc: '/images/global/turkmenistan.jpg',
   },
   {
-    id: 'malaysia',
-    label: { zh: '马来西亚', en: 'Malaysia', ms: 'Malaysia' },
-    pin: { xPct: 76.6, yPct: 44.6 },
-    photoSrc: '/images/global/malaysia.jpg',
+    id: 'puteri_harbour_my',
+    label: { zh: 'Puteri Harbour，马来西亚', en: 'Puteri Harbour, Malaysia', ms: 'Puteri Harbour, Malaysia' },
+    pin: { xPct: 77.8, yPct: 55.6 },
+    photoSrc: '/images/stores/puteri-harbour.jpg',
+  },
+  {
+    id: 'kulai_my',
+    label: { zh: 'Kulai，马来西亚', en: 'Kulai, Malaysia', ms: 'Kulai, Malaysia' },
+    pin: { xPct: 77.2, yPct: 54.7 },
+    photoSrc: '/images/stores/kulai-commune.jpg',
+  },
+  {
+    id: 'jb_mutiara_rini_my',
+    label: { zh: 'Johor Bahru，马来西亚', en: 'Johor Bahru, Malaysia', ms: 'Johor Bahru, Malaysia' },
+    pin: { xPct: 78.4, yPct: 55.0 },
+    photoSrc: '/images/stores/lotus-mutiara-rini.jpg',
   },
   {
     id: 'perth',
     label: { zh: '珀斯，澳大利亚', en: 'Perth, Australia', ms: 'Perth, Australia' },
-    pin: { xPct: 80.3, yPct: 60.2 },
+    pin: { xPct: 80.7, yPct: 81.4 },
     photoSrc: '/images/global/perth.jpg',
   },
   {
     id: 'sydney',
     label: { zh: '悉尼，澳大利亚', en: 'Sydney, Australia', ms: 'Sydney, Australia' },
-    pin: { xPct: 89.5, yPct: 61.1 },
+    pin: { xPct: 91.5, yPct: 82.8 },
     photoSrc: '/images/global/sydney.jpg',
   },
   {
     id: 'auckland',
     label: { zh: '奥克兰，新西兰', en: 'Auckland, New Zealand', ms: 'Auckland, New Zealand' },
-    pin: { xPct: 95.6, yPct: 62.4 },
+    pin: { xPct: 98.0, yPct: 85.2 },
     photoSrc: '/images/global/auckland.jpg',
   },
   {
     id: 'christchurch',
     label: { zh: '基督城，新西兰', en: 'Christchurch, New Zealand', ms: 'Christchurch, New Zealand' },
-    pin: { xPct: 95.1, yPct: 65.3 },
+    pin: { xPct: 96.3, yPct: 90.1 },
     photoSrc: '/images/global/christchurch.jpg',
+  },
+  {
+    id: 'cambridge_uk',
+    label: { zh: '剑桥，英国', en: 'Cambridge, UK', ms: 'Cambridge, UK' },
+    pin: { xPct: 45.2, yPct: 18.7 },
+    photoSrc: '/images/global/london.jpg',
   },
 ];
 

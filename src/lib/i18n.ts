@@ -64,6 +64,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'reservation.time': '时间',
     'reservation.pax': '人数',
     'reservation.note': '备注（可选）',
+    'reservation.disclaimer': '订位不保证一定有座位，但我们会在您到店时尽量优先安排。',
     'reservation.submit': '用 WhatsApp 发送订位',
     'reservation.placeholder.note': '例如：靠窗、儿童椅、过敏提示…',
 
@@ -129,6 +130,8 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'reservation.time': 'Time',
     'reservation.pax': 'Guests',
     'reservation.note': 'Notes (optional)',
+    'reservation.disclaimer':
+      'the reservation does not guarantee you a seat but we will try to prioritize your seating upon arrival.',
     'reservation.submit': 'Send via WhatsApp',
     'reservation.placeholder.note': 'e.g. window seat, baby chair, allergy notes…',
 
@@ -194,6 +197,8 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'reservation.time': 'Masa',
     'reservation.pax': 'Bilangan',
     'reservation.note': 'Nota (pilihan)',
+    'reservation.disclaimer':
+      'Tempahan tidak menjamin tempat duduk, namun kami akan cuba memberi keutamaan tempat duduk apabila anda tiba.',
     'reservation.submit': 'Hantar melalui WhatsApp',
     'reservation.placeholder.note': 'cth. tempat tepi tingkap, kerusi bayi, alahan…',
 
