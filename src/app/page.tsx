@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BrandLogo } from '@/components/BrandLogo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Lightbox } from '@/components/Lightbox';
@@ -47,7 +47,7 @@ function normalizeTimeValue(raw: string) {
   if (m2) return `${String(Number(m2[1])).padStart(2, '0')}:${m2[2]}`;
   const m3 = v.match(/^(\d{1,2}):(\d{2}):(\d{2})$/);
   if (m3) return `${String(Number(m3[1])).padStart(2, '0')}:${m3[2]}`;
-  return v;
+  return '';
 }
 
 function normalizeDateValue(raw: string) {
@@ -64,6 +64,16 @@ function normalizeDateValue(raw: string) {
     return `${String(y).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   }
   return v;
+}
+
+function safeTimeValue(raw: string) {
+  const v = normalizeTimeValue(raw);
+  return /^\d{2}:\d{2}$/.test(v) ? v : '';
+}
+
+function safeDateValue(raw: string) {
+  const v = normalizeDateValue(raw);
+  return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '';
 }
 
 function Section({
@@ -111,17 +121,41 @@ export default function Home() {
   const [reservationPax, setReservationPax] = useState('2');
   const [reservationNote, setReservationNote] = useState('');
 
+  const reservationTimeRef = useRef<HTMLInputElement>(null);
+  const reservationDateRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!ready) return;
+    const sync = () => {
+      const domTime = reservationTimeRef.current?.value ?? '';
+      const nextTime = safeTimeValue(domTime);
+      if (nextTime && nextTime !== reservationTime) setReservationTime(nextTime);
+
+      const domDate = reservationDateRef.current?.value ?? '';
+      const nextDate = safeDateValue(domDate);
+      if (nextDate && nextDate !== reservationDate) setReservationDate(nextDate);
+    };
+
+    sync();
+    const t1 = setTimeout(sync, 0);
+    const t2 = setTimeout(sync, 250);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [ready, reservationTime, reservationDate]);
+
   useEffect(() => {
     if (!ready) return;
     if (!reservationTime) return;
-    const next = normalizeTimeValue(reservationTime);
+    const next = safeTimeValue(reservationTime);
     if (next !== reservationTime) setReservationTime(next);
   }, [ready, reservationTime]);
 
   useEffect(() => {
     if (!ready) return;
     if (!reservationDate) return;
-    const next = normalizeDateValue(reservationDate);
+    const next = safeDateValue(reservationDate);
     if (next !== reservationDate) setReservationDate(next);
   }, [ready, reservationDate]);
 
@@ -576,8 +610,11 @@ export default function Home() {
                 <label className="block text-sm text-[#2f4a31]">{tt('reservation.date')}</label>
                 <input
                   type="date"
-                  value={reservationDate}
-                  onChange={(e) => setReservationDate(normalizeDateValue(e.target.value))}
+                  ref={reservationDateRef}
+                  value={safeDateValue(reservationDate)}
+                  onChange={(e) => setReservationDate(e.target.value)}
+                  onInput={(e) => setReservationDate((e.target as HTMLInputElement).value)}
+                  onBlur={() => setReservationDate(safeDateValue(reservationDateRef.current?.value ?? ''))}
                   className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
                 />
               </div>
@@ -585,8 +622,11 @@ export default function Home() {
                 <label className="block text-sm text-[#2f4a31]">{tt('reservation.time')}</label>
                 <input
                   type="time"
-                  value={normalizeTimeValue(reservationTime)}
-                  onChange={(e) => setReservationTime(normalizeTimeValue(e.target.value))}
+                  ref={reservationTimeRef}
+                  value={safeTimeValue(reservationTime)}
+                  onChange={(e) => setReservationTime(e.target.value)}
+                  onInput={(e) => setReservationTime((e.target as HTMLInputElement).value)}
+                  onBlur={() => setReservationTime(safeTimeValue(reservationTimeRef.current?.value ?? ''))}
                   className="mt-1 w-full h-11 px-4 rounded-xl border border-[#c7d8b5] bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#3b5b3e]/30"
                 />
               </div>
