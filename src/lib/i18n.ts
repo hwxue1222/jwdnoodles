@@ -31,7 +31,10 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'section.about.p1':
       '金味德牛肉拉面品牌，总部位于甘肃兰州，创始于1986年，是一家兰州牛肉拉面国际连锁品牌，目前在美国、新西兰、西班牙、荷兰、德国、英国、马来西亚等世界60多个国家注册商标、开展业务，海外外连锁店数量达百余家。',
     'section.about.p2':
-      '“金味德，一个始于兰州的传奇”，品牌以正宗传统兰州牛肉拉面为主导，辅以西北特色如肉夹馍、烤肉、凉菜、小吃等。荣获“2018年中国快餐70强”、“改革开放40年中国餐饮行业模式创新突出贡献企业”等多项荣誉。',
+      '“金味德，一个始于兰州的传奇”，品牌以正宗传统兰州牛肉拉面为主导，辅以西北特色如肉夹馍、烤肉、凉菜、小吃等。荣获“2018年中国快餐50强”、“改革开放40年中国餐饮行业模式创新突出贡献企业”等多项荣誉。',
+
+    'section.global.title': '全球门店',
+    'section.global.subtitle': '点击地图标记查看各地门店照片',
 
     'section.stores.title': '门店与营业时间',
     'section.stores.subtitle': '公共假期照常营业',
@@ -71,7 +74,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'contact.address': '地址',
     'contact.follow': '关注我们',
 
-    'footer.rights': () => `© 2022 JWD Mee Tarik (M)`,
+    'footer.rights': () => `© 2022 JWD Mee Tarik (M). All rights reserved.`,
   },
   en: {
     'nav.about': 'About',
@@ -90,9 +93,12 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
 
     'section.about.title': 'About Us',
     'section.about.p1':
-      'JWD Mee Tarik (Jinweide Beef Noodles) was founded in 1986 with headquarters in Lanzhou, Gansu. It is an international chain brand of Lanzhou beef noodles, with trademarks and operations in more than 60 countries including the USA, New Zealand, Spain, the Netherlands, Germany, the UK, and Malaysia, and over 100 chain stores overseas.',
+      '金味德 (Jinweide Beef Noodles) was founded in 1986 with headquarters in Lanzhou, Gansu. It is an international chain brand of Lanzhou beef noodles, with trademarks and operations in more than 60 countries including the USA, New Zealand, Spain, the Netherlands, Germany, the UK, and Malaysia, and over 100 chain stores overseas.',
     'section.about.p2':
-      '“Jinweide, a legend originating from Lanzhou.” The brand focuses on authentic traditional Lanzhou beef noodles, complemented by northwest specialties such as roujiamo (Chinese hamburger), roasted meat, cold dishes, and snacks. It has received honors including “China Fast Food Top 70 (2018)” and “Outstanding Contribution Enterprise in Catering Model Innovation (40 Years of Reform and Opening-up)”.',
+      '“Jinweide, a legend originating from Lanzhou.” The brand focuses on authentic traditional Lanzhou beef noodles, complemented by northwest specialties such as roujiamo (Chinese hamburger), roasted meat, cold dishes, and snacks. It has received honors including “China Fast Food Top 50 (2018)” and “Outstanding Contribution Enterprise in Catering Model Innovation (40 Years of Reform and Opening-up)”.',
+
+    'section.global.title': 'Global Footprint',
+    'section.global.subtitle': 'Click a pin to view store photos around the world',
 
     'section.stores.title': 'Stores & Operating',
     'section.stores.subtitle': 'We are open on public holidays.',
@@ -133,7 +139,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'contact.address': 'Address',
     'contact.follow': 'Follow',
 
-    'footer.rights': () => `© 2022 JWD Mee Tarik (M)`,
+    'footer.rights': () => `© 2022 JWD Mee Tarik (M). All rights reserved.`,
   },
   ms: {
     'nav.about': 'Tentang',
@@ -152,9 +158,12 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
 
     'section.about.title': 'Tentang Kami',
     'section.about.p1':
-      'JWD Mee Tarik (Jinweide Beef Noodles) diasaskan pada tahun 1986 dan beribu pejabat di Lanzhou, Gansu. Ia merupakan jenama rangkaian antarabangsa mee sup daging Lanzhou, dengan tanda dagangan dan operasi di lebih 60 negara termasuk Amerika Syarikat, New Zealand, Sepanyol, Belanda, Jerman, United Kingdom dan Malaysia, serta mempunyai lebih 100 cawangan di luar negara.',
+      '金味德 (Jinweide Beef Noodles) diasaskan pada tahun 1986 dan beribu pejabat di Lanzhou, Gansu. Ia merupakan jenama rangkaian antarabangsa mee sup daging Lanzhou, dengan tanda dagangan dan operasi di lebih 60 negara termasuk Amerika Syarikat, New Zealand, Sepanyol, Belanda, Jerman, United Kingdom dan Malaysia, serta mempunyai lebih 100 cawangan di luar negara.',
     'section.about.p2':
-      '“Jinweide, legenda yang bermula dari Lanzhou.” Jenama ini menumpukan mee sup daging Lanzhou tradisional yang asli, serta hidangan istimewa barat laut seperti roujiamo, daging panggang, hidangan sejuk dan snek. Ia juga menerima pelbagai anugerah termasuk “China Fast Food Top 70 (2018)” dan “Outstanding Contribution Enterprise in Catering Model Innovation (40 Years of Reform and Opening-up)”.',
+      '“Jinweide, legenda yang bermula dari Lanzhou.” Jenama ini menumpukan mee sup daging Lanzhou tradisional yang asli, serta hidangan istimewa barat laut seperti roujiamo, daging panggang, hidangan sejuk dan snek. Ia juga menerima pelbagai anugerah termasuk “China Fast Food Top 50 (2018)” dan “Outstanding Contribution Enterprise in Catering Model Innovation (40 Years of Reform and Opening-up)”.',
+
+    'section.global.title': 'Jejak Global',
+    'section.global.subtitle': 'Klik pin untuk melihat foto cawangan di seluruh dunia',
 
     'section.stores.title': 'Cawangan & Waktu Operasi',
     'section.stores.subtitle': 'Kami dibuka pada cuti umum.',
@@ -195,7 +204,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'contact.address': 'Alamat',
     'contact.follow': 'Ikuti',
 
-    'footer.rights': () => `© 2022 JWD Mee Tarik (M)`,
+    'footer.rights': () => `© 2022 JWD Mee Tarik (M). All rights reserved.`,
   },
 };
 

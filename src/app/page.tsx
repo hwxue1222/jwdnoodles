@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BrandLogo } from '@/components/BrandLogo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Lightbox } from '@/components/Lightbox';
 import { SafeImg } from '@/components/SafeImg';
 import { SocialLinks } from '@/components/SocialLinks';
+import { WorldMap } from '@/components/WorldMap';
 import { t } from '@/lib/i18n';
 import { useLang } from '@/lib/useLang';
-import { BRAND, CONTACT, MENU, MENU_PAGES, NEWS, STORES, Store } from '@/lib/siteData';
+import { BRAND, CONTACT, GLOBAL_LOCATIONS, MENU, MENU_PAGES, NEWS, STORES, Store } from '@/lib/siteData';
 
 const RESERVATION_STORE_KEY = 'lanzhou:reservation:storeId';
 
@@ -18,6 +19,16 @@ function mapEmbedUrl(store: Store) {
 
 function mapOpenUrl(store: Store) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.map.placeQuery)}`;
+}
+
+function toWhatsAppPhone(raw: string | undefined) {
+  if (!raw) return '';
+  const trimmed = raw.trim();
+  const digits = trimmed.replace(/\D/g, '');
+  if (!digits) return '';
+  if (trimmed.startsWith('+0')) return `60${digits.slice(1)}`;
+  if (trimmed.startsWith('0')) return `60${digits.slice(1)}`;
+  return digits;
 }
 
 function Section({
@@ -55,7 +66,7 @@ export default function Home() {
   const openLightbox = (src: string | undefined, alt: string) => setLightbox({ open: true, src, alt });
   const closeLightbox = () => setLightbox((s) => ({ ...s, open: false }));
 
-  const reservableStores = STORES.filter((s) => s.acceptsReservation);
+  const reservableStores = useMemo(() => STORES.filter((s) => s.acceptsReservation), []);
   const defaultStoreId = reservableStores[0]?.id ?? '';
   const [reservationStoreId, setReservationStoreId] = useState(defaultStoreId);
   const [reservationName, setReservationName] = useState('');
@@ -96,8 +107,11 @@ export default function Home() {
     ].filter(Boolean);
 
     const msg = parts.join('\n');
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-    window.open(whatsappUrl, '_blank', 'noreferrer');
+    const storePhone = toWhatsAppPhone(reservationStore.reservationWhatsAppPhone ?? CONTACT.phone);
+    const whatsappUrl = storePhone
+      ? `https://wa.me/${storePhone}?text=${encodeURIComponent(msg)}`
+      : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -248,6 +262,21 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </Section>
+
+        <div className="py-12 md:py-14" />
+
+        <Section id="global" title={tt('section.global.title')} subtitle={tt('section.global.subtitle')}>
+          <WorldMap
+            locations={GLOBAL_LOCATIONS.map((l) => ({
+              id: l.id,
+              label: l.label[lang],
+              xPct: l.pin.xPct,
+              yPct: l.pin.yPct,
+              photoSrc: l.photoSrc,
+            }))}
+            onOpen={openLightbox}
+          />
         </Section>
 
         <div className="py-12 md:py-14" />
@@ -523,7 +552,7 @@ export default function Home() {
               </div>
               <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3">
                 <div className="text-sm text-[#486449]">
-                  {CONTACT.phone} · {CONTACT.email}
+                  {reservationStore?.reservationWhatsAppPhone ?? CONTACT.phone}
                 </div>
                 <button
                   type="submit"

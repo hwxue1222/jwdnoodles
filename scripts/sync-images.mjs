@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const projectRoot = process.cwd();
 const inputDir = path.join(projectRoot, 'Pic', 'Input');
+const inputMenuDir = path.join(inputDir, 'menu');
 const publicDir = path.join(projectRoot, 'public');
 const outputDir = path.join(projectRoot, 'Pic', 'Output');
 
@@ -34,12 +35,18 @@ const IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.webp'];
 
 const findInputByBaseName = async (baseName) => {
   try {
-    const files = await fs.readdir(inputDir);
-    const lowerMap = new Map(files.map((f) => [f.toLowerCase(), f]));
-    for (const ext of IMAGE_EXTS) {
-      const candidate = `${baseName}${ext}`;
-      const hit = lowerMap.get(candidate.toLowerCase());
-      if (hit) return path.join(inputDir, hit);
+    for (const dir of [inputDir, inputMenuDir]) {
+      try {
+        const files = await fs.readdir(dir);
+        const lowerMap = new Map(files.map((f) => [f.toLowerCase(), f]));
+        for (const ext of IMAGE_EXTS) {
+          const candidate = `${baseName}${ext}`;
+          const hit = lowerMap.get(candidate.toLowerCase());
+          if (hit) return path.join(dir, hit);
+        }
+      } catch {
+        continue;
+      }
     }
     return null;
   } catch {
@@ -111,11 +118,6 @@ const tasks = [
     outMime: 'image/jpeg',
   },
   {
-    fromBase: 'brand-logo',
-    to: path.join(publicDir, 'images', 'brand', 'logo.png'),
-    outMime: 'image/png',
-  },
-  {
     fromBase: 'brand-icon',
     to: path.join(publicDir, 'images', 'brand', 'icon.png'),
     outMime: 'image/png',
@@ -144,40 +146,77 @@ const tasks = [
 
 const discoverDishTasks = async () => {
   try {
-    const files = await fs.readdir(inputDir);
     const dishTasks = [];
+    const seen = new Set();
+
+    for (const dir of [inputDir, inputMenuDir]) {
+      let files = [];
+      try {
+        files = await fs.readdir(dir);
+      } catch {
+        files = [];
+      }
+      for (const f of files) {
+        const ext = path.extname(f).toLowerCase();
+        if (!IMAGE_EXTS.includes(ext)) continue;
+        const base = path.parse(f).name;
+
+        let code = '';
+        let fromBase = '';
+        const m1 = base.match(/^[A-Za-z][0-9]{1,2}$/);
+        const m2 = base.match(/^dish-([A-Za-z][0-9]{1,2})$/);
+        if (m1) {
+          code = base.toUpperCase();
+          fromBase = base;
+        } else if (m2) {
+          code = m2[1].toUpperCase();
+          fromBase = base;
+        } else {
+          continue;
+        }
+
+        if (seen.has(code)) continue;
+        seen.add(code);
+
+        dishTasks.push({
+          fromBase,
+          to: path.join(publicDir, 'images', 'dishes', `${code}.jpg`),
+          outMime: 'image/jpeg',
+        });
+      }
+    }
+
+    return dishTasks;
+  } catch {
+    return [];
+  }
+};
+
+const discoverGlobalTasks = async () => {
+  try {
+    const files = await fs.readdir(inputDir);
+    const globalTasks = [];
     const seen = new Set();
 
     for (const f of files) {
       const ext = path.extname(f).toLowerCase();
       if (!IMAGE_EXTS.includes(ext)) continue;
       const base = path.parse(f).name;
+      const m = base.match(/^global-([a-z0-9-]+)$/i);
+      if (!m) continue;
 
-      let code = '';
-      let fromBase = '';
-      const m1 = base.match(/^[A-Za-z][0-9]{1,2}$/);
-      const m2 = base.match(/^dish-([A-Za-z][0-9]{1,2})$/);
-      if (m1) {
-        code = base.toUpperCase();
-        fromBase = base;
-      } else if (m2) {
-        code = m2[1].toUpperCase();
-        fromBase = base;
-      } else {
-        continue;
-      }
+      const slug = m[1].toLowerCase();
+      if (seen.has(slug)) continue;
+      seen.add(slug);
 
-      if (seen.has(code)) continue;
-      seen.add(code);
-
-      dishTasks.push({
-        fromBase,
-        to: path.join(publicDir, 'images', 'dishes', `${code}.jpg`),
+      globalTasks.push({
+        fromBase: base,
+        to: path.join(publicDir, 'images', 'global', `${slug}.jpg`),
         outMime: 'image/jpeg',
       });
     }
 
-    return dishTasks;
+    return globalTasks;
   } catch {
     return [];
   }
@@ -190,7 +229,8 @@ if (!(await exists(inputDir))) {
 
 const results = [];
 const dishTasks = await discoverDishTasks();
-for (const t of [...tasks, ...dishTasks]) results.push(await enhanceAndCopyIfExists(t));
+const globalTasks = await discoverGlobalTasks();
+for (const t of [...tasks, ...dishTasks, ...globalTasks]) results.push(await enhanceAndCopyIfExists(t));
 
 const copied = results.filter((r) => r.ok);
 const missing = results.filter((r) => !r.ok);

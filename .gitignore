@@ -27,6 +27,9 @@
 # local assets (source materials)
 /Pic/
 
+# local OCR data
+.tesseract/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
