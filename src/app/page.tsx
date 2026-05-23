@@ -139,6 +139,7 @@ export default function Home() {
     const timeText = normalizedTime ? `${normalizedTime} ${reservationMeridiem}` : '-';
 
     const parts = [
+      'Reservation',
       `${BRAND.chineseName} / ${BRAND.name}`,
       `${tt('reservation.store')}: ${reservationStore.name[lang]}`,
       `${tt('reservation.name')}: ${reservationName}`,
