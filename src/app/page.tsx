@@ -231,7 +231,7 @@ export default function Home() {
             <div className="hidden md:block">
               <SocialLinks />
             </div>
-            <LanguageSwitcher lang={lang} onChange={setLang} />
+            <LanguageSwitcher lang={lang} onChange={setLang} compact />
           </div>
         </div>
         <div className="lg:hidden px-4 md:px-8 pb-3">
