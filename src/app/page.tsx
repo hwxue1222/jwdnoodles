@@ -336,11 +336,7 @@ export default function Home() {
         <Section id="about" title={tt('section.about.title')}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6 text-[#2f4a31] leading-relaxed">
-              <div className="text-lg font-semibold tracking-tight text-[#213821]">{tt('section.about.noodlesTitle')}</div>
-              <p className="mt-2">{tt('section.about.p0')}</p>
-              <div className="mt-6 h-px bg-[#d5e6c3]" />
-              <div className="mt-6 text-lg font-semibold tracking-tight text-[#213821]">{tt('section.about.aboutTitle')}</div>
-              <p className="mt-2">{tt('section.about.p1')}</p>
+              <p>{tt('section.about.p1')}</p>
               <p className="mt-4">{tt('section.about.p2')}</p>
             </div>
             <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">

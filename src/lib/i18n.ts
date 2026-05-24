@@ -28,10 +28,6 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'hero.cta.reserve': '立即订位',
 
     'section.about.title': '关于我们',
-    'section.about.noodlesTitle': '牛肉面介绍',
-    'section.about.aboutTitle': '关于我们',
-    'section.about.p0':
-      '兰州牛肉面，是甘肃省兰州市的特色美食，是一种食品名称，原名“兰州牛肉面”，始于清朝嘉庆年间（1799年）。牛肉面以“一清（汤）二白（萝卜）三红（辣子）四绿（香菜蒜苗）五黄（面条黄亮）”统一了兰州牛肉面的标准。在其后一百多年的漫长岁月里，以“一碗面品尝天下”，以肉烂汤鲜、面质精细黄莹中见外，走向世界，赢得了国内乃至全世界范围内食客的好评和荣誉。',
     'section.about.p1':
       '金味德牛肉拉面品牌，总部位于甘肃兰州，创始于1986年，是一家兰州牛肉拉面国际连锁品牌，目前在美国、新西兰、西班牙、荷兰、德国、英国、马来西亚等世界60多个国家注册商标、开展业务，海外外连锁店数量达百余家。',
     'section.about.p2':
@@ -97,10 +93,6 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'hero.cta.reserve': 'Reserve Now',
 
     'section.about.title': 'About Us',
-    'section.about.noodlesTitle': 'Lanzhou Beef Noodles',
-    'section.about.aboutTitle': 'About Us',
-    'section.about.p0':
-      "Originated in Lanzhou, Gansu (1799). Known for the “one clear, two white, three red, four green, five yellow” standard—now freshly hand-pulled in Malaysia.",
     'section.about.p1':
       '金味德 (Jinweide Beef Noodles) was founded in 1986 with headquarters in Lanzhou, Gansu. It is an international chain brand of Lanzhou beef noodles, with trademarks and operations in more than 60 countries including the USA, New Zealand, Spain, the Netherlands, Germany, the UK, and Malaysia, and over 100 chain stores overseas.',
     'section.about.p2':
@@ -168,10 +160,6 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'hero.cta.reserve': 'Tempah Sekarang',
 
     'section.about.title': 'Tentang Kami',
-    'section.about.noodlesTitle': 'Mee Sup Daging Lanzhou',
-    'section.about.aboutTitle': 'Tentang Kami',
-    'section.about.p0':
-      'Berasal dari Lanzhou, Gansu (1799). Mengikut piawaian “satu jernih, dua putih, tiga merah, empat hijau, lima kuning”—kini mee tarik segar di Malaysia.',
     'section.about.p1':
       '金味德 (Jinweide Beef Noodles) diasaskan pada tahun 1986 dan beribu pejabat di Lanzhou, Gansu. Ia merupakan jenama rangkaian antarabangsa mee sup daging Lanzhou, dengan tanda dagangan dan operasi di lebih 60 negara termasuk Amerika Syarikat, New Zealand, Sepanyol, Belanda, Jerman, United Kingdom dan Malaysia, serta mempunyai lebih 100 cawangan di luar negara.',
     'section.about.p2':
