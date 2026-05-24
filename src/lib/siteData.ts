@@ -466,6 +466,21 @@ export const MENU: MenuCategory[] = [
 
 export const NEWS: NewsItem[] = [
   {
+    id: 'halal-jakim-20250716',
+    dateISO: '2025-07-16',
+    title: {
+      zh: 'Restoran JWD 获得马来西亚清真认证（JAKIM）',
+      en: 'Restoran JWD receives Malaysia Halal certification (JAKIM)',
+      ms: 'Restoran JWD menerima sijil Halal Malaysia (JAKIM)',
+    },
+    body: {
+      zh: '我们很高兴宣布，Restoran JWD 门店已获得马来西亚 JAKIM 颁发的清真（Halal）认证。认证日期为 2025-07-16，有效期 2 年，至 2027-07-15 截止。Halal certification issued by JAKIM。',
+      en: 'We are pleased to announce that Restoran JWD has received Malaysia Halal certification issued by JAKIM. The certificate is issued on 2025-07-16 and is valid for 2 years, until 2027-07-15.',
+      ms: 'Kami dengan sukacitanya memaklumkan bahawa Restoran JWD telah menerima sijil Halal Malaysia yang dikeluarkan oleh JAKIM. Sijil ini dikeluarkan pada 2025-07-16 dan sah selama 2 tahun sehingga 2027-07-15.',
+    },
+    photoSrc: '/images/halal/cert-1.jpg',
+  },
+  {
     id: 'kjt-173931375',
     dateISO: '2024-06-13',
     title: {
