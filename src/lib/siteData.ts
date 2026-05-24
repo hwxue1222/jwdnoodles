@@ -39,6 +39,7 @@ export type NewsItem = {
   title: Record<Lang, string>;
   body: Record<Lang, string>;
   photoSrc?: string;
+  url?: string;
 };
 
 export type GlobalLocation = {
@@ -473,7 +474,6 @@ export const NEWS: NewsItem[] = [
       en: 'Thank you for your support! Our Kulai store is now open.',
       ms: 'Terima kasih! Cawangan Kulai kini dibuka.',
     },
-    photoSrc: '/images/news/opening.jpg',
   },
   {
     id: 'halal-update',
