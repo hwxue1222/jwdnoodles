@@ -5,12 +5,16 @@ import { SafeImg } from '@/components/SafeImg';
 
 export function Lightbox({
   open,
+  type = 'image',
   src,
+  posterSrc,
   alt,
   onClose,
 }: {
   open: boolean;
+  type?: 'image' | 'video';
   src?: string;
+  posterSrc?: string;
   alt: string;
   onClose: () => void;
 }) {
@@ -42,7 +46,17 @@ export function Lightbox({
           ×
         </button>
         <div className="rounded-xl overflow-hidden bg-white shadow-2xl">
-          <SafeImg src={src} alt={alt} className="w-full h-auto max-h-[80vh] object-contain bg-[#edf4e5]" />
+          {type === 'video' ? (
+            <video
+              src={src}
+              poster={posterSrc}
+              controls
+              playsInline
+              className="w-full h-auto max-h-[80vh] object-contain bg-[#edf4e5]"
+            />
+          ) : (
+            <SafeImg src={src} alt={alt} className="w-full h-auto max-h-[80vh] object-contain bg-[#edf4e5]" />
+          )}
           <div className="px-4 py-3 text-sm text-[#2f4a31] border-t border-[#e5e7eb]">{alt}</div>
         </div>
       </div>

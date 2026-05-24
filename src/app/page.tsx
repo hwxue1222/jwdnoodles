@@ -115,9 +115,17 @@ export default function Home() {
     return localStorage.getItem(MENU_CATEGORY_KEY) ?? fallback;
   });
 
-  const [lightbox, setLightbox] = useState<{ open: boolean; src?: string; alt: string }>({ open: false, alt: '' });
+  const [lightbox, setLightbox] = useState<{
+    open: boolean;
+    type: 'image' | 'video';
+    src?: string;
+    posterSrc?: string;
+    alt: string;
+  }>({ open: false, type: 'image', alt: '' });
 
-  const openLightbox = (src: string | undefined, alt: string) => setLightbox({ open: true, src, alt });
+  const openLightbox = (src: string | undefined, alt: string) => setLightbox({ open: true, type: 'image', src, alt });
+  const openLightboxVideo = (src: string | undefined, alt: string, posterSrc?: string) =>
+    setLightbox({ open: true, type: 'video', src, posterSrc, alt });
   const closeLightbox = () => setLightbox((s) => ({ ...s, open: false }));
 
   const reservableStores = useMemo(() => STORES.filter((s) => s.acceptsReservation), []);
@@ -307,7 +315,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#e8f2dd] text-[#1c2a1c]">
-      <Lightbox open={lightbox.open} src={lightbox.src} alt={lightbox.alt} onClose={closeLightbox} />
+      <Lightbox
+        open={lightbox.open}
+        type={lightbox.type}
+        src={lightbox.src}
+        posterSrc={lightbox.posterSrc}
+        alt={lightbox.alt}
+        onClose={closeLightbox}
+      />
 
       <header className="sticky top-0 z-40 border-b border-[#c7d8b5] bg-[#f7faf1]/80 backdrop-blur">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-3">
@@ -718,6 +733,8 @@ export default function Home() {
               const href = n.url?.trim();
               const title = (meta?.title || n.title[lang]).trim();
               const imgSrc = n.photoSrc || meta?.image;
+              const videoSrc = n.videoSrc?.trim();
+              const posterSrc = n.videoPosterSrc || imgSrc;
               let host = '';
               if (href) {
                 try {
@@ -770,6 +787,26 @@ export default function Home() {
                             className="w-full h-36 md:h-28 object-cover rounded-xl border border-[#d5e6c3]"
                           />
                         </a>
+                      ) : videoSrc ? (
+                        <div className="relative">
+                          <SafeImg
+                            src={posterSrc}
+                            alt={title}
+                            placeholderLabel="News"
+                            className="w-full h-36 md:h-28 object-cover rounded-xl border border-[#d5e6c3] cursor-pointer"
+                            onClick={() => openLightboxVideo(videoSrc, title, posterSrc)}
+                          />
+                          <button
+                            type="button"
+                            aria-label="Play"
+                            className="absolute inset-0 flex items-center justify-center"
+                            onClick={() => openLightboxVideo(videoSrc, title, posterSrc)}
+                          >
+                            <span className="h-12 w-12 rounded-full bg-black/40 text-white flex items-center justify-center text-lg">
+                              ▶
+                            </span>
+                          </button>
+                        </div>
                       ) : (
                         <SafeImg
                           src={imgSrc}

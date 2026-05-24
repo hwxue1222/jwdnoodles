@@ -39,6 +39,8 @@ export type NewsItem = {
   title: Record<Lang, string>;
   body: Record<Lang, string>;
   photoSrc?: string;
+  videoSrc?: string;
+  videoPosterSrc?: string;
   url?: string;
 };
 
@@ -465,6 +467,22 @@ export const MENU: MenuCategory[] = [
 ];
 
 export const NEWS: NewsItem[] = [
+  {
+    id: 'commune-opening-20250918',
+    dateISO: '2025-09-18',
+    title: {
+      zh: 'JWD Mee Tarik 入驻 The Commune Lifestyle Mall（Kulai）开张',
+      en: 'JWD Mee Tarik opens at The Commune Lifestyle Mall (Kulai)',
+      ms: 'JWD Mee Tarik dibuka di The Commune Lifestyle Mall (Kulai)',
+    },
+    body: {
+      zh: 'JWD Mee Tarik The Commune Lifestyle Mall（Kulai）门店于 2025-09-18 正式开张，欢迎到店品尝。',
+      en: 'JWD Mee Tarik at The Commune Lifestyle Mall (Kulai) officially opens on 2025-09-18. Welcome and see you there!',
+      ms: 'Cawangan JWD Mee Tarik di The Commune Lifestyle Mall (Kulai) dibuka secara rasmi pada 2025-09-18. Jemput datang!',
+    },
+    videoSrc: '/videos/news/commune.mp4',
+    videoPosterSrc: '/images/stores/kulai-commune.jpg',
+  },
   {
     id: 'halal-jakim-20250716',
     dateISO: '2025-07-16',

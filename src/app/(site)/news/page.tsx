@@ -12,8 +12,16 @@ export default function NewsPage() {
   const { lang } = useLang();
   const tt = (key: string, params?: Record<string, string | number>) => t(lang, key, params);
 
-  const [lightbox, setLightbox] = useState<{ open: boolean; src?: string; alt: string }>({ open: false, alt: '' });
-  const openLightbox = (src: string | undefined, alt: string) => setLightbox({ open: true, src, alt });
+  const [lightbox, setLightbox] = useState<{
+    open: boolean;
+    type: 'image' | 'video';
+    src?: string;
+    posterSrc?: string;
+    alt: string;
+  }>({ open: false, type: 'image', alt: '' });
+  const openLightboxImage = (src: string | undefined, alt: string) => setLightbox({ open: true, type: 'image', src, alt });
+  const openLightboxVideo = (src: string | undefined, alt: string, posterSrc?: string) =>
+    setLightbox({ open: true, type: 'video', src, posterSrc, alt });
   const closeLightbox = () => setLightbox((s) => ({ ...s, open: false }));
 
   const [newsMetaById, setNewsMetaById] = useState<Record<string, { title?: string; image?: string }>>({});
@@ -46,7 +54,14 @@ export default function NewsPage() {
 
   return (
     <>
-      <Lightbox open={lightbox.open} src={lightbox.src} alt={lightbox.alt} onClose={closeLightbox} />
+      <Lightbox
+        open={lightbox.open}
+        type={lightbox.type}
+        src={lightbox.src}
+        posterSrc={lightbox.posterSrc}
+        alt={lightbox.alt}
+        onClose={closeLightbox}
+      />
 
       <div className="py-12 md:py-14" />
 
@@ -57,6 +72,8 @@ export default function NewsPage() {
             const href = n.url?.trim();
             const title = (meta?.title || n.title[lang]).trim();
             const imgSrc = n.photoSrc || meta?.image;
+            const videoSrc = n.videoSrc?.trim();
+            const posterSrc = n.videoPosterSrc || imgSrc;
             let host = '';
             if (href) {
               try {
@@ -109,13 +126,33 @@ export default function NewsPage() {
                           className="w-full h-36 md:h-28 object-cover rounded-xl border border-[#d5e6c3]"
                         />
                       </a>
+                    ) : videoSrc ? (
+                      <div className="relative">
+                        <SafeImg
+                          src={posterSrc}
+                          alt={title}
+                          placeholderLabel="News"
+                          className="w-full h-36 md:h-28 object-cover rounded-xl border border-[#d5e6c3] cursor-pointer"
+                          onClick={() => openLightboxVideo(videoSrc, title, posterSrc)}
+                        />
+                        <button
+                          type="button"
+                          aria-label="Play"
+                          className="absolute inset-0 flex items-center justify-center"
+                          onClick={() => openLightboxVideo(videoSrc, title, posterSrc)}
+                        >
+                          <span className="h-12 w-12 rounded-full bg-black/40 text-white flex items-center justify-center text-lg">
+                            ▶
+                          </span>
+                        </button>
+                      </div>
                     ) : (
                       <SafeImg
                         src={imgSrc}
                         alt={title}
                         placeholderLabel="News"
                         className="w-full h-36 md:h-28 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
-                        onClick={() => openLightbox(imgSrc, title)}
+                        onClick={() => openLightboxImage(imgSrc, title)}
                       />
                     )}
                   </div>
