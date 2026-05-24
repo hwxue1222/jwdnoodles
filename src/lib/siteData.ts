@@ -511,8 +511,8 @@ export const NEWS: NewsItem[] = [
     },
     body: {
       zh: 'Yang Di-Pertuan of Kulai 与随行工作人员今日午餐时段包场古来Commune店，对我们提供的食物非常赞赏。',
-      en: 'On 2026-04-14, Yang Di-Pertuan of Kulai and his staff booked out our Commune,Kulai store during the lunch session.',
-      ms: 'Pada 2026-04-14, Yang Di-Pertuan Kulai dan kakitangan baginda menempah keseluruhan cawangan Commune,Kulai pada sesi makan tengah hari.',
+      en: 'Yang Di-Pertuan of Kulai and his staff booked out our Commune store in Kulai for today’s lunch session and highly praised our food.',
+      ms: 'Yang Di-Pertuan Kulai dan kakitangan baginda menempah keseluruhan cawangan Commune di Kulai untuk sesi makan tengah hari hari ini, dan baginda sangat memuji makanan kami.',
     },
     photoSrc: '/images/news/vip-lunch-2026-04-14.jpg',
   },
