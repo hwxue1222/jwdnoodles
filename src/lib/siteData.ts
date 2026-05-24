@@ -466,6 +466,18 @@ export const MENU: MenuCategory[] = [
 
 export const NEWS: NewsItem[] = [
   {
+    id: 'ifeng-8e2rg1CUsQq',
+    dateISO: '2024-10-28',
+    title: {
+      zh: '中国非遗征服巴塞罗那 金味德兰州牛肉拉面大火',
+      en: 'Chinese intangible heritage wins Barcelona: JWD Lanzhou beef noodles go viral',
+      ms: 'Warisan budaya tidak ketara China memukau Barcelona: mee daging Lanzhou JWD menjadi tular',
+    },
+    body: { zh: '', en: '', ms: '' },
+    url: 'https://sz.ifeng.com/c/8e2rg1CUsQq',
+    photoSrc: '/images/news/ifeng-8e2rg1CUsQq.jpg',
+  },
+  {
     id: 'gansu-swt-174137203',
     dateISO: '2025-04-25',
     title: {
