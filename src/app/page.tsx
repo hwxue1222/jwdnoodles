@@ -516,82 +516,84 @@ export default function Home() {
 
         <Section id="stores" title={tt('section.stores.title')} subtitle={tt('section.stores.subtitle')}>
           <div className="-mx-4 md:mx-0">
-            <div className="px-4 md:px-0 relative">
-              <button
-                type="button"
-                onClick={() => scrollStoresBy(-1)}
-                disabled={!storesCanLeft}
-                className="absolute left-2 top-20 sm:top-28 -translate-y-1/2 z-10 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
-                aria-label="Scroll stores left"
-              >
-                ‹
-              </button>
+            <div className="px-4 md:px-0">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => scrollStoresBy(-1)}
+                  disabled={!storesCanLeft}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                  aria-label="Scroll stores left"
+                >
+                  ‹
+                </button>
 
-              <div
-                ref={storesCarouselRef}
-                className="noScrollbar flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 px-12 [scrollbar-width:none] [-ms-overflow-style:none]"
-              >
-                {STORES.map((store) => (
-                  <div
-                    key={store.id}
-                    className="snap-start shrink-0 w-[86vw] sm:w-[420px] max-w-[520px] rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden"
-                  >
-                  <SafeImg
-                    src={store.photoSrc}
-                    alt={store.name[lang]}
-                    className="w-full h-40 sm:h-56 object-cover cursor-zoom-in"
-                    onClick={() => openLightbox(store.photoSrc, store.name[lang])}
-                  />
-                  <div className="p-6">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <h3 className="text-xl font-semibold text-[#274126] truncate">{store.name[lang]}</h3>
-                        <p className="mt-1 text-sm text-[#486449]">
-                          {store.status === 'opening_soon'
-                            ? tt('store.openingSoon', { date: store.openingDate[lang] })
-                            : tt('store.opened', { date: store.openingDate[lang] })}
-                        </p>
-                        <p className="mt-3 text-[#2f4a31]">{store.address[lang]}</p>
-                        <p className="mt-1 text-sm text-[#486449] min-h-5">{store.note ? store.note[lang] : '\u00A0'}</p>
-                        <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3 min-h-[74px]">
-                          <div className="text-xs font-semibold tracking-wide text-[#486449]">{tt('store.hours')}</div>
-                          <div className="mt-1 text-sm text-[#2f4a31]">{store.hours ? store.hours[lang] : '\u00A0'}</div>
+                <div
+                  ref={storesCarouselRef}
+                  className="min-w-0 flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 px-14"
+                >
+                  {STORES.map((store) => (
+                    <div
+                      key={store.id}
+                      className="snap-start shrink-0 w-[86vw] sm:w-[420px] max-w-[520px] rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden"
+                    >
+                      <SafeImg
+                        src={store.photoSrc}
+                        alt={store.name[lang]}
+                        className="w-full h-56 object-cover cursor-zoom-in"
+                        onClick={() => openLightbox(store.photoSrc, store.name[lang])}
+                      />
+                      <div className="p-6">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h3 className="text-xl font-semibold text-[#274126] truncate">{store.name[lang]}</h3>
+                            <p className="mt-1 text-sm text-[#486449]">
+                              {store.status === 'opening_soon'
+                                ? tt('store.openingSoon', { date: store.openingDate[lang] })
+                                : tt('store.opened', { date: store.openingDate[lang] })}
+                            </p>
+                            <p className="mt-3 text-[#2f4a31]">{store.address[lang]}</p>
+                            <p className="mt-1 text-sm text-[#486449] min-h-5">{store.note ? store.note[lang] : '\u00A0'}</p>
+                            <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3 min-h-[74px]">
+                              <div className="text-xs font-semibold tracking-wide text-[#486449]">{tt('store.hours')}</div>
+                              <div className="mt-1 text-sm text-[#2f4a31]">{store.hours ? store.hours[lang] : '\u00A0'}</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-4">
+                          <a
+                            href={mapOpenUrl(store)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center justify-center h-10 px-4 rounded-full border border-[#3b5b3e] text-[#2f4a31] bg-[#edf4e5] hover:bg-white transition"
+                          >
+                            {tt('store.viewOnMaps')}
+                          </a>
+                        </div>
+                        <div className="mt-5 rounded-xl overflow-hidden border border-[#d5e6c3] bg-[#edf4e5]">
+                          <iframe
+                            src={mapEmbedUrl(store)}
+                            className="w-full h-56"
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title={`Map-${store.id}`}
+                          />
                         </div>
                       </div>
                     </div>
-                    <div className="mt-4">
-                      <a
-                        href={mapOpenUrl(store)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center justify-center h-10 px-4 rounded-full border border-[#3b5b3e] text-[#2f4a31] bg-[#edf4e5] hover:bg-white transition"
-                      >
-                        {tt('store.viewOnMaps')}
-                      </a>
-                    </div>
-                    <div className="mt-5 rounded-xl overflow-hidden border border-[#d5e6c3] bg-[#edf4e5]">
-                      <iframe
-                        src={mapEmbedUrl(store)}
-                        className="w-full h-56"
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                        title={`Map-${store.id}`}
-                      />
-                    </div>
-                  </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
 
-              <button
-                type="button"
-                onClick={() => scrollStoresBy(1)}
-                disabled={!storesCanRight}
-                className="absolute right-2 top-20 sm:top-28 -translate-y-1/2 z-10 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
-                aria-label="Scroll stores right"
-              >
-                ›
-              </button>
+                <button
+                  type="button"
+                  onClick={() => scrollStoresBy(1)}
+                  disabled={!storesCanRight}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                  aria-label="Scroll stores right"
+                >
+                  ›
+                </button>
+              </div>
             </div>
           </div>
         </Section>
@@ -607,45 +609,47 @@ export default function Home() {
 
             <div className="p-6 space-y-10">
               <div className="-mx-6">
-                <div className="px-6 flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => scrollMenuPagesBy(-1)}
-                    disabled={!menuPagesCanLeft}
-                    className="shrink-0 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
-                    aria-label="Scroll menu pages left"
-                  >
-                    ‹
-                  </button>
+                <div className="px-6">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => scrollMenuPagesBy(-1)}
+                      disabled={!menuPagesCanLeft}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                      aria-label="Scroll menu pages left"
+                    >
+                      ‹
+                    </button>
 
-                  <div
-                    ref={menuPagesCarouselRef}
-                    className="min-w-0 flex-1 flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2"
-                  >
-                    {MENU_PAGES.map((p) => (
-                      <button
-                        key={p.src}
-                        type="button"
-                        className="snap-start shrink-0 w-[72vw] sm:w-[340px] rounded-xl border border-[#d5e6c3] bg-white/60 hover:bg-white transition overflow-hidden text-left"
-                        onClick={() => openLightbox(p.src, p.label[lang])}
-                      >
-                        <div className="w-full aspect-[900/651] bg-[#edf4e5]">
-                          <SafeImg src={p.src} alt={p.label[lang]} className="w-full h-full object-contain" />
-                        </div>
-                        <div className="px-3 py-2 text-xs text-[#486449]">{p.label[lang]}</div>
-                      </button>
-                    ))}
+                    <div
+                      ref={menuPagesCarouselRef}
+                      className="min-w-0 flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 px-14"
+                    >
+                      {MENU_PAGES.map((p) => (
+                        <button
+                          key={p.src}
+                          type="button"
+                          className="snap-start shrink-0 w-[72vw] sm:w-[340px] rounded-xl border border-[#d5e6c3] bg-white/60 hover:bg-white transition overflow-hidden text-left"
+                          onClick={() => openLightbox(p.src, p.label[lang])}
+                        >
+                          <div className="w-full aspect-[900/651] bg-[#edf4e5]">
+                            <SafeImg src={p.src} alt={p.label[lang]} className="w-full h-full object-contain" />
+                          </div>
+                          <div className="px-3 py-2 text-xs text-[#486449]">{p.label[lang]}</div>
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => scrollMenuPagesBy(1)}
+                      disabled={!menuPagesCanRight}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                      aria-label="Scroll menu pages right"
+                    >
+                      ›
+                    </button>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => scrollMenuPagesBy(1)}
-                    disabled={!menuPagesCanRight}
-                    className="shrink-0 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
-                    aria-label="Scroll menu pages right"
-                  >
-                    ›
-                  </button>
                 </div>
               </div>
 
