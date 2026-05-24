@@ -571,7 +571,9 @@ export default function Home() {
                         className="snap-start shrink-0 w-[72vw] sm:w-[340px] rounded-xl border border-[#d5e6c3] bg-white/60 hover:bg-white transition overflow-hidden text-left"
                         onClick={() => openLightbox(p.src, p.label[lang])}
                       >
-                        <SafeImg src={p.src} alt={p.label[lang]} className="w-full h-36 object-contain" />
+                        <div className="w-full aspect-[900/651] bg-[#edf4e5]">
+                          <SafeImg src={p.src} alt={p.label[lang]} className="w-full h-full object-contain" />
+                        </div>
                         <div className="px-3 py-2 text-xs text-[#486449]">{p.label[lang]}</div>
                       </button>
                     ))}
