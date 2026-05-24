@@ -758,8 +758,6 @@ export default function Home() {
               return (
                 <div key={n.id} className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden">
                   <div className="p-5 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 items-stretch">
-                    <div className="shrink-0 text-sm text-[#486449] tabular-nums md:w-28">{n.dateISO}</div>
-
                     <div className="min-w-0 flex-1">
                       {href ? (
                         <a
