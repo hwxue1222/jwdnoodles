@@ -767,13 +767,13 @@ export default function Home() {
                           href={href}
                           target="_blank"
                           rel="noreferrer"
-                          className="block text-xl font-semibold text-[#274126] hover:underline underline-offset-4 truncate"
+                          className="block text-xl font-semibold text-[#274126] hover:underline underline-offset-4 whitespace-normal break-words"
                           title={title}
                         >
                           {title}
                         </a>
                       ) : (
-                        <div className="text-xl font-semibold text-[#274126] truncate" title={title}>
+                        <div className="text-xl font-semibold text-[#274126] whitespace-normal break-words" title={title}>
                           {title}
                         </div>
                       )}
