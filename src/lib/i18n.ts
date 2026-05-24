@@ -88,7 +88,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
 
     'hero.title': 'Lanzhou Beef Noodles · A classic clear-broth noodle from Lanzhou',
     'hero.subtitle':
-      "Originated in Lanzhou, Gansu (1799). Known for the “one clear, two white, three red, four green, five yellow” standard—now freshly hand-pulled in Malaysia.",
+      'Lanzhou beef noodles, or Lanzhou lamian, originated in Gansu Province, China, in 1915, created by Hui Muslim chef Ma Baozi. Known for hand-pulled noodles, clear broth, and five specific colors, this iconic dish evolved from local street food into a global staple through 20th-century modernization and culinary migration, often featuring distinct, chewy noodles.',
     'hero.cta.menu': 'View Menu',
     'hero.cta.reserve': 'Reserve Now',
 
