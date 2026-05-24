@@ -447,7 +447,7 @@ export default function Home() {
                     src={heroSlide?.src}
                     alt={heroSlide?.alt?.[lang] ?? 'Hero'}
                     placeholderLabel="Hero"
-                    className="absolute inset-0 w-full h-full object-cover cursor-zoom-in"
+                    className="absolute inset-0 w-full h-full object-contain cursor-zoom-in"
                     onClick={() => openLightbox(heroSlide?.src, heroSlide?.caption?.[lang] ?? 'Hero')}
                   />
                 </div>
