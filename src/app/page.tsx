@@ -734,7 +734,6 @@ export default function Home() {
               const title = (meta?.title || n.title[lang]).trim();
               const imgSrc = n.photoSrc || meta?.image;
               const videoSrc = n.videoSrc?.trim();
-              const posterSrc = n.videoPosterSrc || imgSrc;
               let host = '';
               if (href) {
                 try {
@@ -789,18 +788,28 @@ export default function Home() {
                         </a>
                       ) : videoSrc ? (
                         <div className="relative">
-                          <SafeImg
-                            src={posterSrc}
-                            alt={title}
-                            placeholderLabel="News"
-                            className="w-full h-36 md:h-28 object-cover rounded-xl border border-[#d5e6c3] cursor-pointer"
-                            onClick={() => openLightboxVideo(videoSrc, title, posterSrc)}
-                          />
+                          <div
+                            className="w-full h-36 md:h-28 rounded-xl border border-[#d5e6c3] overflow-hidden bg-[#edf4e5] cursor-pointer"
+                            onClick={() => openLightboxVideo(videoSrc, title)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') openLightboxVideo(videoSrc, title);
+                            }}
+                          >
+                            <video
+                              src={videoSrc}
+                              preload="auto"
+                              muted
+                              playsInline
+                              className="w-full h-full object-cover pointer-events-none"
+                            />
+                          </div>
                           <button
                             type="button"
                             aria-label="Play"
                             className="absolute inset-0 flex items-center justify-center"
-                            onClick={() => openLightboxVideo(videoSrc, title, posterSrc)}
+                            onClick={() => openLightboxVideo(videoSrc, title)}
                           >
                             <span className="h-12 w-12 rounded-full bg-black/40 text-white flex items-center justify-center text-lg">
                               ▶

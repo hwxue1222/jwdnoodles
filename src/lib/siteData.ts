@@ -481,7 +481,6 @@ export const NEWS: NewsItem[] = [
       ms: 'Cawangan JWD Mee Tarik di The Commune Lifestyle Mall (Kulai) dibuka secara rasmi pada 2025-09-18. Jemput datang!',
     },
     videoSrc: '/videos/news/commune.mp4',
-    videoPosterSrc: '/images/stores/kulai-commune.jpg',
   },
   {
     id: 'halal-jakim-20250716',
