@@ -502,6 +502,21 @@ export const MENU: MenuCategory[] = [
 
 export const NEWS: NewsItem[] = [
   {
+    id: 'kulai-vip-lunch-20260414',
+    dateISO: '2026-04-14',
+    title: {
+      zh: 'Yang Di-Pertuan of Kulai 与随行人员于 Commune,Kulai 午餐时段包场',
+      en: 'Yang Di-Pertuan of Kulai and his staff booked out Commune,Kulai for lunch',
+      ms: 'Yang Di-Pertuan Kulai dan kakitangan baginda menempah keseluruhan restoran Commune,Kulai (waktu makan tengah hari)',
+    },
+    body: {
+      zh: '2026年4月14日，Yang Di-Pertuan of Kulai 与随行人员在 Commune,Kulai 门店午餐时段包场。',
+      en: 'On 2026-04-14, Yang Di-Pertuan of Kulai and his staff booked out our Commune,Kulai store during the lunch session.',
+      ms: 'Pada 2026-04-14, Yang Di-Pertuan Kulai dan kakitangan baginda menempah keseluruhan cawangan Commune,Kulai pada sesi makan tengah hari.',
+    },
+    photoSrc: '/images/news/vip-lunch-2026-04-14.jpg',
+  },
+  {
     id: 'commune-opening-20250918',
     dateISO: '2025-09-18',
     title: {
