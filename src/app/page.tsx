@@ -5,7 +5,7 @@ import { BrandLogo } from '@/components/BrandLogo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Lightbox } from '@/components/Lightbox';
 import { SafeImg } from '@/components/SafeImg';
-import { SocialLinks, SocialLinksWithText } from '@/components/SocialLinks';
+import { SocialAccountsList, SocialLinks } from '@/components/SocialLinks';
 import { WorldMap } from '@/components/WorldMap';
 import { t } from '@/lib/i18n';
 import { useLang } from '@/lib/useLang';
@@ -957,24 +957,26 @@ export default function Home() {
         <Section id="contact" title={tt('section.contact.title')} subtitle={tt('contact.subtitle')}>
           <div className="max-w-3xl mx-auto">
             <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
-              <div className="grid grid-cols-1 gap-4 text-[#2f4a31]">
-                <div>
-                  <div className="text-sm text-[#486449]">{tt('contact.phone')}</div>
-                  <div className="mt-1 font-semibold">{CONTACT.phone}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-[#2f4a31]">
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <div className="text-sm text-[#486449]">{tt('contact.phone')}</div>
+                    <div className="mt-1 font-semibold">{CONTACT.phone}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-[#486449]">{tt('contact.email')}</div>
+                    <div className="mt-1 font-semibold">{CONTACT.email}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-[#486449]">{tt('contact.address')}</div>
+                    <div className="mt-1">{CONTACT.address[lang]}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm text-[#486449]">{tt('contact.email')}</div>
-                  <div className="mt-1 font-semibold">{CONTACT.email}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-[#486449]">{tt('contact.address')}</div>
-                  <div className="mt-1">{CONTACT.address[lang]}</div>
-                </div>
-              </div>
-              <div className="mt-6">
-                <div className="text-sm text-[#486449]">{tt('contact.follow')}</div>
-                <div className="mt-3">
-                  <SocialLinksWithText />
+                <div className="min-w-0 md:pl-6 md:border-l md:border-[#e5e7eb]">
+                  <div className="text-sm text-[#486449]">{tt('contact.follow')}</div>
+                  <div className="mt-3">
+                    <SocialAccountsList />
+                  </div>
                 </div>
               </div>
             </div>
