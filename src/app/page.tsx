@@ -409,7 +409,7 @@ export default function Home() {
 
       <main id="top">
         <section className="py-12 md:py-16">
-          <div className="max-w-6xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr] gap-10 items-center">
+          <div className="max-w-6xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr] gap-10 items-start">
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#c7d8b5] bg-[#f7faf1] text-[#2f4a31] text-sm">
                 <span className="h-2 w-2 rounded-full bg-[#3b5b3e]" />
