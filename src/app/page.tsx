@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { BrandLogo } from '@/components/BrandLogo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Lightbox } from '@/components/Lightbox';
@@ -100,6 +100,10 @@ function Section({
 export default function Home() {
   const { lang, setLang } = useLang();
   const tt = (key: string, params?: Record<string, string | number>) => t(lang, key, params);
+
+  const storesCarouselRef = useRef<HTMLDivElement | null>(null);
+  const [storesCanLeft, setStoresCanLeft] = useState(false);
+  const [storesCanRight, setStoresCanRight] = useState(false);
 
   const [menuCategoryId, setMenuCategoryId] = useState(() => {
     const fallback = MENU[0]?.id ?? '';
@@ -219,6 +223,44 @@ export default function Home() {
       : `https://wa.me/?text=${encodeURIComponent(msg)}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
+
+  const scrollStoresBy = (direction: -1 | 1) => {
+    const el = storesCarouselRef.current;
+    if (!el) return;
+    const amount = Math.max(260, Math.round(el.clientWidth * 0.9));
+    el.scrollBy({ left: direction * amount, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    const el = storesCarouselRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const maxScrollLeft = Math.max(0, el.scrollWidth - el.clientWidth);
+      setStoresCanLeft(el.scrollLeft > 4);
+      setStoresCanRight(el.scrollLeft < maxScrollLeft - 4);
+    };
+
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        update();
+      });
+    };
+
+    update();
+    el.addEventListener('scroll', onScroll, { passive: true });
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      el.removeEventListener('scroll', onScroll);
+      ro.disconnect();
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#e8f2dd] text-[#1c2a1c]">
@@ -373,9 +415,36 @@ export default function Home() {
         <div className="py-12 md:py-14" />
 
         <Section id="stores" title={tt('section.stores.title')} subtitle={tt('section.stores.subtitle')}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex items-center justify-end gap-2 mb-3">
+            <button
+              type="button"
+              onClick={() => scrollStoresBy(-1)}
+              disabled={!storesCanLeft}
+              className="h-10 w-10 rounded-full border border-[#c7d8b5] bg-[#f7faf1] text-[#2f4a31] hover:bg-white transition disabled:opacity-40 disabled:hover:bg-[#f7faf1]"
+              aria-label="Scroll stores left"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollStoresBy(1)}
+              disabled={!storesCanRight}
+              className="h-10 w-10 rounded-full border border-[#c7d8b5] bg-[#f7faf1] text-[#2f4a31] hover:bg-white transition disabled:opacity-40 disabled:hover:bg-[#f7faf1]"
+              aria-label="Scroll stores right"
+            >
+              ›
+            </button>
+          </div>
+
+          <div
+            ref={storesCarouselRef}
+            className="-mx-4 px-4 md:mx-0 md:px-0 flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2"
+          >
             {STORES.map((store) => (
-              <div key={store.id} className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden">
+              <div
+                key={store.id}
+                className="snap-start shrink-0 w-[86vw] sm:w-[420px] max-w-[520px] rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden"
+              >
                 <SafeImg
                   src={store.photoSrc}
                   alt={store.name[lang]}
