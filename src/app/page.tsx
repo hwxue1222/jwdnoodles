@@ -157,10 +157,11 @@ export default function Home() {
   const reservationStore = reservableStores.find((s) => s.id === reservationStoreId) ?? reservableStores[0];
 
   const [newsMetaById, setNewsMetaById] = useState<Record<string, { title?: string; image?: string }>>({});
+  const sortedNews = useMemo(() => [...NEWS].sort((a, b) => (b.dateISO || '').localeCompare(a.dateISO || '')), []);
   useEffect(() => {
     let cancelled = false;
     const ids = new Set(Object.keys(newsMetaById));
-    const targets = NEWS.filter((n) => n.url && !ids.has(n.id));
+    const targets = sortedNews.filter((n) => n.url && !ids.has(n.id));
     if (targets.length === 0) return;
 
     const run = async () => {
@@ -181,7 +182,7 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, [newsMetaById]);
+  }, [newsMetaById, sortedNews]);
 
   const menuCategoriesToShow = useMemo(() => {
     if (!menuCategoryId) return MENU;
@@ -712,7 +713,7 @@ export default function Home() {
 
         <Section id="news" title={tt('section.news.title')} subtitle={tt('news.subtitle')}>
           <div className="space-y-4">
-            {NEWS.map((n) => {
+            {sortedNews.map((n) => {
               const meta = newsMetaById[n.id];
               const href = n.url?.trim();
               const title = (meta?.title || n.title[lang]).trim();

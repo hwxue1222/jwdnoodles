@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Lightbox } from '@/components/Lightbox';
 import { SafeImg } from '@/components/SafeImg';
 import { Section } from '@/components/Section';
@@ -17,10 +17,11 @@ export default function NewsPage() {
   const closeLightbox = () => setLightbox((s) => ({ ...s, open: false }));
 
   const [newsMetaById, setNewsMetaById] = useState<Record<string, { title?: string; image?: string }>>({});
+  const sortedNews = useMemo(() => [...NEWS].sort((a, b) => (b.dateISO || '').localeCompare(a.dateISO || '')), []);
   useEffect(() => {
     let cancelled = false;
     const ids = new Set(Object.keys(newsMetaById));
-    const targets = NEWS.filter((n) => n.url && !ids.has(n.id));
+    const targets = sortedNews.filter((n) => n.url && !ids.has(n.id));
     if (targets.length === 0) return;
 
     const run = async () => {
@@ -41,7 +42,7 @@ export default function NewsPage() {
     return () => {
       cancelled = true;
     };
-  }, [newsMetaById]);
+  }, [newsMetaById, sortedNews]);
 
   return (
     <>
@@ -51,7 +52,7 @@ export default function NewsPage() {
 
       <Section title={tt('section.news.title')} subtitle={tt('news.subtitle')}>
         <div className="space-y-4">
-          {NEWS.map((n) => {
+          {sortedNews.map((n) => {
             const meta = newsMetaById[n.id];
             const href = n.url?.trim();
             const title = (meta?.title || n.title[lang]).trim();
