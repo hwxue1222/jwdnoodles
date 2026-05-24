@@ -522,7 +522,7 @@ export default function Home() {
                   type="button"
                   onClick={() => scrollStoresBy(-1)}
                   disabled={!storesCanLeft}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                  className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 z-10 h-9 w-9 sm:h-11 sm:w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
                   aria-label="Scroll stores left"
                 >
                   ‹
@@ -530,7 +530,7 @@ export default function Home() {
 
                 <div
                   ref={storesCarouselRef}
-                  className="min-w-0 flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 px-14"
+                  className="min-w-0 flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 px-2 sm:px-14"
                 >
                   {STORES.map((store) => (
                     <div
@@ -588,7 +588,7 @@ export default function Home() {
                   type="button"
                   onClick={() => scrollStoresBy(1)}
                   disabled={!storesCanRight}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                  className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 z-10 h-9 w-9 sm:h-11 sm:w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
                   aria-label="Scroll stores right"
                 >
                   ›
