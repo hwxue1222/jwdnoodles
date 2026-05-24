@@ -7,7 +7,6 @@ export type HeroSlide = {
   src: string;
   alt: Record<Lang, string>;
   caption: Record<Lang, string>;
-  zoom?: number;
 };
 
 export type Store = {
@@ -79,7 +78,7 @@ export const HERO_SLIDES: HeroSlide[] = [
       ms: 'Suasana warisan mee sup daging Lanzhou',
     },
     caption: {
-      zh: '马保子开创和发扬近代兰州牛肉拉面',
+      zh: '马宝子开创和发展了近代兰州牛肉拉面。',
       en: 'Ma Baozi pioneered and popularized modern Lanzhou beef noodles.',
       ms: 'Ma Baozi mempelopori dan memartabatkan mee sup daging Lanzhou moden.',
     },
@@ -93,7 +92,6 @@ export const HERO_SLIDES: HeroSlide[] = [
       en: 'One clear broth, two white radish, three red chili oil, four green herbs, five yellow noodles.',
       ms: 'Satu jernih (sup), dua putih (lobak), tiga merah (minyak cili), empat hijau (herba), lima kuning (mi).',
     },
-    zoom: 1.25,
   },
 ];
 

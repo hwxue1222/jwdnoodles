@@ -9,7 +9,7 @@ import { SocialAccountsList, SocialLinks } from '@/components/SocialLinks';
 import { WorldMap } from '@/components/WorldMap';
 import { t } from '@/lib/i18n';
 import { useLang } from '@/lib/useLang';
-import { BRAND, CONTACT, GLOBAL_LOCATIONS, MENU, MENU_PAGES, NEWS, STORES, Store } from '@/lib/siteData';
+import { BRAND, CONTACT, GLOBAL_LOCATIONS, HERO_SLIDES, MENU, MENU_PAGES, NEWS, STORES, Store } from '@/lib/siteData';
 
 const RESERVATION_STORE_KEY = 'lanzhou:reservation:storeId';
 const MENU_CATEGORY_KEY = 'lanzhou:menu:categoryId';
@@ -100,6 +100,7 @@ function Section({
 export default function Home() {
   const { lang, setLang } = useLang();
   const tt = (key: string, params?: Record<string, string | number>) => t(lang, key, params);
+  const heroRight = HERO_SLIDES[0];
 
   const storesCarouselRef = useRef<HTMLDivElement | null>(null);
   const [storesCanLeft, setStoresCanLeft] = useState(false);
@@ -392,8 +393,8 @@ export default function Home() {
 
       <main id="top">
         <section className="py-12 md:py-16">
-          <div className="max-w-6xl mx-auto px-4 md:px-8">
-            <div className="max-w-3xl">
+          <div className="max-w-6xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr] gap-10 items-center">
+            <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#c7d8b5] bg-[#f7faf1] text-[#2f4a31] text-sm">
                 <span className="h-2 w-2 rounded-full bg-[#3b5b3e]" />
                 {BRAND.tagline[lang]}
@@ -419,6 +420,23 @@ export default function Home() {
               <div className="mt-8 md:hidden">
                 <SocialLinks />
               </div>
+            </div>
+
+            <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-4">
+              <div className="relative rounded-xl overflow-hidden">
+                <div className="relative w-full h-[320px] md:h-[420px] bg-[#edf4e5]">
+                  <SafeImg
+                    src={heroRight?.src}
+                    alt={heroRight?.alt?.[lang] ?? 'Hero'}
+                    placeholderLabel="Hero"
+                    className="absolute inset-0 w-full h-full object-cover cursor-zoom-in"
+                    onClick={() => openLightbox(heroRight?.src, heroRight?.caption?.[lang] ?? 'Hero')}
+                  />
+                </div>
+              </div>
+              <p className="mt-3 text-sm text-[#486449] min-h-5 truncate" title={heroRight?.caption?.[lang] ?? ''}>
+                {heroRight?.caption?.[lang] ? heroRight.caption[lang] : '\u00A0'}
+              </p>
             </div>
           </div>
         </section>
