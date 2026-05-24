@@ -19,12 +19,9 @@ export function WorldMap({
   const [bgOk, setBgOk] = useState(true);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const carouselRef = useRef<HTMLDivElement | null>(null);
-  const carouselTrackRef = useRef<HTMLDivElement | null>(null);
-  const carouselSecondCopyRef = useRef<HTMLDivElement | null>(null);
   const [cursor, setCursor] = useState<{ xPct: number; yPct: number } | null>(null);
   const [imgNatural, setImgNatural] = useState<{ w: number; h: number }>({ w: 1600, h: 795 });
   const [imgBox, setImgBox] = useState<{ ox: number; oy: number; w: number; h: number }>({ ox: 0, oy: 0, w: 0, h: 0 });
-  const [carouselPaused, setCarouselPaused] = useState(false);
 
   const debug = useSyncExternalStore(
     (onStoreChange) => {
@@ -39,78 +36,10 @@ export function WorldMap({
     () => false,
   );
 
-  useEffect(() => {
-    const el = carouselRef.current;
-    if (!el) return;
-
-    const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)');
-    const reduceMotion = mq?.matches ?? false;
-
-    const second = carouselSecondCopyRef.current;
-    if (!second) return;
-    const track = carouselTrackRef.current;
-
-    let raf = 0;
-    let lastT = 0;
-    const speedPxPerSecond = reduceMotion ? 18 : 32;
-
-    const getSingleWidth = () => {
-      if (track) {
-        const a = track.getBoundingClientRect();
-        const b = second.getBoundingClientRect();
-        const w = b.left - a.left;
-        if (Number.isFinite(w) && w > 0) return w;
-      }
-      const fallback = second.offsetLeft;
-      return Number.isFinite(fallback) && fallback > 0 ? fallback : 0;
-    };
-
-    const tick = (t: number) => {
-      if (!lastT) lastT = t;
-      const dt = t - lastT;
-      lastT = t;
-      const safeDt = Math.min(dt, 80);
-
-      const singleWidth = getSingleWidth();
-      const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
-      if (!carouselPaused && maxScroll > 0 && singleWidth > 0) {
-        const next = el.scrollLeft + (speedPxPerSecond * safeDt) / 1000;
-        if (next >= singleWidth) {
-          el.scrollLeft = next - singleWidth;
-        } else {
-          el.scrollLeft = next;
-        }
-      }
-
-      raf = window.requestAnimationFrame(tick);
-    };
-
-    raf = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(raf);
-  }, [carouselPaused, locations.length]);
-
   const scrollCarouselBy = (direction: -1 | 1) => {
     const el = carouselRef.current;
     if (!el) return;
-    const track = carouselTrackRef.current;
-    const second = carouselSecondCopyRef.current;
-    if (!track || !second) return;
-    const singleWidth = second.offsetLeft;
     const amount = Math.max(260, Math.round(el.clientWidth * 0.8));
-    if (!singleWidth) {
-      el.scrollBy({ left: direction * amount, behavior: 'smooth' });
-      return;
-    }
-
-    if (el.scrollLeft >= singleWidth) el.scrollLeft = el.scrollLeft - singleWidth;
-    if (el.scrollLeft < 0) el.scrollLeft = el.scrollLeft + singleWidth;
-
-    if (direction === 1) {
-      if (el.scrollLeft + amount >= singleWidth) el.scrollLeft = el.scrollLeft - singleWidth;
-    } else {
-      if (el.scrollLeft - amount < 0) el.scrollLeft = el.scrollLeft + singleWidth;
-    }
-
     el.scrollBy({ left: direction * amount, behavior: 'smooth' });
   };
 
@@ -288,52 +217,26 @@ export function WorldMap({
           <div
             ref={carouselRef}
             className="noScrollbar overflow-x-auto overflow-y-hidden scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] px-12"
-            onTouchStart={() => setCarouselPaused(true)}
-            onTouchEnd={() => setCarouselPaused(false)}
           >
-            <div ref={carouselTrackRef} className="flex gap-4 w-max pr-2">
-              <div className="flex gap-4 w-max">
-                {locations.map((loc) => (
-                  <button
-                    key={loc.id}
-                    type="button"
-                    className="text-left flex-none w-[220px] sm:w-[260px] lg:w-[300px]"
-                    onClick={() => onOpen(loc.photoSrc, loc.label)}
-                  >
-                    <SafeImg
-                      src={loc.photoSrc}
-                      alt={loc.label}
-                      placeholderLabel={loc.label}
-                      className="w-full h-32 sm:h-36 lg:h-40 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in bg-[#edf4e5]"
-                    />
-                    <div className="mt-2 text-sm text-[#2f4a31] whitespace-normal break-words leading-snug" title={loc.label}>
-                      {loc.label}
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              <div ref={carouselSecondCopyRef} className="flex gap-4 w-max" aria-hidden="true">
-                {locations.map((loc) => (
-                  <button
-                    key={`${loc.id}-dup`}
-                    type="button"
-                    className="text-left flex-none w-[220px] sm:w-[260px] lg:w-[300px]"
-                    tabIndex={-1}
-                    onClick={() => onOpen(loc.photoSrc, loc.label)}
-                  >
-                    <SafeImg
-                      src={loc.photoSrc}
-                      alt={loc.label}
-                      placeholderLabel={loc.label}
-                      className="w-full h-32 sm:h-36 lg:h-40 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in bg-[#edf4e5]"
-                    />
-                    <div className="mt-2 text-sm text-[#2f4a31] whitespace-normal break-words leading-snug" title={loc.label}>
-                      {loc.label}
-                    </div>
-                  </button>
-                ))}
-              </div>
+            <div className="flex gap-4 w-max pr-2">
+              {locations.map((loc) => (
+                <button
+                  key={loc.id}
+                  type="button"
+                  className="text-left flex-none w-[220px] sm:w-[260px] lg:w-[300px]"
+                  onClick={() => onOpen(loc.photoSrc, loc.label)}
+                >
+                  <SafeImg
+                    src={loc.photoSrc}
+                    alt={loc.label}
+                    placeholderLabel={loc.label}
+                    className="w-full h-32 sm:h-36 lg:h-40 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in bg-[#edf4e5]"
+                  />
+                  <div className="mt-2 text-sm text-[#2f4a31] whitespace-normal break-words leading-snug" title={loc.label}>
+                    {loc.label}
+                  </div>
+                </button>
+              ))}
             </div>
         </div>
         </div>

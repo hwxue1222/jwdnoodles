@@ -52,7 +52,6 @@ export function Lightbox({
                 src={src}
                 poster={posterSrc}
                 controls
-                loop
                 playsInline
                 className="w-full h-full object-contain"
               />

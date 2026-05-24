@@ -102,38 +102,23 @@ export default function Home() {
   const tt = (key: string, params?: Record<string, string | number>) => t(lang, key, params);
 
   const [heroIndex, setHeroIndex] = useState(0);
-  const [heroPaused, setHeroPaused] = useState(false);
   const heroSlides = HERO_SLIDES;
   const heroSlide = heroSlides[Math.min(Math.max(heroIndex, 0), Math.max(0, heroSlides.length - 1))];
-  const heroCanLeft = heroSlides.length > 1;
-  const heroCanRight = heroSlides.length > 1;
+  const heroCanLeft = heroSlides.length > 1 && heroIndex > 0;
+  const heroCanRight = heroSlides.length > 1 && heroIndex < heroSlides.length - 1;
 
   const goHeroPrev = () => {
     const len = heroSlides.length;
     if (len <= 1) return;
-    setHeroIndex((i) => (i - 1 + len) % len);
+    setHeroIndex((i) => Math.max(0, i - 1));
   };
   const goHeroNext = () => {
     const len = heroSlides.length;
     if (len <= 1) return;
-    setHeroIndex((i) => (i + 1) % len);
+    setHeroIndex((i) => Math.min(len - 1, i + 1));
   };
 
-  useEffect(() => {
-    if (heroPaused) return;
-    const len = heroSlides.length;
-    if (len <= 1) return;
-    const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)');
-    const reduceMotion = mq?.matches ?? false;
-    if (reduceMotion) return;
-    const id = window.setInterval(() => {
-      setHeroIndex((i) => (i + 1) % len);
-    }, 4500);
-    return () => window.clearInterval(id);
-  }, [heroPaused, heroSlides.length]);
-
   const storesCarouselRef = useRef<HTMLDivElement | null>(null);
-  const [storesPaused, setStoresPaused] = useState(false);
   const [storesCanLeft, setStoresCanLeft] = useState(false);
   const [storesCanRight, setStoresCanRight] = useState(false);
 
@@ -275,15 +260,6 @@ export default function Home() {
     const amount = Math.max(260, Math.round(el.clientWidth * 0.9));
     const maxScrollLeft = Math.max(0, el.scrollWidth - el.clientWidth);
     if (!maxScrollLeft) return;
-
-    if (direction === 1 && el.scrollLeft >= maxScrollLeft - 4) {
-      el.scrollTo({ left: 0, behavior: 'auto' });
-      return;
-    }
-    if (direction === -1 && el.scrollLeft <= 4) {
-      el.scrollTo({ left: maxScrollLeft, behavior: 'auto' });
-      return;
-    }
     el.scrollBy({ left: direction * amount, behavior: 'smooth' });
   };
 
@@ -300,9 +276,8 @@ export default function Home() {
 
     const update = () => {
       const maxScrollLeft = Math.max(0, el.scrollWidth - el.clientWidth);
-      const canScroll = maxScrollLeft > 4;
-      setStoresCanLeft(canScroll);
-      setStoresCanRight(canScroll);
+      setStoresCanLeft(el.scrollLeft > 4);
+      setStoresCanRight(el.scrollLeft < maxScrollLeft - 4);
     };
 
     let raf = 0;
@@ -325,23 +300,6 @@ export default function Home() {
       ro.disconnect();
     };
   }, []);
-
-  useEffect(() => {
-    const el = storesCarouselRef.current;
-    if (!el) return;
-    if (storesPaused) return;
-    const maxScrollLeft = Math.max(0, el.scrollWidth - el.clientWidth);
-    if (!maxScrollLeft) return;
-
-    const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)');
-    const reduceMotion = mq?.matches ?? false;
-    if (reduceMotion) return;
-
-    const id = window.setInterval(() => {
-      scrollStoresBy(1);
-    }, 4500);
-    return () => window.clearInterval(id);
-  }, [storesPaused]);
 
   useEffect(() => {
     const el = menuPagesCarouselRef.current;
@@ -483,10 +441,6 @@ export default function Home() {
             <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-4">
               <div
                 className="relative rounded-xl overflow-hidden"
-                onMouseEnter={() => setHeroPaused(true)}
-                onMouseLeave={() => setHeroPaused(false)}
-                onFocusCapture={() => setHeroPaused(true)}
-                onBlurCapture={() => setHeroPaused(false)}
               >
                 <SafeImg
                   src={heroSlide?.src}
@@ -569,8 +523,6 @@ export default function Home() {
                 disabled={!storesCanLeft}
                 className="shrink-0 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
                 aria-label="Scroll stores left"
-                onMouseEnter={() => setStoresPaused(true)}
-                onMouseLeave={() => setStoresPaused(false)}
               >
                 ‹
               </button>
@@ -578,10 +530,6 @@ export default function Home() {
               <div
                 ref={storesCarouselRef}
                 className="min-w-0 flex-1 flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2"
-                onMouseEnter={() => setStoresPaused(true)}
-                onMouseLeave={() => setStoresPaused(false)}
-                onTouchStart={() => setStoresPaused(true)}
-                onTouchEnd={() => setStoresPaused(false)}
               >
                 {STORES.map((store) => (
                   <div
@@ -641,8 +589,6 @@ export default function Home() {
                 disabled={!storesCanRight}
                 className="shrink-0 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
                 aria-label="Scroll stores right"
-                onMouseEnter={() => setStoresPaused(true)}
-                onMouseLeave={() => setStoresPaused(false)}
               >
                 ›
               </button>
