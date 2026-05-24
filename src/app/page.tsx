@@ -743,7 +743,8 @@ export default function Home() {
             {sortedNews.map((n) => {
               const meta = newsMetaById[n.id];
               const href = n.url?.trim();
-              const title = (meta?.title || n.title[lang]).trim();
+              const localTitle = (n.title[lang] ?? '').trim();
+              const title = (localTitle || meta?.title || '').trim();
               const imgSrc = n.photoSrc || meta?.image;
               const videoSrc = n.videoSrc?.trim();
               let host = '';
