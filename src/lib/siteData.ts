@@ -510,7 +510,7 @@ export const NEWS: NewsItem[] = [
       ms: 'Yang Di-Pertuan Kulai dan kakitangan baginda menempah keseluruhan restoran Commune,Kulai (waktu makan tengah hari)',
     },
     body: {
-      zh: 'Yang Di-Pertuan of Kulai 与随行人员午餐时段包场。',
+      zh: 'Yang Di-Pertuan of Kulai 与随行工作人员今日午餐时段包场古来Commune店，对我们提供的食物非常赞赏。',
       en: 'On 2026-04-14, Yang Di-Pertuan of Kulai and his staff booked out our Commune,Kulai store during the lunch session.',
       ms: 'Pada 2026-04-14, Yang Di-Pertuan Kulai dan kakitangan baginda menempah keseluruhan cawangan Commune,Kulai pada sesi makan tengah hari.',
     },
