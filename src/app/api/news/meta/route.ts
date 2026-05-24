@@ -49,6 +49,10 @@ function getFirstImageFromHtml(html: string) {
   return '';
 }
 
+function makeScreenshotUrl(u: URL) {
+  return `https://image.thum.io/get/width/1200/${u.toString()}`;
+}
+
 function isPrivateOrLocalHostname(hostname: string) {
   const h = hostname.toLowerCase();
   if (h === 'localhost' || h.endsWith('.localhost')) return true;
@@ -97,7 +101,14 @@ export async function GET(req: Request) {
     });
 
     if (!res.ok) {
-      return NextResponse.json({ error: 'fetch failed' }, { status: 502 });
+      return NextResponse.json(
+        { title: '', image: makeScreenshotUrl(u) },
+        {
+          headers: {
+            'cache-control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+          },
+        }
+      );
     }
 
     const html = await res.text();
@@ -111,6 +122,7 @@ export async function GET(req: Request) {
         image = '';
       }
     }
+    if (!image) image = makeScreenshotUrl(u);
 
     return NextResponse.json(
       { title, image },
@@ -121,6 +133,13 @@ export async function GET(req: Request) {
       }
     );
   } catch {
-    return NextResponse.json({ error: 'fetch error' }, { status: 502 });
+    return NextResponse.json(
+      { title: '', image: makeScreenshotUrl(u) },
+      {
+        headers: {
+          'cache-control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+        },
+      }
+    );
   }
 }
