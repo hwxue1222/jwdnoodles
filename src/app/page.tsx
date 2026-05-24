@@ -711,56 +711,78 @@ export default function Home() {
         <div className="py-12 md:py-14" />
 
         <Section id="news" title={tt('section.news.title')} subtitle={tt('news.subtitle')}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {NEWS.map((n) => (
-              <div key={n.id} className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden">
-                {(() => {
-                  const meta = newsMetaById[n.id];
-                  const href = n.url?.trim();
-                  const title = (meta?.title || n.title[lang]).trim();
-                  const imgSrc = n.photoSrc || meta?.image;
-                  let host = '';
-                  if (href) {
-                    try {
-                      host = new URL(href).hostname.replace(/^www\./, '');
-                    } catch {
-                      host = href;
-                    }
-                  }
+          <div className="space-y-4">
+            {NEWS.map((n) => {
+              const meta = newsMetaById[n.id];
+              const href = n.url?.trim();
+              const title = (meta?.title || n.title[lang]).trim();
+              const imgSrc = n.photoSrc || meta?.image;
+              let host = '';
+              if (href) {
+                try {
+                  host = new URL(href).hostname.replace(/^www\./, '');
+                } catch {
+                  host = href;
+                }
+              }
 
-                  const content = (
-                    <>
-                      <SafeImg
-                        src={imgSrc}
-                        alt={title}
-                        placeholderLabel="News"
-                        className={`w-full h-48 object-cover ${href ? 'cursor-pointer' : 'cursor-zoom-in'}`}
-                        onClick={href ? undefined : () => openLightbox(imgSrc, title)}
-                      />
-                      <div className="p-6">
-                        <div className="text-sm text-[#486449] tabular-nums">{n.dateISO}</div>
-                        <div className="mt-1 text-xl font-semibold text-[#274126]">{title}</div>
-                        {href ? (
-                          <div className="mt-3 text-sm text-[#486449] truncate" title={href}>
-                            {host}
-                          </div>
-                        ) : (
-                          <div className="mt-3 text-[#2f4a31] leading-relaxed">{n.body[lang]}</div>
-                        )}
-                      </div>
-                    </>
-                  );
+              return (
+                <div key={n.id} className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden">
+                  <div className="p-5 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 items-stretch">
+                    <div className="shrink-0 text-sm text-[#486449] tabular-nums md:w-28">{n.dateISO}</div>
 
-                  return href ? (
-                    <a href={href} target="_blank" rel="noreferrer" className="block">
-                      {content}
-                    </a>
-                  ) : (
-                    content
-                  );
-                })()}
-              </div>
-            ))}
+                    <div className="min-w-0 flex-1">
+                      {href ? (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="block text-xl font-semibold text-[#274126] hover:underline underline-offset-4 truncate"
+                          title={title}
+                        >
+                          {title}
+                        </a>
+                      ) : (
+                        <div className="text-xl font-semibold text-[#274126] truncate" title={title}>
+                          {title}
+                        </div>
+                      )}
+
+                      {href ? (
+                        <div className="mt-2 text-sm text-[#486449] truncate" title={href}>
+                          {host}
+                        </div>
+                      ) : (
+                        <div className="mt-2 text-[#2f4a31] leading-relaxed max-h-14 overflow-hidden" title={n.body[lang]}>
+                          {n.body[lang]}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="shrink-0 md:w-56">
+                      {href ? (
+                        <a href={href} target="_blank" rel="noreferrer" className="block">
+                          <SafeImg
+                            src={imgSrc}
+                            alt={title}
+                            placeholderLabel="News"
+                            className="w-full h-36 md:h-28 object-cover rounded-xl border border-[#d5e6c3]"
+                          />
+                        </a>
+                      ) : (
+                        <SafeImg
+                          src={imgSrc}
+                          alt={title}
+                          placeholderLabel="News"
+                          className="w-full h-36 md:h-28 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
+                          onClick={() => openLightbox(imgSrc, title)}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </Section>
 
