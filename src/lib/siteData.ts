@@ -587,8 +587,8 @@ export const NEWS: NewsItem[] = [
     dateISO: '2025-06-17',
     title: {
       zh: '甘肃省人民政府外事办公室关于对省十四届人大三次会议第81号建议的答复',
-      en: 'Reply to proposal (No.81)',
-      ms: 'Jawapan kepada cadangan (No.81)',
+      en: 'Reply to Recommendation No. 81 of the 3rd Session of the 14th Gansu Provincial People’s Congress',
+      ms: 'Jawapan kepada Cadangan No. 81 bagi Persidangan Ketiga Kongres Rakyat Wilayah Gansu ke-14',
     },
     body: { zh: '', en: '', ms: '' },
     url: 'https://wsb.gansu.gov.cn/wsb/c108836/202510/174224859.shtml',
