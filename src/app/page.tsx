@@ -9,7 +9,7 @@ import { SocialAccountsList, SocialLinks } from '@/components/SocialLinks';
 import { WorldMap } from '@/components/WorldMap';
 import { t } from '@/lib/i18n';
 import { useLang } from '@/lib/useLang';
-import { BRAND, CONTACT, GLOBAL_LOCATIONS, HERO_SLIDES, MENU, MENU_PAGES, NEWS, STORES, Store } from '@/lib/siteData';
+import { BRAND, CONTACT, GLOBAL_LOCATIONS, MENU, MENU_PAGES, NEWS, STORES, Store } from '@/lib/siteData';
 
 const RESERVATION_STORE_KEY = 'lanzhou:reservation:storeId';
 const MENU_CATEGORY_KEY = 'lanzhou:menu:categoryId';
@@ -100,23 +100,6 @@ function Section({
 export default function Home() {
   const { lang, setLang } = useLang();
   const tt = (key: string, params?: Record<string, string | number>) => t(lang, key, params);
-
-  const [heroIndex, setHeroIndex] = useState(0);
-  const heroSlides = HERO_SLIDES;
-  const heroSlide = heroSlides[Math.min(Math.max(heroIndex, 0), Math.max(0, heroSlides.length - 1))];
-  const heroCanLeft = heroSlides.length > 1 && heroIndex > 0;
-  const heroCanRight = heroSlides.length > 1 && heroIndex < heroSlides.length - 1;
-
-  const goHeroPrev = () => {
-    const len = heroSlides.length;
-    if (len <= 1) return;
-    setHeroIndex((i) => Math.max(0, i - 1));
-  };
-  const goHeroNext = () => {
-    const len = heroSlides.length;
-    if (len <= 1) return;
-    setHeroIndex((i) => Math.min(len - 1, i + 1));
-  };
 
   const storesCarouselRef = useRef<HTMLDivElement | null>(null);
   const [storesCanLeft, setStoresCanLeft] = useState(false);
@@ -409,8 +392,8 @@ export default function Home() {
 
       <main id="top">
         <section className="py-12 md:py-16">
-          <div className="max-w-6xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr] gap-10 items-center">
-            <div>
+          <div className="max-w-6xl mx-auto px-4 md:px-8">
+            <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#c7d8b5] bg-[#f7faf1] text-[#2f4a31] text-sm">
                 <span className="h-2 w-2 rounded-full bg-[#3b5b3e]" />
                 {BRAND.tagline[lang]}
@@ -436,46 +419,6 @@ export default function Home() {
               <div className="mt-8 md:hidden">
                 <SocialLinks />
               </div>
-            </div>
-
-            <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-4">
-              <div
-                className="relative rounded-xl overflow-hidden"
-              >
-                <div className="relative w-full h-[320px] md:h-[420px] bg-[#edf4e5]">
-                  <div className="absolute inset-0" style={{ transform: `scale(${heroSlide?.zoom ?? 1})` }}>
-                    <SafeImg
-                      key={heroSlide?.id ?? heroIndex}
-                      src={heroSlide?.src}
-                      alt={heroSlide?.alt?.[lang] ?? 'Hero'}
-                      placeholderLabel="Hero"
-                      className="absolute inset-0 w-full h-full object-cover cursor-zoom-in"
-                      onClick={() => openLightbox(heroSlide?.src, heroSlide?.caption?.[lang] ?? 'Hero')}
-                    />
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={goHeroPrev}
-                  disabled={!heroCanLeft}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
-                  aria-label="Previous photo"
-                >
-                  ‹
-                </button>
-                <button
-                  type="button"
-                  onClick={goHeroNext}
-                  disabled={!heroCanRight}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
-                  aria-label="Next photo"
-                >
-                  ›
-                </button>
-              </div>
-              <p className="mt-3 text-sm text-[#486449] min-h-5 truncate" title={heroSlide?.caption?.[lang] ?? ''}>
-                {heroSlide?.caption?.[lang] ? heroSlide.caption[lang] : '\u00A0'}
-              </p>
             </div>
           </div>
         </section>
