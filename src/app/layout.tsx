@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lanzhou Beef Noodles (Malaysia)",
+  title: "JWD Mee Tarik",
   description: "Official website: stores, menu, halal info, news, reservation, contact",
 };
 
