@@ -443,14 +443,16 @@ export default function Home() {
                 className="relative rounded-xl overflow-hidden"
               >
                 <div className="relative w-full h-[320px] md:h-[420px] bg-[#edf4e5]">
-                  <SafeImg
-                    key={heroSlide?.id ?? heroIndex}
-                    src={heroSlide?.src}
-                    alt={heroSlide?.alt?.[lang] ?? 'Hero'}
-                    placeholderLabel="Hero"
-                    className="absolute inset-0 w-full h-full object-cover cursor-zoom-in"
-                    onClick={() => openLightbox(heroSlide?.src, heroSlide?.caption?.[lang] ?? 'Hero')}
-                  />
+                  <div className="absolute inset-0" style={{ transform: `scale(${heroSlide?.zoom ?? 1})` }}>
+                    <SafeImg
+                      key={heroSlide?.id ?? heroIndex}
+                      src={heroSlide?.src}
+                      alt={heroSlide?.alt?.[lang] ?? 'Hero'}
+                      placeholderLabel="Hero"
+                      className="absolute inset-0 w-full h-full object-cover cursor-zoom-in"
+                      onClick={() => openLightbox(heroSlide?.src, heroSlide?.caption?.[lang] ?? 'Hero')}
+                    />
+                  </div>
                 </div>
                 <button
                   type="button"

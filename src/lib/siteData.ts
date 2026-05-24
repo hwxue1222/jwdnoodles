@@ -7,6 +7,7 @@ export type HeroSlide = {
   src: string;
   alt: Record<Lang, string>;
   caption: Record<Lang, string>;
+  zoom?: number;
 };
 
 export type Store = {
@@ -92,6 +93,7 @@ export const HERO_SLIDES: HeroSlide[] = [
       en: 'One clear broth, two white radish, three red chili oil, four green herbs, five yellow noodles.',
       ms: 'Satu jernih (sup), dua putih (lobak), tiga merah (minyak cili), empat hijau (herba), lima kuning (mi).',
     },
+    zoom: 1.25,
   },
 ];
 
