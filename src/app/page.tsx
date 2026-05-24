@@ -534,7 +534,7 @@ export default function Home() {
                 {STORES.map((store) => (
                   <div
                     key={store.id}
-                    className="snap-start shrink-0 w-[86vw] sm:w-[420px] max-w-[520px] rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden"
+                    className="snap-start shrink-0 w-full sm:w-[420px] max-w-[520px] rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden"
                   >
                   <SafeImg
                     src={store.photoSrc}
