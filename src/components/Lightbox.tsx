@@ -45,19 +45,21 @@ export function Lightbox({
         >
           ×
         </button>
-        <div className="rounded-xl overflow-hidden bg-white shadow-2xl">
-          {type === 'video' ? (
-            <video
-              src={src}
-              poster={posterSrc}
-              controls
-              loop
-              playsInline
-              className="w-full h-auto max-h-[80vh] object-contain bg-[#edf4e5]"
-            />
-          ) : (
-            <SafeImg src={src} alt={alt} className="w-full h-auto max-h-[80vh] object-contain bg-[#edf4e5]" />
-          )}
+        <div className="rounded-xl overflow-hidden bg-white shadow-2xl max-h-[90vh] flex flex-col">
+          <div className="bg-[#edf4e5] w-full flex-1 min-h-[240px]">
+            {type === 'video' ? (
+              <video
+                src={src}
+                poster={posterSrc}
+                controls
+                loop
+                playsInline
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <SafeImg src={src} alt={alt} className="w-full h-full object-contain" />
+            )}
+          </div>
           <div className="px-4 py-3 text-sm text-[#2f4a31] border-t border-[#e5e7eb]">{alt}</div>
         </div>
       </div>
