@@ -415,83 +415,86 @@ export default function Home() {
         <div className="py-12 md:py-14" />
 
         <Section id="stores" title={tt('section.stores.title')} subtitle={tt('section.stores.subtitle')}>
-          <div className="flex items-center justify-end gap-2 mb-3">
-            <button
-              type="button"
-              onClick={() => scrollStoresBy(-1)}
-              disabled={!storesCanLeft}
-              className="h-10 w-10 rounded-full border border-[#c7d8b5] bg-[#f7faf1] text-[#2f4a31] hover:bg-white transition disabled:opacity-40 disabled:hover:bg-[#f7faf1]"
-              aria-label="Scroll stores left"
-            >
-              ‹
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollStoresBy(1)}
-              disabled={!storesCanRight}
-              className="h-10 w-10 rounded-full border border-[#c7d8b5] bg-[#f7faf1] text-[#2f4a31] hover:bg-white transition disabled:opacity-40 disabled:hover:bg-[#f7faf1]"
-              aria-label="Scroll stores right"
-            >
-              ›
-            </button>
-          </div>
-
-          <div
-            ref={storesCarouselRef}
-            className="-mx-4 px-4 md:mx-0 md:px-0 flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2"
-          >
-            {STORES.map((store) => (
-              <div
-                key={store.id}
-                className="snap-start shrink-0 w-[86vw] sm:w-[420px] max-w-[520px] rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden"
+          <div className="-mx-4 md:mx-0">
+            <div className="px-4 md:px-0 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => scrollStoresBy(-1)}
+                disabled={!storesCanLeft}
+                className="shrink-0 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                aria-label="Scroll stores left"
               >
-                <SafeImg
-                  src={store.photoSrc}
-                  alt={store.name[lang]}
-                  className="w-full h-56 object-cover cursor-zoom-in"
-                  onClick={() => openLightbox(store.photoSrc, store.name[lang])}
-                />
-                <div className="p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h3 className="text-xl font-semibold text-[#274126] truncate">{store.name[lang]}</h3>
-                      <p className="mt-1 text-sm text-[#486449]">
-                        {store.status === 'opening_soon'
-                          ? tt('store.openingSoon', { date: store.openingDate[lang] })
-                          : tt('store.opened', { date: store.openingDate[lang] })}
-                      </p>
-                      <p className="mt-3 text-[#2f4a31]">{store.address[lang]}</p>
-                      {store.note ? <p className="mt-1 text-sm text-[#486449]">{store.note[lang]}</p> : null}
-                      {store.hours ? (
-                        <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3">
-                          <div className="text-xs font-semibold tracking-wide text-[#486449]">{tt('store.hours')}</div>
-                          <div className="mt-1 text-sm text-[#2f4a31]">{store.hours[lang]}</div>
-                        </div>
-                      ) : null}
+                ‹
+              </button>
+
+              <div
+                ref={storesCarouselRef}
+                className="min-w-0 flex-1 flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2"
+              >
+                {STORES.map((store) => (
+                  <div
+                    key={store.id}
+                    className="snap-start shrink-0 w-[86vw] sm:w-[420px] max-w-[520px] rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden"
+                  >
+                  <SafeImg
+                    src={store.photoSrc}
+                    alt={store.name[lang]}
+                    className="w-full h-56 object-cover cursor-zoom-in"
+                    onClick={() => openLightbox(store.photoSrc, store.name[lang])}
+                  />
+                  <div className="p-6">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="text-xl font-semibold text-[#274126] truncate">{store.name[lang]}</h3>
+                        <p className="mt-1 text-sm text-[#486449]">
+                          {store.status === 'opening_soon'
+                            ? tt('store.openingSoon', { date: store.openingDate[lang] })
+                            : tt('store.opened', { date: store.openingDate[lang] })}
+                        </p>
+                        <p className="mt-3 text-[#2f4a31]">{store.address[lang]}</p>
+                        {store.note ? <p className="mt-1 text-sm text-[#486449]">{store.note[lang]}</p> : null}
+                        {store.hours ? (
+                          <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3">
+                            <div className="text-xs font-semibold tracking-wide text-[#486449]">{tt('store.hours')}</div>
+                            <div className="mt-1 text-sm text-[#2f4a31]">{store.hours[lang]}</div>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <a
+                        href={mapOpenUrl(store)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center justify-center h-10 px-4 rounded-full border border-[#3b5b3e] text-[#2f4a31] bg-[#edf4e5] hover:bg-white transition"
+                      >
+                        {tt('store.viewOnMaps')}
+                      </a>
+                    </div>
+                    <div className="mt-5 rounded-xl overflow-hidden border border-[#d5e6c3] bg-[#edf4e5]">
+                      <iframe
+                        src={mapEmbedUrl(store)}
+                        className="w-full h-56"
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        title={`Map-${store.id}`}
+                      />
                     </div>
                   </div>
-                  <div className="mt-4">
-                    <a
-                      href={mapOpenUrl(store)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center justify-center h-10 px-4 rounded-full border border-[#3b5b3e] text-[#2f4a31] bg-[#edf4e5] hover:bg-white transition"
-                    >
-                      {tt('store.viewOnMaps')}
-                    </a>
                   </div>
-                  <div className="mt-5 rounded-xl overflow-hidden border border-[#d5e6c3] bg-[#edf4e5]">
-                    <iframe
-                      src={mapEmbedUrl(store)}
-                      className="w-full h-56"
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title={`Map-${store.id}`}
-                    />
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
+
+              <button
+                type="button"
+                onClick={() => scrollStoresBy(1)}
+                disabled={!storesCanRight}
+                className="shrink-0 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                aria-label="Scroll stores right"
+              >
+                ›
+              </button>
+            </div>
           </div>
         </Section>
 
