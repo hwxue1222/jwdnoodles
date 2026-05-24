@@ -105,6 +105,10 @@ export default function Home() {
   const [storesCanLeft, setStoresCanLeft] = useState(false);
   const [storesCanRight, setStoresCanRight] = useState(false);
 
+  const menuPagesCarouselRef = useRef<HTMLDivElement | null>(null);
+  const [menuPagesCanLeft, setMenuPagesCanLeft] = useState(false);
+  const [menuPagesCanRight, setMenuPagesCanRight] = useState(false);
+
   const [menuCategoryId, setMenuCategoryId] = useState(() => {
     const fallback = MENU[0]?.id ?? '';
     if (typeof window === 'undefined') return fallback;
@@ -231,6 +235,13 @@ export default function Home() {
     el.scrollBy({ left: direction * amount, behavior: 'smooth' });
   };
 
+  const scrollMenuPagesBy = (direction: -1 | 1) => {
+    const el = menuPagesCarouselRef.current;
+    if (!el) return;
+    const amount = Math.max(240, Math.round(el.clientWidth * 0.9));
+    el.scrollBy({ left: direction * amount, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     const el = storesCarouselRef.current;
     if (!el) return;
@@ -239,6 +250,37 @@ export default function Home() {
       const maxScrollLeft = Math.max(0, el.scrollWidth - el.clientWidth);
       setStoresCanLeft(el.scrollLeft > 4);
       setStoresCanRight(el.scrollLeft < maxScrollLeft - 4);
+    };
+
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        update();
+      });
+    };
+
+    update();
+    el.addEventListener('scroll', onScroll, { passive: true });
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      el.removeEventListener('scroll', onScroll);
+      ro.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    const el = menuPagesCarouselRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const maxScrollLeft = Math.max(0, el.scrollWidth - el.clientWidth);
+      setMenuPagesCanLeft(el.scrollLeft > 4);
+      setMenuPagesCanRight(el.scrollLeft < maxScrollLeft - 4);
     };
 
     let raf = 0;
@@ -506,18 +548,45 @@ export default function Home() {
             </div>
 
             <div className="p-6 space-y-10">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {MENU_PAGES.map((p) => (
+              <div className="-mx-6">
+                <div className="px-6 flex items-center gap-3">
                   <button
-                    key={p.src}
                     type="button"
-                    className="text-left rounded-xl border border-[#d5e6c3] bg-white/60 hover:bg-white transition overflow-hidden"
-                    onClick={() => openLightbox(p.src, p.label[lang])}
+                    onClick={() => scrollMenuPagesBy(-1)}
+                    disabled={!menuPagesCanLeft}
+                    className="shrink-0 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                    aria-label="Scroll menu pages left"
                   >
-                    <SafeImg src={p.src} alt={p.label[lang]} className="w-full h-36 object-cover" />
-                    <div className="px-3 py-2 text-xs text-[#486449]">{p.label[lang]}</div>
+                    ‹
                   </button>
-                ))}
+
+                  <div
+                    ref={menuPagesCarouselRef}
+                    className="min-w-0 flex-1 flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2"
+                  >
+                    {MENU_PAGES.map((p) => (
+                      <button
+                        key={p.src}
+                        type="button"
+                        className="snap-start shrink-0 w-[72vw] sm:w-[340px] rounded-xl border border-[#d5e6c3] bg-white/60 hover:bg-white transition overflow-hidden text-left"
+                        onClick={() => openLightbox(p.src, p.label[lang])}
+                      >
+                        <SafeImg src={p.src} alt={p.label[lang]} className="w-full h-36 object-cover" />
+                        <div className="px-3 py-2 text-xs text-[#486449]">{p.label[lang]}</div>
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => scrollMenuPagesBy(1)}
+                    disabled={!menuPagesCanRight}
+                    className="shrink-0 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                    aria-label="Scroll menu pages right"
+                  >
+                    ›
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center gap-2 overflow-x-auto pb-2">
