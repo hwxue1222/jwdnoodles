@@ -85,7 +85,7 @@ export default function NewsPage() {
             return (
               <div key={n.id} className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden">
                 <div className="p-5 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 items-stretch">
-                  <div className="hidden md:block shrink-0 text-sm text-[#486449] tabular-nums md:w-28">{n.dateISO}</div>
+                  <div className="shrink-0 text-sm text-[#486449] tabular-nums md:w-28">{n.dateISO}</div>
 
                   <div className="min-w-0 flex-1">
                     {href ? (
@@ -104,10 +104,8 @@ export default function NewsPage() {
                       </div>
                     )}
 
-                    <div className="mt-2 text-sm text-[#486449] tabular-nums md:hidden">{n.dateISO}</div>
-
                     {href ? (
-                      <div className="mt-1 md:mt-2 text-sm text-[#486449] truncate" title={href}>
+                      <div className="mt-2 text-sm text-[#486449] truncate" title={href}>
                         {host}
                       </div>
                     ) : (
