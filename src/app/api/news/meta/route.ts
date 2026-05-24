@@ -53,6 +53,37 @@ function makeScreenshotUrl(u: URL) {
   return `https://image.thum.io/get/width/1200/${u.toString()}`;
 }
 
+function makeCardSvgDataUrl(opts: { title: string; host: string }) {
+  const title = (opts.title || 'News').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const host = (opts.host || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#edf4e5"/>
+      <stop offset="1" stop-color="#f7faf1"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+  <rect x="48" y="48" width="1104" height="504" rx="28" fill="#ffffff" stroke="#c7d8b5"/>
+  <text x="96" y="170" fill="#274126" font-size="46" font-family="Arial, Helvetica, sans-serif" font-weight="700">${title}</text>
+  <text x="96" y="230" fill="#486449" font-size="28" font-family="Arial, Helvetica, sans-serif">${host}</text>
+  <text x="96" y="500" fill="#486449" font-size="22" font-family="Arial, Helvetica, sans-serif">Click to open</text>
+</svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+async function thumLooksUsable(targetUrl: URL) {
+  try {
+    const thumb = makeScreenshotUrl(targetUrl);
+    const res = await fetch(thumb, { method: 'HEAD', redirect: 'follow', signal: AbortSignal.timeout(6000) });
+    const code = Number(res.headers.get('thum_status_code') || '');
+    if (Number.isFinite(code) && code >= 400) return false;
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 function isPrivateOrLocalHostname(hostname: string) {
   const h = hostname.toLowerCase();
   if (h === 'localhost' || h.endsWith('.localhost')) return true;
@@ -90,6 +121,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'blocked hostname' }, { status: 400 });
   }
 
+  const host = u.hostname.replace(/^www\./, '');
+
   try {
     const res = await fetch(u.toString(), {
       redirect: 'follow',
@@ -100,16 +133,7 @@ export async function GET(req: Request) {
       signal: AbortSignal.timeout(8000),
     });
 
-    if (!res.ok) {
-      return NextResponse.json(
-        { title: '', image: makeScreenshotUrl(u) },
-        {
-          headers: {
-            'cache-control': 'public, s-maxage=86400, stale-while-revalidate=604800',
-          },
-        }
-      );
-    }
+    if (!res.ok) throw new Error('fetch failed');
 
     const html = await res.text();
     const title = getTitleFromHtml(html);
@@ -122,7 +146,9 @@ export async function GET(req: Request) {
         image = '';
       }
     }
-    if (!image) image = makeScreenshotUrl(u);
+    if (!image) {
+      image = (await thumLooksUsable(u)) ? makeScreenshotUrl(u) : makeCardSvgDataUrl({ title, host });
+    }
 
     return NextResponse.json(
       { title, image },
@@ -133,8 +159,9 @@ export async function GET(req: Request) {
       }
     );
   } catch {
+    const image = (await thumLooksUsable(u)) ? makeScreenshotUrl(u) : makeCardSvgDataUrl({ title: 'News', host });
     return NextResponse.json(
-      { title: '', image: makeScreenshotUrl(u) },
+      { title: '', image },
       {
         headers: {
           'cache-control': 'public, s-maxage=86400, stale-while-revalidate=604800',
