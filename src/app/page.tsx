@@ -516,12 +516,12 @@ export default function Home() {
 
         <Section id="stores" title={tt('section.stores.title')} subtitle={tt('section.stores.subtitle')}>
           <div className="-mx-4 md:mx-0">
-            <div className="px-4 md:px-0 flex items-center gap-3">
+            <div className="px-4 md:px-0 relative">
               <button
                 type="button"
                 onClick={() => scrollStoresBy(-1)}
                 disabled={!storesCanLeft}
-                className="shrink-0 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                className="absolute left-2 top-20 sm:top-28 -translate-y-1/2 z-10 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
                 aria-label="Scroll stores left"
               >
                 ‹
@@ -529,12 +529,12 @@ export default function Home() {
 
               <div
                 ref={storesCarouselRef}
-                className="min-w-0 flex-1 flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2"
+                className="noScrollbar flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 px-12 [scrollbar-width:none] [-ms-overflow-style:none]"
               >
                 {STORES.map((store) => (
                   <div
                     key={store.id}
-                    className="snap-start shrink-0 w-full sm:w-[420px] max-w-[520px] rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden"
+                    className="snap-start shrink-0 w-[86vw] sm:w-[420px] max-w-[520px] rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden"
                   >
                   <SafeImg
                     src={store.photoSrc}
@@ -587,7 +587,7 @@ export default function Home() {
                 type="button"
                 onClick={() => scrollStoresBy(1)}
                 disabled={!storesCanRight}
-                className="shrink-0 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
+                className="absolute right-2 top-20 sm:top-28 -translate-y-1/2 z-10 h-11 w-11 rounded-full border border-[#c7d8b5] bg-[#f7faf1]/90 backdrop-blur text-[#2f4a31] hover:bg-white transition shadow-sm disabled:opacity-40 disabled:hover:bg-[#f7faf1]/90"
                 aria-label="Scroll stores right"
               >
                 ›
