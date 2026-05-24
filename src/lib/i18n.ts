@@ -28,6 +28,8 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'hero.cta.reserve': '立即订位',
 
     'section.about.title': '关于我们',
+    'section.about.noodlesTitle': '牛肉面介绍',
+    'section.about.aboutTitle': '关于我们',
     'section.about.p0':
       '兰州牛肉面，是甘肃省兰州市的特色美食，是一种食品名称，原名“兰州牛肉面”，始于清朝嘉庆年间（1799年）。牛肉面以“一清（汤）二白（萝卜）三红（辣子）四绿（香菜蒜苗）五黄（面条黄亮）”统一了兰州牛肉面的标准。在其后一百多年的漫长岁月里，以“一碗面品尝天下”，以肉烂汤鲜、面质精细黄莹中见外，走向世界，赢得了国内乃至全世界范围内食客的好评和荣誉。',
     'section.about.p1':
@@ -95,6 +97,8 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'hero.cta.reserve': 'Reserve Now',
 
     'section.about.title': 'About Us',
+    'section.about.noodlesTitle': 'Lanzhou Beef Noodles',
+    'section.about.aboutTitle': 'About Us',
     'section.about.p0':
       "Originated in Lanzhou, Gansu (1799). Known for the “one clear, two white, three red, four green, five yellow” standard—now freshly hand-pulled in Malaysia.",
     'section.about.p1':
@@ -164,6 +168,8 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'hero.cta.reserve': 'Tempah Sekarang',
 
     'section.about.title': 'Tentang Kami',
+    'section.about.noodlesTitle': 'Mee Sup Daging Lanzhou',
+    'section.about.aboutTitle': 'Tentang Kami',
     'section.about.p0':
       'Berasal dari Lanzhou, Gansu (1799). Mengikut piawaian “satu jernih, dua putih, tiga merah, empat hijau, lima kuning”—kini mee tarik segar di Malaysia.',
     'section.about.p1':
