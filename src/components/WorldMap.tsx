@@ -273,8 +273,6 @@ export function WorldMap({
             aria-label="Scroll left"
             className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full border border-[#c7d8b5] bg-white/80 text-[#2f4a31] shadow-sm hover:bg-white transition"
             onClick={() => scrollCarouselBy(-1)}
-            onMouseEnter={() => setCarouselPaused(true)}
-            onMouseLeave={() => setCarouselPaused(false)}
           >
             ‹
           </button>
@@ -283,8 +281,6 @@ export function WorldMap({
             aria-label="Scroll right"
             className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full border border-[#c7d8b5] bg-white/80 text-[#2f4a31] shadow-sm hover:bg-white transition"
             onClick={() => scrollCarouselBy(1)}
-            onMouseEnter={() => setCarouselPaused(true)}
-            onMouseLeave={() => setCarouselPaused(false)}
           >
             ›
           </button>
@@ -292,10 +288,6 @@ export function WorldMap({
           <div
             ref={carouselRef}
             className="noScrollbar overflow-x-auto overflow-y-hidden scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] px-12"
-            onMouseEnter={() => setCarouselPaused(true)}
-            onMouseLeave={() => setCarouselPaused(false)}
-            onFocusCapture={() => setCarouselPaused(true)}
-            onBlurCapture={() => setCarouselPaused(false)}
             onTouchStart={() => setCarouselPaused(true)}
             onTouchEnd={() => setCarouselPaused(false)}
           >
