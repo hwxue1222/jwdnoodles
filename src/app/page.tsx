@@ -539,7 +539,7 @@ export default function Home() {
                   <SafeImg
                     src={store.photoSrc}
                     alt={store.name[lang]}
-                    className="w-full h-56 object-cover cursor-zoom-in"
+                    className="w-full h-40 sm:h-56 object-cover cursor-zoom-in"
                     onClick={() => openLightbox(store.photoSrc, store.name[lang])}
                   />
                   <div className="p-6">
