@@ -782,7 +782,7 @@ export default function Home() {
                           {host}
                         </div>
                       ) : (
-                        <div className="mt-2 text-[#2f4a31] leading-relaxed max-h-14 overflow-hidden" title={n.body[lang]}>
+                        <div className="mt-2 text-[#2f4a31] leading-relaxed whitespace-pre-line" title={n.body[lang]}>
                           {n.body[lang]}
                         </div>
                       )}
