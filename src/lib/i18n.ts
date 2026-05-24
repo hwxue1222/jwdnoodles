@@ -27,7 +27,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'hero.cta.menu': '查看菜单',
     'hero.cta.reserve': '立即订位',
 
-    'section.about.title': '关于我们',
+    'section.about.title': '品牌介绍',
     'section.about.p1':
       '金味德牛肉拉面品牌，总部位于甘肃兰州，创始于1986年，是一家兰州牛肉拉面国际连锁品牌，目前在美国、新西兰、西班牙、荷兰、德国、英国、马来西亚等世界60多个国家注册商标、开展业务，海外外连锁店数量达百余家。',
     'section.about.p2':

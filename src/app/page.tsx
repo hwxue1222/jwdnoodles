@@ -231,7 +231,7 @@ export default function Home() {
           </a>
 
           <nav className="hidden lg:flex items-center gap-5 text-sm text-[#2f4a31]">
-            <a className="hover:underline underline-offset-4" href="#about">
+            <a className="hover:underline underline-offset-4" href="#top">
               {tt('nav.about')}
             </a>
             <a className="hover:underline underline-offset-4" href="#stores">
@@ -263,7 +263,7 @@ export default function Home() {
         </div>
         <div className="lg:hidden px-4 md:px-8 pb-3">
           <div className="flex items-center gap-3 overflow-x-auto text-sm text-[#2f4a31]">
-            <a className="whitespace-nowrap hover:underline underline-offset-4" href="#about">
+            <a className="whitespace-nowrap hover:underline underline-offset-4" href="#top">
               {tt('nav.about')}
             </a>
             <a className="whitespace-nowrap hover:underline underline-offset-4" href="#stores">
