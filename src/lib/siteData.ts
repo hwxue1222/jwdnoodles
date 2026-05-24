@@ -65,7 +65,7 @@ export const SOCIAL_LINKS = {
   facebook: 'https://www.facebook.com/JWDfood',
   tiktok: 'https://www.tiktok.com/@jwdmeetarik',
   xiaohongshu: 'https://www.xiaohongshu.com/user/profile/5482367737',
-  whatsapp: 'https://wa.me/60123456789',
+  whatsapp: 'https://wa.me/60178126685',
 } as const;
 
 export const CONTACT = {
