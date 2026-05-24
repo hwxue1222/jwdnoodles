@@ -528,24 +528,4 @@ export const NEWS: NewsItem[] = [
     url: 'https://wsb.gansu.gov.cn/wsb/c108836/202510/174224859.shtml',
     photoSrc: '/images/news/gansu-wsb-174224859.png',
   },
-  {
-    id: 'opening-1',
-    dateISO: '2025-01-18',
-    title: { zh: 'Kulai 新店开业', en: 'New store opening in Kulai', ms: 'Pembukaan cawangan baharu di Kulai' },
-    body: {
-      zh: '感谢大家支持！Kulai 新店正式开业，欢迎到店品尝。',
-      en: 'Thank you for your support! Our Kulai store is now open.',
-      ms: 'Terima kasih! Cawangan Kulai kini dibuka.',
-    },
-  },
-  {
-    id: 'halal-update',
-    dateISO: '2025-03-01',
-    title: { zh: '清真信息更新', en: 'Halal status update', ms: 'Kemas kini status halal' },
-    body: {
-      zh: '清真认证信息将持续更新，详情可通过 WhatsApp 咨询。',
-      en: 'We will keep halal information updated. Contact us via WhatsApp for details.',
-      ms: 'Maklumat halal akan dikemas kini. Hubungi kami melalui WhatsApp untuk butiran.',
-    },
-  },
 ];
