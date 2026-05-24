@@ -2,6 +2,13 @@ import { Lang } from '@/lib/i18n';
 
 export type LocalizedText = Record<Lang, string>;
 
+export type HeroSlide = {
+  id: string;
+  src: string;
+  alt: Record<Lang, string>;
+  caption: Record<Lang, string>;
+};
+
 export type Store = {
   id: string;
   name: LocalizedText;
@@ -60,6 +67,33 @@ export const BRAND = {
     ms: 'Rasa Lanzhou dari China, kini di Malaysia',
   } satisfies Record<Lang, string>,
 };
+
+export const HERO_SLIDES: HeroSlide[] = [
+  {
+    id: 'ma-baozi',
+    src: '/images/hero/slide-1.jpg',
+    alt: {
+      zh: '兰州牛肉面历史场景',
+      en: 'A scene of Lanzhou beef noodles heritage',
+      ms: 'Suasana warisan mee sup daging Lanzhou',
+    },
+    caption: {
+      zh: '马保子开创和发扬近代兰州牛肉拉面',
+      en: 'Ma Baozi pioneered and popularized modern Lanzhou beef noodles.',
+      ms: 'Ma Baozi mempelopori dan memartabatkan mee sup daging Lanzhou moden.',
+    },
+  },
+  {
+    id: 'slide-2',
+    src: '/images/hero/slide-2.jpg',
+    alt: { zh: '门店照片', en: 'Store photo', ms: 'Foto cawangan' },
+    caption: {
+      zh: '一清二白三红四绿五黄',
+      en: 'One clear broth, two white radish, three red chili oil, four green herbs, five yellow noodles.',
+      ms: 'Satu jernih (sup), dua putih (lobak), tiga merah (minyak cili), empat hijau (herba), lima kuning (mi).',
+    },
+  },
+];
 
 export const SOCIAL_LINKS = {
   facebook: 'https://www.facebook.com/JWDfood',

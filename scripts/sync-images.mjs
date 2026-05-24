@@ -103,6 +103,16 @@ const enhanceAndCopyIfExists = async ({ fromBase, to, outMime }) => {
 
 const tasks = [
   {
+    fromBase: 'slide-1',
+    to: path.join(publicDir, 'images', 'hero', 'slide-1.jpg'),
+    outMime: 'image/jpeg',
+  },
+  {
+    fromBase: 'slide-2',
+    to: path.join(publicDir, 'images', 'hero', 'slide-2.jpg'),
+    outMime: 'image/jpeg',
+  },
+  {
     fromBase: 'puteri-harbour',
     to: path.join(publicDir, 'images', 'stores', 'puteri-harbour.jpg'),
     outMime: 'image/jpeg',
