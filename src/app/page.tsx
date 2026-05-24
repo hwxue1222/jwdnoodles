@@ -409,7 +409,7 @@ export default function Home() {
 
       <main id="top">
         <section className="py-12 md:py-16">
-          <div className="max-w-6xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr] gap-10 items-start">
+          <div className="max-w-6xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr] gap-10 items-center">
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#c7d8b5] bg-[#f7faf1] text-[#2f4a31] text-sm">
                 <span className="h-2 w-2 rounded-full bg-[#3b5b3e]" />
@@ -444,10 +444,11 @@ export default function Home() {
               >
                 <div className="relative w-full h-[320px] md:h-[420px] bg-[#edf4e5]">
                   <SafeImg
+                    key={heroSlide?.id ?? heroIndex}
                     src={heroSlide?.src}
                     alt={heroSlide?.alt?.[lang] ?? 'Hero'}
                     placeholderLabel="Hero"
-                    className="absolute inset-0 w-full h-full object-contain cursor-zoom-in"
+                    className="absolute inset-0 w-full h-full object-cover cursor-zoom-in"
                     onClick={() => openLightbox(heroSlide?.src, heroSlide?.caption?.[lang] ?? 'Hero')}
                   />
                 </div>
