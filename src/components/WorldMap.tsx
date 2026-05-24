@@ -45,24 +45,36 @@ export function WorldMap({
 
     const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)');
     const reduceMotion = mq?.matches ?? false;
-    if (reduceMotion) return;
 
     const second = carouselSecondCopyRef.current;
     if (!second) return;
+    const track = carouselTrackRef.current;
 
     let raf = 0;
     let lastT = 0;
-    const speedPxPerSecond = 32;
+    const speedPxPerSecond = reduceMotion ? 18 : 32;
+
+    const getSingleWidth = () => {
+      if (track) {
+        const a = track.getBoundingClientRect();
+        const b = second.getBoundingClientRect();
+        const w = b.left - a.left;
+        if (Number.isFinite(w) && w > 0) return w;
+      }
+      const fallback = second.offsetLeft;
+      return Number.isFinite(fallback) && fallback > 0 ? fallback : 0;
+    };
 
     const tick = (t: number) => {
       if (!lastT) lastT = t;
       const dt = t - lastT;
       lastT = t;
+      const safeDt = Math.min(dt, 80);
 
-      const singleWidth = second.offsetLeft;
+      const singleWidth = getSingleWidth();
       const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
       if (!carouselPaused && maxScroll > 0 && singleWidth > 0) {
-        const next = el.scrollLeft + (speedPxPerSecond * dt) / 1000;
+        const next = el.scrollLeft + (speedPxPerSecond * safeDt) / 1000;
         if (next >= singleWidth) {
           el.scrollLeft = next - singleWidth;
         } else {
