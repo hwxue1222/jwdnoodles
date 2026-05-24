@@ -39,10 +39,14 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
+
+        <div className="mt-6 rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
+          <div className="text-lg font-semibold text-[#274126]">{tt('hero.title')}</div>
+          <p className="mt-3 text-[#2f4a31] leading-relaxed whitespace-pre-line">{tt('hero.subtitle')}</p>
+        </div>
       </Section>
 
       <div className="py-12 md:py-14" />
     </>
   );
 }
-
