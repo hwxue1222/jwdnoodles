@@ -466,6 +466,24 @@ export const MENU: MenuCategory[] = [
 
 export const NEWS: NewsItem[] = [
   {
+    id: 'gansu-swt-174137203',
+    dateISO: '2025-05-01',
+    title: { zh: '甘肃省商务厅新闻', en: 'Gansu news', ms: 'Berita Gansu' },
+    body: { zh: '', en: '', ms: '' },
+    url: 'https://swt.gansu.gov.cn/swt/c108416/202505/174137203.shtml',
+  },
+  {
+    id: 'gansu-wsb-174224859',
+    dateISO: '2025-06-17',
+    title: {
+      zh: '甘肃省人民政府外事办公室关于对省十四届人大三次会议第81号建议的答复',
+      en: 'Reply to proposal (No.81)',
+      ms: 'Jawapan kepada cadangan (No.81)',
+    },
+    body: { zh: '', en: '', ms: '' },
+    url: 'https://wsb.gansu.gov.cn/wsb/c108836/202510/174224859.shtml',
+  },
+  {
     id: 'opening-1',
     dateISO: '2025-01-18',
     title: { zh: 'Kulai 新店开业', en: 'New store opening in Kulai', ms: 'Pembukaan cawangan baharu di Kulai' },

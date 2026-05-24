@@ -30,6 +30,25 @@ function getImageFromHtml(html: string) {
   return '';
 }
 
+function getFirstImageFromHtml(html: string) {
+  const matches = html.matchAll(/<img[^>]+src=["']([^"']+)["']/gi);
+  let count = 0;
+  for (const m of matches) {
+    count += 1;
+    if (count > 80) break;
+    const src = (m[1] ?? '').trim();
+    const lower = src.toLowerCase();
+    if (!src) continue;
+    if (lower.startsWith('data:')) continue;
+    if (lower.endsWith('.svg')) continue;
+    if (lower.includes('favicon')) continue;
+    if (lower.includes('logo')) continue;
+    if (lower.includes('icon')) continue;
+    return src;
+  }
+  return '';
+}
+
 function isPrivateOrLocalHostname(hostname: string) {
   const h = hostname.toLowerCase();
   if (h === 'localhost' || h.endsWith('.localhost')) return true;
@@ -83,7 +102,7 @@ export async function GET(req: Request) {
 
     const html = await res.text();
     const title = getTitleFromHtml(html);
-    const imageRaw = getImageFromHtml(html);
+    const imageRaw = getImageFromHtml(html) || getFirstImageFromHtml(html);
     let image = '';
     if (imageRaw) {
       try {
@@ -105,4 +124,3 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'fetch error' }, { status: 502 });
   }
 }
-
