@@ -551,8 +551,8 @@ export const NEWS: NewsItem[] = [
     dateISO: '2024-06-13',
     title: {
       zh: '兰州：市科技局调研甘肃金味德拉面文化产业集团有限公司',
-      en: 'Lanzhou: Science & Tech Bureau visits Gansu JWD Noodle Culture Industry Group',
-      ms: 'Lanzhou: Biro Sains & Teknologi melawat Kumpulan Industri Budaya Mi JWD Gansu',
+      en: 'Lanzhou: Science & Tech Bureau visits Gansu Jinweide Noodle Culture Industry Group',
+      ms: 'Lanzhou: Biro Sains & Teknologi melawat Kumpulan Industri Budaya Mi Jinweide Gansu',
     },
     body: { zh: '', en: '', ms: '' },
     url: 'https://kjt.gansu.gov.cn/kjt/c111534/202406/173931375.shtml',
