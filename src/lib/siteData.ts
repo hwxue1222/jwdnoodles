@@ -563,8 +563,8 @@ export const NEWS: NewsItem[] = [
     dateISO: '2024-10-28',
     title: {
       zh: '中国非遗征服巴塞罗那 金味德兰州牛肉拉面大火',
-      en: 'Chinese intangible heritage wins Barcelona: JWD Lanzhou beef noodles go viral',
-      ms: 'Warisan budaya tidak ketara China memukau Barcelona: mee daging Lanzhou JWD menjadi tular',
+      en: 'Chinese intangible heritage wins Barcelona: Jinweide Lanzhou beef noodles go viral',
+      ms: 'Warisan budaya tidak ketara China memukau Barcelona: mee daging Lanzhou Jinweide menjadi tular',
     },
     body: { zh: '', en: '', ms: '' },
     url: 'https://sz.ifeng.com/c/8e2rg1CUsQq',
