@@ -575,8 +575,8 @@ export const NEWS: NewsItem[] = [
     dateISO: '2025-04-25',
     title: {
       zh: '一碗面的环球之旅｜在全球60余个国家注册商标 金味德以连锁业务打造中国美食IP',
-      en: 'JWD: Building a Chinese culinary IP',
-      ms: 'JWD: Membina IP kulinari China',
+      en: 'Jinweide: Building a Chinese culinary IP',
+      ms: 'Jinweide: Membina IP kulinari China',
     },
     body: { zh: '', en: '', ms: '' },
     url: 'https://swt.gansu.gov.cn/swt/c108416/202505/174137203.shtml',
