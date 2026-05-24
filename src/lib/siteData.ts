@@ -467,10 +467,15 @@ export const MENU: MenuCategory[] = [
 export const NEWS: NewsItem[] = [
   {
     id: 'gansu-swt-174137203',
-    dateISO: '2025-05-01',
-    title: { zh: '甘肃省商务厅新闻', en: 'Gansu news', ms: 'Berita Gansu' },
+    dateISO: '2025-04-25',
+    title: {
+      zh: '一碗面的环球之旅｜在全球60余个国家注册商标 金味德以连锁业务打造中国美食IP',
+      en: 'JWD: Building a Chinese culinary IP',
+      ms: 'JWD: Membina IP kulinari China',
+    },
     body: { zh: '', en: '', ms: '' },
     url: 'https://swt.gansu.gov.cn/swt/c108416/202505/174137203.shtml',
+    photoSrc: '/images/news/gansu-swt-174137203.png',
   },
   {
     id: 'gansu-wsb-174224859',
@@ -482,6 +487,7 @@ export const NEWS: NewsItem[] = [
     },
     body: { zh: '', en: '', ms: '' },
     url: 'https://wsb.gansu.gov.cn/wsb/c108836/202510/174224859.shtml',
+    photoSrc: '/images/news/gansu-wsb-174224859.png',
   },
   {
     id: 'opening-1',

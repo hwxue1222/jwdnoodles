@@ -577,7 +577,7 @@ export default function Home() {
                   const meta = newsMetaById[n.id];
                   const href = n.url?.trim();
                   const title = (meta?.title || n.title[lang]).trim();
-                  const imgSrc = meta?.image || n.photoSrc;
+                  const imgSrc = n.photoSrc || meta?.image;
                   let host = '';
                   if (href) {
                     try {
