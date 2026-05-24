@@ -276,7 +276,7 @@ export const GLOBAL_LOCATIONS: GlobalLocation[] = [
     id: 'cambridge_uk',
     label: { zh: '剑桥，英国', en: 'Cambridge, UK', ms: 'Cambridge, UK' },
     pin: { xPct: 45.2, yPct: 18.7 },
-    photoSrc: '/images/global/london.jpg',
+    photoSrc: '/images/global/cambridge.jpg',
   },
 ];
 
