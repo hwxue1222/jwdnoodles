@@ -490,6 +490,7 @@ export const NEWS: NewsItem[] = [
     },
     body: { zh: '', en: '', ms: '' },
     url: 'https://kjt.gansu.gov.cn/kjt/c111534/202406/173931375.shtml',
+    photoSrc: '/images/news/kjt-173931375.png',
   },
   {
     id: 'ifeng-8e2rg1CUsQq',
