@@ -452,13 +452,11 @@ export default function Home() {
                             : tt('store.opened', { date: store.openingDate[lang] })}
                         </p>
                         <p className="mt-3 text-[#2f4a31]">{store.address[lang]}</p>
-                        {store.note ? <p className="mt-1 text-sm text-[#486449]">{store.note[lang]}</p> : null}
-                        {store.hours ? (
-                          <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3">
-                            <div className="text-xs font-semibold tracking-wide text-[#486449]">{tt('store.hours')}</div>
-                            <div className="mt-1 text-sm text-[#2f4a31]">{store.hours[lang]}</div>
-                          </div>
-                        ) : null}
+                        <p className="mt-1 text-sm text-[#486449] min-h-5">{store.note ? store.note[lang] : '\u00A0'}</p>
+                        <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3 min-h-[74px]">
+                          <div className="text-xs font-semibold tracking-wide text-[#486449]">{tt('store.hours')}</div>
+                          <div className="mt-1 text-sm text-[#2f4a31]">{store.hours ? store.hours[lang] : '\u00A0'}</div>
+                        </div>
                       </div>
                     </div>
                     <div className="mt-4">
