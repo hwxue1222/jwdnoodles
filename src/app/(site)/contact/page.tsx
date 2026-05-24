@@ -1,7 +1,7 @@
 'use client';
 
 import { Section } from '@/components/Section';
-import { SocialLinks } from '@/components/SocialLinks';
+import { SocialLinksWithText } from '@/components/SocialLinks';
 import { t } from '@/lib/i18n';
 import { useLang } from '@/lib/useLang';
 import { CONTACT } from '@/lib/siteData';
@@ -34,7 +34,7 @@ export default function ContactPage() {
             <div className="mt-6">
               <div className="text-sm text-[#486449]">{tt('contact.follow')}</div>
               <div className="mt-3">
-                <SocialLinks />
+                <SocialLinksWithText />
               </div>
             </div>
           </div>
@@ -45,4 +45,3 @@ export default function ContactPage() {
     </>
   );
 }
-

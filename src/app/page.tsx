@@ -5,7 +5,7 @@ import { BrandLogo } from '@/components/BrandLogo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Lightbox } from '@/components/Lightbox';
 import { SafeImg } from '@/components/SafeImg';
-import { SocialLinks } from '@/components/SocialLinks';
+import { SocialLinks, SocialLinksWithText } from '@/components/SocialLinks';
 import { WorldMap } from '@/components/WorldMap';
 import { t } from '@/lib/i18n';
 import { useLang } from '@/lib/useLang';
@@ -974,7 +974,7 @@ export default function Home() {
               <div className="mt-6">
                 <div className="text-sm text-[#486449]">{tt('contact.follow')}</div>
                 <div className="mt-3">
-                  <SocialLinks />
+                  <SocialLinksWithText />
                 </div>
               </div>
             </div>
