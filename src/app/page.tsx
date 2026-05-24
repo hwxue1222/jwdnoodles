@@ -442,13 +442,15 @@ export default function Home() {
               <div
                 className="relative rounded-xl overflow-hidden"
               >
-                <SafeImg
-                  src={heroSlide?.src}
-                  alt={heroSlide?.alt?.[lang] ?? 'Hero'}
-                  placeholderLabel="Hero"
-                  className="w-full h-[320px] md:h-[420px] object-cover cursor-zoom-in"
-                  onClick={() => openLightbox(heroSlide?.src, heroSlide?.caption?.[lang] ?? 'Hero')}
-                />
+                <div className="relative w-full h-[320px] md:h-[420px] bg-[#edf4e5]">
+                  <SafeImg
+                    src={heroSlide?.src}
+                    alt={heroSlide?.alt?.[lang] ?? 'Hero'}
+                    placeholderLabel="Hero"
+                    className="absolute inset-0 w-full h-full object-cover cursor-zoom-in"
+                    onClick={() => openLightbox(heroSlide?.src, heroSlide?.caption?.[lang] ?? 'Hero')}
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={goHeroPrev}
