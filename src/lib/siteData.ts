@@ -466,6 +466,17 @@ export const MENU: MenuCategory[] = [
 
 export const NEWS: NewsItem[] = [
   {
+    id: 'kjt-173931375',
+    dateISO: '2024-06-13',
+    title: {
+      zh: '兰州：市科技局调研甘肃金味德拉面文化产业集团有限公司',
+      en: 'Lanzhou: Science & Tech Bureau visits Gansu JWD Noodle Culture Industry Group',
+      ms: 'Lanzhou: Biro Sains & Teknologi melawat Kumpulan Industri Budaya Mi JWD Gansu',
+    },
+    body: { zh: '', en: '', ms: '' },
+    url: 'https://kjt.gansu.gov.cn/kjt/c111534/202406/173931375.shtml',
+  },
+  {
     id: 'ifeng-8e2rg1CUsQq',
     dateISO: '2024-10-28',
     title: {
