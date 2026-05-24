@@ -47,9 +47,6 @@ export function WorldMap({
     const reduceMotion = mq?.matches ?? false;
     if (reduceMotion) return;
 
-    const track = carouselTrackRef.current;
-    if (!track) return;
-
     const second = carouselSecondCopyRef.current;
     if (!second) return;
 
@@ -285,6 +282,8 @@ export function WorldMap({
             className="noScrollbar overflow-x-auto overflow-y-hidden scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] px-12"
             onMouseEnter={() => setCarouselPaused(true)}
             onMouseLeave={() => setCarouselPaused(false)}
+            onFocusCapture={() => setCarouselPaused(true)}
+            onBlurCapture={() => setCarouselPaused(false)}
             onTouchStart={() => setCarouselPaused(true)}
             onTouchEnd={() => setCarouselPaused(false)}
           >
