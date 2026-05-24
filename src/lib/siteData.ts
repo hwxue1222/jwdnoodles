@@ -506,7 +506,7 @@ export const NEWS: NewsItem[] = [
     dateISO: '2026-04-14',
     title: {
       zh: 'Yang Di-Pertuan of Kulai 与随行人员午餐时段包场',
-      en: 'Yang Di-Pertuan of Kulai 与随行人员午餐时段包场',
+      en: 'Yang Di-Pertuan of Kulai and his entourage booked out the restaurant for lunch',
       ms: 'Yang Di-Pertuan Kulai dan kakitangan baginda menempah keseluruhan restoran Commune,Kulai (waktu makan tengah hari)',
     },
     body: {
