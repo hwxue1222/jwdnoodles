@@ -42,6 +42,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'store.openingSoon': ({ date }) => `即将开业：${date}`,
     'store.hours': '营业时间',
     'store.viewOnMaps': '在 Google Maps 打开',
+    'store.loadMap': '加载地图（Google Maps）',
 
     'section.menu.title': '菜单',
     'menu.subtitle': '点击图片可放大查看',
@@ -107,6 +108,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'store.openingSoon': ({ date }) => `Opening soon: ${date}`,
     'store.hours': 'Opening hours',
     'store.viewOnMaps': 'Open in Google Maps',
+    'store.loadMap': 'Load map (Google Maps)',
 
     'section.menu.title': 'Menu',
     'menu.subtitle': 'Click any image to zoom in',
@@ -174,6 +176,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'store.openingSoon': ({ date }) => `Akan dibuka: ${date}`,
     'store.hours': 'Waktu operasi',
     'store.viewOnMaps': 'Buka di Google Maps',
+    'store.loadMap': 'Muat peta (Google Maps)',
 
     'section.menu.title': 'Menu',
     'menu.subtitle': 'Klik gambar untuk zum',

@@ -105,6 +105,7 @@ export default function Home() {
   const storesCarouselRef = useRef<HTMLDivElement | null>(null);
   const [storesCanLeft, setStoresCanLeft] = useState(false);
   const [storesCanRight, setStoresCanRight] = useState(false);
+  const [storeMapOpenById, setStoreMapOpenById] = useState<Record<string, boolean>>({});
 
   const menuPagesCarouselRef = useRef<HTMLDivElement | null>(null);
   const [menuPagesCanLeft, setMenuPagesCanLeft] = useState(false);
@@ -128,6 +129,7 @@ export default function Home() {
   const openLightboxVideo = (src: string | undefined, alt: string, posterSrc?: string) =>
     setLightbox({ open: true, type: 'video', src, posterSrc, alt });
   const closeLightbox = () => setLightbox((s) => ({ ...s, open: false }));
+  const loadStoreMap = (storeId: string) => setStoreMapOpenById((s) => ({ ...s, [storeId]: true }));
 
   const reservableStores = useMemo(() => STORES.filter((s) => s.acceptsReservation), []);
   const defaultStoreId = reservableStores[0]?.id ?? '';
@@ -426,11 +428,12 @@ export default function Home() {
                 <div className="relative w-full aspect-[16/9]">
                   <video
                     className="absolute inset-0 w-full h-full object-contain"
-                    src="/videos/about.mp4"
                     controls
                     playsInline
-                    preload="auto"
-                  />
+                    preload="metadata"
+                  >
+                    <source src="/videos/about.mp4" type="video/mp4" />
+                  </video>
                 </div>
               </div>
             </div>
@@ -511,13 +514,23 @@ export default function Home() {
                           </a>
                         </div>
                         <div className="mt-5 rounded-xl overflow-hidden border border-[#d5e6c3] bg-[#edf4e5]">
-                          <iframe
-                            src={mapEmbedUrl(store)}
-                            className="w-full h-56"
-                            loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
-                            title={`Map-${store.id}`}
-                          />
+                          {storeMapOpenById[store.id] ? (
+                            <iframe
+                              src={mapEmbedUrl(store)}
+                              className="w-full h-56"
+                              loading="lazy"
+                              referrerPolicy="no-referrer-when-downgrade"
+                              title={`Map-${store.id}`}
+                            />
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => loadStoreMap(store.id)}
+                              className="w-full h-56 flex items-center justify-center text-sm text-[#2f4a31] hover:bg-white/40 transition"
+                            >
+                              {tt('store.loadMap')}
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
