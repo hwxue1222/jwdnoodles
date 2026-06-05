@@ -165,33 +165,7 @@ export default function Home() {
 
   const reservationStore = reservableStores.find((s) => s.id === reservationStoreId) ?? reservableStores[0];
 
-  const [newsMetaById, setNewsMetaById] = useState<Record<string, { title?: string; image?: string }>>({});
   const sortedNews = useMemo(() => [...NEWS].sort((a, b) => (b.dateISO || '').localeCompare(a.dateISO || '')), []);
-  useEffect(() => {
-    let cancelled = false;
-    const ids = new Set(Object.keys(newsMetaById));
-    const targets = sortedNews.filter((n) => n.url && !ids.has(n.id));
-    if (targets.length === 0) return;
-
-    const run = async () => {
-      for (const n of targets) {
-        try {
-          const res = await fetch(`/api/news/meta?url=${encodeURIComponent(n.url as string)}`);
-          if (!res.ok) throw new Error('bad status');
-          const data = (await res.json()) as { title?: string; image?: string };
-          if (cancelled) return;
-          setNewsMetaById((prev) => ({ ...prev, [n.id]: { title: data.title, image: data.image } }));
-        } catch {
-          if (cancelled) return;
-          setNewsMetaById((prev) => ({ ...prev, [n.id]: {} }));
-        }
-      }
-    };
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }, [newsMetaById, sortedNews]);
 
   const menuCategoriesToShow = useMemo(() => {
     if (!menuCategoryId) return MENU;
@@ -741,11 +715,9 @@ export default function Home() {
         <Section id="news" title={tt('section.news.title')} subtitle={tt('news.subtitle')}>
           <div className="space-y-4">
             {sortedNews.map((n) => {
-              const meta = newsMetaById[n.id];
               const href = n.url?.trim();
-              const localTitle = (n.title[lang] ?? '').trim();
-              const title = (localTitle || meta?.title || '').trim();
-              const imgSrc = n.photoSrc || meta?.image;
+              const title = n.title[lang].trim();
+              const imgSrc = n.photoSrc;
               const videoSrc = n.videoSrc?.trim();
               let host = '';
               if (href) {
@@ -759,7 +731,7 @@ export default function Home() {
               return (
                 <div key={n.id} className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden">
                   <div className="p-5 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 items-stretch">
-                    <div className="shrink-0 text-sm text-[#486449] tabular-nums md:w-28">{n.dateISO}</div>
+                    <div className="hidden md:block shrink-0 text-sm text-[#486449] tabular-nums md:w-28">{n.dateISO}</div>
 
                     <div className="min-w-0 flex-1">
                       {href ? (
@@ -778,12 +750,14 @@ export default function Home() {
                         </div>
                       )}
 
+                      <div className="mt-2 text-sm text-[#486449] tabular-nums md:hidden">{n.dateISO}</div>
+
                       {href ? (
-                        <div className="mt-2 text-sm text-[#486449] truncate" title={href}>
+                        <div className="mt-1 md:mt-2 text-sm text-[#486449] truncate" title={href}>
                           {host}
                         </div>
                       ) : (
-                        <div className="mt-2 text-[#2f4a31] leading-relaxed whitespace-pre-line" title={n.body[lang]}>
+                        <div className="mt-2 text-[#2f4a31] leading-relaxed" title={n.body[lang]}>
                           {n.body[lang]}
                         </div>
                       )}
