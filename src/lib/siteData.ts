@@ -281,14 +281,14 @@ export const GLOBAL_LOCATIONS: GlobalLocation[] = [
 ];
 
 export const MENU_PAGES: { src: string; label: Record<Lang, string> }[] = [
-  { src: '/images/menu/menu-03.png', label: { zh: '菜单 1/8', en: 'Menu 1/8', ms: 'Menu 1/8' } },
-  { src: '/images/menu/menu-04.png', label: { zh: '菜单 2/8', en: 'Menu 2/8', ms: 'Menu 2/8' } },
-  { src: '/images/menu/menu-05.png', label: { zh: '菜单 3/8', en: 'Menu 3/8', ms: 'Menu 3/8' } },
-  { src: '/images/menu/menu-06.png', label: { zh: '菜单 4/8', en: 'Menu 4/8', ms: 'Menu 4/8' } },
-  { src: '/images/menu/menu-07.png', label: { zh: '菜单 5/8', en: 'Menu 5/8', ms: 'Menu 5/8' } },
-  { src: '/images/menu/menu-08.png', label: { zh: '菜单 6/8', en: 'Menu 6/8', ms: 'Menu 6/8' } },
-  { src: '/images/menu/menu-09.png', label: { zh: '菜单 7/8', en: 'Menu 7/8', ms: 'Menu 7/8' } },
-  { src: '/images/menu/menu-10.png', label: { zh: '菜单 8/8', en: 'Menu 8/8', ms: 'Menu 8/8' } },
+  { src: '/images/menu/menu-03.jpg', label: { zh: '菜单 1/8', en: 'Menu 1/8', ms: 'Menu 1/8' } },
+  { src: '/images/menu/menu-04.jpg', label: { zh: '菜单 2/8', en: 'Menu 2/8', ms: 'Menu 2/8' } },
+  { src: '/images/menu/menu-05.jpg', label: { zh: '菜单 3/8', en: 'Menu 3/8', ms: 'Menu 3/8' } },
+  { src: '/images/menu/menu-06.jpg', label: { zh: '菜单 4/8', en: 'Menu 4/8', ms: 'Menu 4/8' } },
+  { src: '/images/menu/menu-07.jpg', label: { zh: '菜单 5/8', en: 'Menu 5/8', ms: 'Menu 5/8' } },
+  { src: '/images/menu/menu-08.jpg', label: { zh: '菜单 6/8', en: 'Menu 6/8', ms: 'Menu 6/8' } },
+  { src: '/images/menu/menu-09.jpg', label: { zh: '菜单 7/8', en: 'Menu 7/8', ms: 'Menu 7/8' } },
+  { src: '/images/menu/menu-10.jpg', label: { zh: '菜单 8/8', en: 'Menu 8/8', ms: 'Menu 8/8' } },
 ];
 
 export const MENU: MenuCategory[] = [

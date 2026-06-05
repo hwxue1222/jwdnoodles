@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 function makePlaceholderSvg(label: string | null | undefined) {
   const text =
@@ -37,22 +37,51 @@ export function SafeImg({
   placeholderLabel?: string | null;
   loading?: 'eager' | 'lazy';
 }) {
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const [failed, setFailed] = useState(false);
+  const [safariVisible, setSafariVisible] = useState(() => loading === 'eager');
   const fallbackSrc = useMemo(
     () => `data:image/svg+xml;charset=utf-8,${makePlaceholderSvg(placeholderLabel ?? 'Image Placeholder')}`,
     [placeholderLabel]
   );
-  const finalSrc = !src || failed ? fallbackSrc : src;
-  const browserLoading = useMemo(() => {
-    if (loading) return loading;
-    if (typeof navigator === 'undefined') return 'lazy';
+  const resolvedSrc = !src || failed ? fallbackSrc : src;
+  const isSafari = useMemo(() => {
+    if (typeof navigator === 'undefined') return false;
     const ua = navigator.userAgent.toLowerCase();
-    const isSafari = ua.includes('safari') && !ua.includes('chrome') && !ua.includes('crios') && !ua.includes('android');
-    return isSafari ? undefined : 'lazy';
-  }, [loading]);
+    return ua.includes('safari') && !ua.includes('chrome') && !ua.includes('crios') && !ua.includes('android');
+  }, []);
+  const effectiveLoading = loading ?? 'lazy';
+  const shouldSafariLazy = isSafari && effectiveLoading === 'lazy' && resolvedSrc !== fallbackSrc;
+  const browserLoading = isSafari ? undefined : effectiveLoading;
+  const finalSrc = shouldSafariLazy && !safariVisible ? fallbackSrc : resolvedSrc;
+
+  useEffect(() => {
+    if (!isSafari) return;
+    if (!shouldSafariLazy) {
+      setSafariVisible(true);
+      return;
+    }
+
+    setSafariVisible(false);
+    const el = imgRef.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const hit = entries.some((e) => e.isIntersecting || e.intersectionRatio > 0);
+        if (!hit) return;
+        setSafariVisible(true);
+        io.disconnect();
+      },
+      { root: null, rootMargin: '200px', threshold: 0.01 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [isSafari, shouldSafariLazy, resolvedSrc]);
 
   return (
     <img
+      ref={imgRef}
       src={finalSrc}
       alt={alt}
       className={className}
