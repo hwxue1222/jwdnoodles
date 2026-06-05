@@ -27,6 +27,7 @@ export function SafeImg({
   onClick,
   title,
   placeholderLabel,
+  loading,
 }: {
   src?: string;
   alt: string;
@@ -34,6 +35,7 @@ export function SafeImg({
   onClick?: () => void;
   title?: string;
   placeholderLabel?: string | null;
+  loading?: 'eager' | 'lazy';
 }) {
   const [failed, setFailed] = useState(false);
   const fallbackSrc = useMemo(
@@ -41,6 +43,13 @@ export function SafeImg({
     [placeholderLabel]
   );
   const finalSrc = !src || failed ? fallbackSrc : src;
+  const browserLoading = useMemo(() => {
+    if (loading) return loading;
+    if (typeof navigator === 'undefined') return 'lazy';
+    const ua = navigator.userAgent.toLowerCase();
+    const isSafari = ua.includes('safari') && !ua.includes('chrome') && !ua.includes('crios') && !ua.includes('android');
+    return isSafari ? undefined : 'lazy';
+  }, [loading]);
 
   return (
     <img
@@ -50,7 +59,8 @@ export function SafeImg({
       title={title}
       onClick={onClick}
       onError={() => setFailed(true)}
-      loading="lazy"
+      decoding="async"
+      loading={browserLoading}
     />
   );
 }
