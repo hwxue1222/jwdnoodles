@@ -112,12 +112,13 @@ export default function NewsPage() {
                           }}
                         >
                           <video
-                            src={videoSrc}
-                            preload="auto"
+                            preload="metadata"
                             muted
                             playsInline
                             className="w-full h-full object-cover pointer-events-none"
-                          />
+                          >
+                            <source src={videoSrc} type="video/mp4" />
+                          </video>
                         </div>
                         <button
                           type="button"

@@ -49,12 +49,15 @@ export function Lightbox({
           <div className="bg-[#edf4e5] w-full flex-1 min-h-[240px]">
             {type === 'video' ? (
               <video
-                src={src}
                 poster={posterSrc}
                 controls
                 playsInline
+                preload="metadata"
                 className="w-full h-full object-contain"
-              />
+              >
+                <source src={src} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             ) : (
               <SafeImg src={src} alt={alt} className="w-full h-full object-contain" />
             )}
