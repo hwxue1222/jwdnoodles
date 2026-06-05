@@ -14,10 +14,6 @@ import { BRAND, CONTACT, GLOBAL_LOCATIONS, HERO_SLIDES, MENU, MENU_PAGES, NEWS, 
 const RESERVATION_STORE_KEY = 'lanzhou:reservation:storeId';
 const MENU_CATEGORY_KEY = 'lanzhou:menu:categoryId';
 
-function mapEmbedUrl(store: Store) {
-  return `https://www.google.com/maps?q=${encodeURIComponent(store.map.placeQuery)}&output=embed`;
-}
-
 function mapOpenUrl(store: Store) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.map.placeQuery)}`;
 }
@@ -105,7 +101,6 @@ export default function Home() {
   const storesCarouselRef = useRef<HTMLDivElement | null>(null);
   const [storesCanLeft, setStoresCanLeft] = useState(false);
   const [storesCanRight, setStoresCanRight] = useState(false);
-  const [storeMapOpenById, setStoreMapOpenById] = useState<Record<string, boolean>>({});
 
   const menuPagesCarouselRef = useRef<HTMLDivElement | null>(null);
   const [menuPagesCanLeft, setMenuPagesCanLeft] = useState(false);
@@ -129,7 +124,6 @@ export default function Home() {
   const openLightboxVideo = (src: string | undefined, alt: string, posterSrc?: string) =>
     setLightbox({ open: true, type: 'video', src, posterSrc, alt });
   const closeLightbox = () => setLightbox((s) => ({ ...s, open: false }));
-  const loadStoreMap = (storeId: string) => setStoreMapOpenById((s) => ({ ...s, [storeId]: true }));
 
   const reservableStores = useMemo(() => STORES.filter((s) => s.acceptsReservation), []);
   const defaultStoreId = reservableStores[0]?.id ?? '';
@@ -512,25 +506,6 @@ export default function Home() {
                           >
                             {tt('store.viewOnMaps')}
                           </a>
-                        </div>
-                        <div className="mt-5 rounded-xl overflow-hidden border border-[#d5e6c3] bg-[#edf4e5]">
-                          {storeMapOpenById[store.id] ? (
-                            <iframe
-                              src={mapEmbedUrl(store)}
-                              className="w-full h-56"
-                              loading="lazy"
-                              referrerPolicy="no-referrer-when-downgrade"
-                              title={`Map-${store.id}`}
-                            />
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => loadStoreMap(store.id)}
-                              className="w-full h-56 flex items-center justify-center text-sm text-[#2f4a31] hover:bg-white/40 transition"
-                            >
-                              {tt('store.loadMap')}
-                            </button>
-                          )}
                         </div>
                       </div>
                     </div>

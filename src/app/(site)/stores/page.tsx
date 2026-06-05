@@ -9,10 +9,6 @@ import { t } from '@/lib/i18n';
 import { useLang } from '@/lib/useLang';
 import { GLOBAL_LOCATIONS, STORES, Store } from '@/lib/siteData';
 
-function mapEmbedUrl(store: Store) {
-  return `https://www.google.com/maps?q=${encodeURIComponent(store.map.placeQuery)}&output=embed`;
-}
-
 function mapOpenUrl(store: Store) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.map.placeQuery)}`;
 }
@@ -24,8 +20,6 @@ export default function StoresPage() {
   const [lightbox, setLightbox] = useState<{ open: boolean; src?: string; alt: string }>({ open: false, alt: '' });
   const openLightbox = (src: string | undefined, alt: string) => setLightbox({ open: true, src, alt });
   const closeLightbox = () => setLightbox((s) => ({ ...s, open: false }));
-  const [storeMapOpenById, setStoreMapOpenById] = useState<Record<string, boolean>>({});
-  const loadStoreMap = (storeId: string) => setStoreMapOpenById((s) => ({ ...s, [storeId]: true }));
 
   return (
     <>
@@ -86,25 +80,6 @@ export default function StoresPage() {
                   >
                     {tt('store.viewOnMaps')}
                   </a>
-                </div>
-                <div className="mt-5 rounded-xl overflow-hidden border border-[#d5e6c3] bg-[#edf4e5]">
-                  {storeMapOpenById[store.id] ? (
-                    <iframe
-                      src={mapEmbedUrl(store)}
-                      className="w-full h-56"
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title={`Map-${store.id}`}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => loadStoreMap(store.id)}
-                      className="w-full h-56 flex items-center justify-center text-sm text-[#2f4a31] hover:bg-white/40 transition"
-                    >
-                      {tt('store.loadMap')}
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
