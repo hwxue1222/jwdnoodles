@@ -13,8 +13,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.jwdnoodles.com"),
   title: "JWD Mee Tarik",
   description: "Official website: stores, menu, halal info, news, reservation, contact",
+  alternates: {
+    canonical: "https://www.jwdnoodles.com",
+  },
+  openGraph: {
+    title: "JWD Mee Tarik",
+    description: "Official website: stores, menu, halal info, news, reservation, contact",
+    url: "https://www.jwdnoodles.com",
+    siteName: "JWD Mee Tarik",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JWD Mee Tarik",
+    description: "Official website: stores, menu, halal info, news, reservation, contact",
+  },
 };
 
 export default function RootLayout({
