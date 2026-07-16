@@ -121,9 +121,15 @@ export default function Home() {
   }>({ open: false, type: 'image', alt: '' });
 
   const openLightbox = (src: string | undefined, alt: string) => setLightbox({ open: true, type: 'image', src, alt });
+  const openMenuPageLightbox = (index: number) => {
+    const page = MENU_PAGES[index];
+    if (!page) return;
+    setLightbox({ open: true, type: 'image', src: page.src, alt: page.label[lang] });
+  };
   const openLightboxVideo = (src: string | undefined, alt: string, posterSrc?: string) =>
     setLightbox({ open: true, type: 'video', src, posterSrc, alt });
   const closeLightbox = () => setLightbox((s) => ({ ...s, open: false }));
+  const activeMenuPageIndex = lightbox.type === 'image' ? MENU_PAGES.findIndex((p) => p.src === lightbox.src) : -1;
 
   const reservableStores = useMemo(() => STORES.filter((s) => s.acceptsReservation), []);
   const defaultStoreId = reservableStores[0]?.id ?? '';
@@ -295,6 +301,14 @@ export default function Home() {
         posterSrc={lightbox.posterSrc}
         alt={lightbox.alt}
         onClose={closeLightbox}
+        canPrev={activeMenuPageIndex > 0}
+        canNext={activeMenuPageIndex >= 0 && activeMenuPageIndex < MENU_PAGES.length - 1}
+        onPrev={activeMenuPageIndex > 0 ? () => openMenuPageLightbox(activeMenuPageIndex - 1) : undefined}
+        onNext={
+          activeMenuPageIndex >= 0 && activeMenuPageIndex < MENU_PAGES.length - 1
+            ? () => openMenuPageLightbox(activeMenuPageIndex + 1)
+            : undefined
+        }
       />
 
       <header className="sticky top-0 z-40 border-b border-[#c7d8b5] bg-[#f7faf1]/80 backdrop-blur">
@@ -553,12 +567,12 @@ export default function Home() {
                       ref={menuPagesCarouselRef}
                       className="min-w-0 flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 px-14"
                     >
-                      {MENU_PAGES.map((p) => (
+                      {MENU_PAGES.map((p, index) => (
                         <button
                           key={p.src}
                           type="button"
                           className="snap-start shrink-0 w-[72vw] sm:w-[340px] rounded-xl border border-[#d5e6c3] bg-white/60 hover:bg-white transition overflow-hidden text-left"
-                          onClick={() => openLightbox(p.src, p.label[lang])}
+                          onClick={() => openMenuPageLightbox(index)}
                         >
                           <div className="w-full aspect-[900/651] bg-[#edf4e5]">
                             <SafeImg src={p.src} alt={p.label[lang]} className="w-full h-full object-contain" />

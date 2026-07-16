@@ -10,6 +10,10 @@ export function Lightbox({
   posterSrc,
   alt,
   onClose,
+  onPrev,
+  onNext,
+  canPrev = false,
+  canNext = false,
 }: {
   open: boolean;
   type?: 'image' | 'video';
@@ -17,15 +21,21 @@ export function Lightbox({
   posterSrc?: string;
   alt: string;
   onClose: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+  canPrev?: boolean;
+  canNext?: boolean;
 }) {
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft' && canPrev && onPrev) onPrev();
+      if (e.key === 'ArrowRight' && canNext && onNext) onNext();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [open, onClose]);
+  }, [open, onClose, onPrev, onNext, canPrev, canNext]);
 
   if (!open) return null;
 
@@ -45,6 +55,26 @@ export function Lightbox({
         >
           ×
         </button>
+        {canPrev && onPrev ? (
+          <button
+            type="button"
+            aria-label="Previous"
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-10 h-14 w-14 rounded-2xl border border-[#c7d8b5] bg-white/92 text-[#2f4a31] text-3xl leading-none shadow-lg hover:bg-white transition"
+            onClick={onPrev}
+          >
+            ‹
+          </button>
+        ) : null}
+        {canNext && onNext ? (
+          <button
+            type="button"
+            aria-label="Next"
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-10 h-14 w-14 rounded-2xl border border-[#c7d8b5] bg-white/92 text-[#2f4a31] text-3xl leading-none shadow-lg hover:bg-white transition"
+            onClick={onNext}
+          >
+            ›
+          </button>
+        ) : null}
         <div className="rounded-xl overflow-hidden bg-white shadow-2xl max-h-[90vh] flex flex-col">
           <div className="bg-[#edf4e5] w-full flex-1 min-h-[240px]">
             {type === 'video' ? (

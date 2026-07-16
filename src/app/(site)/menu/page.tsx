@@ -16,7 +16,13 @@ export default function MenuPage() {
 
   const [lightbox, setLightbox] = useState<{ open: boolean; src?: string; alt: string }>({ open: false, alt: '' });
   const openLightbox = (src: string | undefined, alt: string) => setLightbox({ open: true, src, alt });
+  const openMenuPageLightbox = (index: number) => {
+    const page = MENU_PAGES[index];
+    if (!page) return;
+    setLightbox({ open: true, src: page.src, alt: page.label[lang] });
+  };
   const closeLightbox = () => setLightbox((s) => ({ ...s, open: false }));
+  const activeMenuPageIndex = MENU_PAGES.findIndex((p) => p.src === lightbox.src);
 
   const [menuCategoryId, setMenuCategoryId] = useState(() => {
     const fallback = MENU[0]?.id ?? '';
@@ -44,7 +50,20 @@ export default function MenuPage() {
 
   return (
     <>
-      <Lightbox open={lightbox.open} src={lightbox.src} alt={lightbox.alt} onClose={closeLightbox} />
+      <Lightbox
+        open={lightbox.open}
+        src={lightbox.src}
+        alt={lightbox.alt}
+        onClose={closeLightbox}
+        canPrev={activeMenuPageIndex > 0}
+        canNext={activeMenuPageIndex >= 0 && activeMenuPageIndex < MENU_PAGES.length - 1}
+        onPrev={activeMenuPageIndex > 0 ? () => openMenuPageLightbox(activeMenuPageIndex - 1) : undefined}
+        onNext={
+          activeMenuPageIndex >= 0 && activeMenuPageIndex < MENU_PAGES.length - 1
+            ? () => openMenuPageLightbox(activeMenuPageIndex + 1)
+            : undefined
+        }
+      />
 
       <div className="py-12 md:py-14" />
 
@@ -57,12 +76,12 @@ export default function MenuPage() {
 
           <div className="p-6 space-y-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {MENU_PAGES.map((p) => (
+              {MENU_PAGES.map((p, index) => (
                 <button
                   key={p.src}
                   type="button"
                   className="text-left rounded-xl border border-[#d5e6c3] bg-white/60 hover:bg-white transition overflow-hidden"
-                  onClick={() => openLightbox(p.src, p.label[lang])}
+                  onClick={() => openMenuPageLightbox(index)}
                 >
                   <SafeImg src={p.src} alt={p.label[lang]} className="w-full h-36 object-cover" />
                   <div className="px-3 py-2 text-xs text-[#486449]">{p.label[lang]}</div>
@@ -149,4 +168,3 @@ export default function MenuPage() {
     </>
   );
 }
-
