@@ -29,7 +29,13 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="text-sm text-[#486449]">{tt('contact.address')}</div>
-                  <div className="mt-1">{CONTACT.address[lang]}</div>
+                  <div className="mt-2 space-y-2">
+                    {CONTACT.storeAddresses[lang].map((address) => (
+                      <div key={address} className="leading-7">
+                        {address}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
               <div className="min-w-0 md:pl-6 md:border-l md:border-[#e5e7eb]">

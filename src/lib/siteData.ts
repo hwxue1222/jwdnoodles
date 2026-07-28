@@ -110,6 +110,23 @@ export const CONTACT = {
     en: 'RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000, Iskandar Puteri, Johor, Malaysia',
     ms: 'RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000, Iskandar Puteri, Johor, Malaysia',
   } satisfies Record<Lang, string>,
+  storeAddresses: {
+    zh: [
+      '📍 1st outlet: RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000 Iskandar Puteri, Johor',
+      '📍 2nd outlet: Ground Floor, G-06, THE COMMUNE Lifestyle Mall, Pusat Komersial Indah, 291, Jalan Kiambang 10, Bandar Indahpura, 81000 Kulai, Johor',
+      "📍 3rd outlet: Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
+    ],
+    en: [
+      '📍 1st outlet: RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000 Iskandar Puteri, Johor',
+      '📍 2nd outlet: Ground Floor, G-06, THE COMMUNE Lifestyle Mall, Pusat Komersial Indah, 291, Jalan Kiambang 10, Bandar Indahpura, 81000 Kulai, Johor',
+      "📍 3rd outlet: Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
+    ],
+    ms: [
+      '📍 Cawangan 1: RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000 Iskandar Puteri, Johor',
+      '📍 Cawangan 2: Ground Floor, G-06, THE COMMUNE Lifestyle Mall, Pusat Komersial Indah, 291, Jalan Kiambang 10, Bandar Indahpura, 81000 Kulai, Johor',
+      "📍 Cawangan 3: Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
+    ],
+  } satisfies Record<Lang, string[]>,
 } as const;
 
 export const STORES: Store[] = [
