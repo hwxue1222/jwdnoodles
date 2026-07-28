@@ -18,28 +18,34 @@ export default function ContactPage() {
         <div className="max-w-3xl mx-auto">
           <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-[#2f4a31]">
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <div className="text-sm text-[#486449]">{tt('contact.phone')}</div>
-                  <div className="mt-1 font-semibold">{CONTACT.phone}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-[#486449]">{tt('contact.email')}</div>
-                  <div className="mt-1 font-semibold">{CONTACT.email}</div>
-                </div>
+              <div>
                 <div>
                   <div className="text-sm text-[#486449]">{tt('contact.address')}</div>
-                  <div className="mt-2 space-y-2">
-                    {CONTACT.storeAddresses[lang].map((address) => (
-                      <div key={address} className="leading-7">
-                        {address}
+                  <div className="mt-3 space-y-3">
+                    {CONTACT.storeAddresses[lang].map((store) => (
+                      <div
+                        key={`${store.label}-${store.address}`}
+                        className="rounded-xl border border-[#d5e6c3] bg-white/70 px-4 py-3"
+                      >
+                        <div className="text-sm font-semibold text-[#2f4a31]">{store.label}</div>
+                        <div className="mt-1 text-sm leading-6 text-[#486449]">{store.address}</div>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
               <div className="min-w-0 md:pl-6 md:border-l md:border-[#e5e7eb]">
-                <div className="text-sm text-[#486449]">{tt('contact.follow')}</div>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <div className="text-sm text-[#486449]">{tt('contact.phone')}</div>
+                    <div className="mt-1 font-semibold">{CONTACT.phone}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-[#486449]">{tt('contact.email')}</div>
+                    <div className="mt-1 font-semibold">{CONTACT.email}</div>
+                  </div>
+                </div>
+                <div className="mt-6 text-sm text-[#486449]">{tt('contact.follow')}</div>
                 <div className="mt-3">
                   <SocialAccountsList />
                 </div>
