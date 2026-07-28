@@ -15,10 +15,10 @@ export default function ContactPage() {
       <div className="py-12 md:py-14" />
 
       <Section title={tt('section.contact.title')} subtitle={tt('contact.subtitle')}>
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-[#2f4a31]">
-              <div>
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,430px)_280px] lg:justify-between gap-6 text-[#2f4a31]">
+              <div className="max-w-[430px]">
                 <div>
                   <div className="text-sm text-[#486449]">{tt('contact.address')}</div>
                   <div className="mt-3 space-y-3">
@@ -34,7 +34,7 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
-              <div className="min-w-0 md:pl-6 md:border-l md:border-[#e5e7eb]">
+              <div className="min-w-0 lg:w-[280px] lg:pl-6 lg:border-l lg:border-[#e5e7eb]">
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <div className="text-sm text-[#486449]">{tt('contact.phone')}</div>
