@@ -503,6 +503,8 @@ export const MENU: MenuCategory[] = [
       { id: 'J4', code: 'J4', name: { zh: '卤牛肉', en: 'Braised beef', ms: 'Daging rebus' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 19.0 },
       { id: 'J5', code: 'J5', name: { zh: '煎蛋', en: 'Sunny egg', ms: 'Telur mata' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 3.0 },
       { id: 'J6', code: 'J6', name: { zh: '茶叶蛋', en: 'Tea egg', ms: 'Tea telur' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 5.0 },
+      { id: 'J7', code: 'J7', name: { zh: '肉夹馍', en: 'Lanzhou Burger', ms: 'Lanzhou Burger' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 10.0 },
+      { id: 'J8', code: 'J8', name: { zh: '手抓羊排', en: 'Hand Grasp Lamb Ribs', ms: 'Tulang rusuk kambing' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 35.0 },
     ],
   },
   {
