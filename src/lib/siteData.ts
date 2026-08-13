@@ -215,8 +215,8 @@ export const STORES: Store[] = [
   {
     id: 'lotus_mutiara_rini',
     name: { zh: "Lotus's Mutiara Rini（JB）", en: "Lotus's Mutiara Rini (JB)", ms: "Lotus's Mutiara Rini (JB)" },
-    status: 'opening_soon',
-    openingDate: { zh: '2026年7月', en: 'July 2026', ms: 'Julai 2026' },
+    status: 'open',
+    openingDate: { zh: '2026年8月15日', en: '15 Aug 2026', ms: '15 Ogos 2026' },
     address: {
       zh: "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
       en: "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
