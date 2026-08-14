@@ -502,7 +502,7 @@ export const MENU: MenuCategory[] = [
     id: 'snacks',
     title: { zh: 'J. 小吃类', en: 'J. Snacks', ms: 'J. Snek' },
     items: [
-      { id: 'J1', code: 'J1', name: { zh: '牛肉串', en: 'Beef kebab', ms: 'Kebab daging' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 8.0 },
+      { id: 'J1', code: 'J1', name: { zh: '牛肉饼/鸡肉饼', en: 'Beef/chicken kebab', ms: 'Kebab daging/Ayam' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 8.0 },
       { id: 'J2', code: 'J2', name: { zh: '葱油饼', en: 'Scallion pancake', ms: 'Pancake daun bawang' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 5.0 },
       { id: 'J3', code: 'J3', name: { zh: '干切牛肉', en: 'Beef slice', ms: 'Hirisan daging' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 15.0 },
       { id: 'J4', code: 'J4', name: { zh: '卤牛肉', en: 'Braised beef', ms: 'Daging rebus' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 19.0 },
