@@ -553,6 +553,21 @@ export const MENU: MenuCategory[] = [
 
 export const NEWS: NewsItem[] = [
   {
+    id: 'lotus-opening-20260815',
+    dateISO: '2026-08-15',
+    title: {
+      zh: "JWD Mee Tarik 在新山 Lotus's Mutiara Rini 开设第三家门店",
+      en: "JWD Mee Tarik opens its third outlet at Lotus's Mutiara Rini, Johor Bahru",
+      ms: "JWD Mee Tarik membuka cawangan ketiga di Lotus's Mutiara Rini, Johor Bahru",
+    },
+    body: {
+      zh: "JWD Mee Tarik 很高兴宣布，我们位于新山 Lotus's Mutiara Rini 的第三家门店正式开业。开业剪彩仪式上，我们荣幸邀请到 Y.M. Tengku Dato’ Dr. Hishammuddin Zaizi Bin Y.A.M Tengku Bendahara Azman Shah Alhaj 与我们的员工一同见证这一重要时刻。感谢所有来宾、合作伙伴与团队成员的支持。",
+      en: "JWD Mee Tarik is pleased to announce the opening of our third outlet at Lotus's Mutiara Rini, Johor Bahru. We were honored to invite Y.M. Tengku Dato’ Dr. Hishammuddin Zaizi Bin Y.A.M Tengku Bendahara Azman Shah Alhaj to join our team for the ribbon-cutting ceremony. We thank our guests, partners, and staff for celebrating this special milestone with us.",
+      ms: "JWD Mee Tarik dengan sukacitanya mengumumkan pembukaan cawangan ketiga kami di Lotus's Mutiara Rini, Johor Bahru. Kami berbesar hati menjemput Y.M. Tengku Dato’ Dr. Hishammuddin Zaizi Bin Y.A.M Tengku Bendahara Azman Shah Alhaj untuk bersama-sama kakitangan kami dalam majlis pemotongan reben. Terima kasih kepada para tetamu, rakan kerjasama dan kakitangan yang meraikan detik istimewa ini bersama kami.",
+    },
+    photoSrc: '/images/stores/lotus-mutiara-rini.jpg',
+  },
+  {
     id: 'kulai-vip-lunch-20260414',
     dateISO: '2026-04-14',
     title: {
