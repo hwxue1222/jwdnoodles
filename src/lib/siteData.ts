@@ -601,7 +601,7 @@ export const NEWS: NewsItem[] = [
     id: 'halal-jakim-20250716',
     dateISO: '2026-07-28',
     title: {
-      zh: 'JWD Mee Tarik The Commune Lifestyle Mall（Kulai）获得马来西亚 JAKIM 清真认证',
+      zh: 'JWD Mee Tarik @The Commune Lifestyle Mall（Kulai）获得马来西亚 JAKIM 清真认证',
       en: 'JWD Mee Tarik The Commune Lifestyle Mall (Kulai) Obtains JAKIM Halal Certification',
       ms: 'JWD Mee Tarik The Commune Lifestyle Mall (Kulai) Menerima Pensijilan Halal JAKIM Malaysia',
     },
