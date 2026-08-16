@@ -227,7 +227,7 @@ export const STORES: Store[] = [
       en: '10:00am–10:00pm (Mon–Sun)',
       ms: '10:00 pagi–10:00 malam (Isnin–Ahad)',
     },
-    photoSrc: '/images/stores/lotus-mutiara-rini.jpg',
+    photoSrc: '/images/news/lotus-opening-2026-08-15-cover.jpg',
     map: {
       placeQuery:
         "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
