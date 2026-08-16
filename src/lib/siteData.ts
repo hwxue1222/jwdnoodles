@@ -609,13 +609,13 @@ export const NEWS: NewsItem[] = [
     dateISO: '2026-07-28',
     title: {
       zh: 'JWD Mee Tarik @The Commune Lifestyle Mall（Kulai）获得马来西亚 JAKIM 清真认证',
-      en: 'JWD Mee Tarik The Commune Lifestyle Mall (Kulai) Obtains JAKIM Halal Certification',
-      ms: 'JWD Mee Tarik The Commune Lifestyle Mall (Kulai) Menerima Pensijilan Halal JAKIM Malaysia',
+      en: 'JWD Mee Tarik @The Commune Lifestyle Mall (Kulai) Obtains JAKIM Halal Certification',
+      ms: 'JWD Mee Tarik @The Commune Lifestyle Mall (Kulai) Menerima Pensijilan Halal JAKIM Malaysia',
     },
     body: {
-      zh: '我们很高兴宣布，JWD Mee Tarik The Commune Lifestyle Mall（Kulai）已正式获得马来西亚 JAKIM 颁发的清真认证。该认证签发日期为 2026-08-01，有效期至 2028-07-31。',
-      en: 'We are pleased to share that JWD Mee Tarik The Commune Lifestyle Mall (Kulai) has officially obtained Halal certification from JAKIM, Malaysia. The certification was issued on 2026-08-01 and is valid until 2028-07-31.',
-      ms: 'Kami dengan sukacitanya berkongsi bahawa JWD Mee Tarik The Commune Lifestyle Mall (Kulai) telah secara rasmi memperoleh pensijilan Halal daripada JAKIM, Malaysia. Pensijilan ini dikeluarkan pada 2026-08-01 dan sah sehingga 2028-07-31.',
+      zh: '我们很高兴宣布，JWD Mee Tarik @The Commune Lifestyle Mall（Kulai）已正式获得马来西亚 JAKIM 颁发的清真认证。该认证签发日期为 2026-08-01，有效期至 2028-07-31。',
+      en: 'We are pleased to share that JWD Mee Tarik @The Commune Lifestyle Mall (Kulai) has officially obtained Halal certification from JAKIM, Malaysia. The certification was issued on 2026-08-01 and is valid until 2028-07-31.',
+      ms: 'Kami dengan sukacitanya berkongsi bahawa JWD Mee Tarik @The Commune Lifestyle Mall (Kulai) telah secara rasmi memperoleh pensijilan Halal daripada JAKIM, Malaysia. Pensijilan ini dikeluarkan pada 2026-08-01 dan sah sehingga 2028-07-31.',
     },
     photoSrc: '/images/news/commune-jakim-halal-2026-08-01.png',
   },
