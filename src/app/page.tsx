@@ -118,18 +118,51 @@ export default function Home() {
     src?: string;
     posterSrc?: string;
     alt: string;
+    gallery?: { src: string; alt: string }[];
+    galleryIndex?: number;
   }>({ open: false, type: 'image', alt: '' });
 
-  const openLightbox = (src: string | undefined, alt: string) => setLightbox({ open: true, type: 'image', src, alt });
+  const openLightbox = (src: string | undefined, alt: string, gallery?: { src: string; alt: string }[]) => {
+    const normalizedGallery = gallery?.length ? gallery : undefined;
+    const galleryIndex = normalizedGallery ? Math.max(0, normalizedGallery.findIndex((item) => item.src === src)) : undefined;
+    setLightbox({ open: true, type: 'image', src, alt, gallery: normalizedGallery, galleryIndex });
+  };
+  const openGalleryAt = (gallery: { src: string; alt: string }[], index: number) => {
+    const item = gallery[index];
+    if (!item) return;
+    setLightbox({
+      open: true,
+      type: 'image',
+      src: item.src,
+      alt: item.alt,
+      gallery,
+      galleryIndex: index,
+    });
+  };
   const openMenuPageLightbox = (index: number) => {
     const page = MENU_PAGES[index];
     if (!page) return;
-    setLightbox({ open: true, type: 'image', src: page.src, alt: page.label[lang] });
+    const gallery = MENU_PAGES.map((item) => ({ src: item.src, alt: item.label[lang] }));
+    openGalleryAt(gallery, index);
   };
   const openLightboxVideo = (src: string | undefined, alt: string, posterSrc?: string) =>
-    setLightbox({ open: true, type: 'video', src, posterSrc, alt });
+    setLightbox({ open: true, type: 'video', src, posterSrc, alt, gallery: undefined, galleryIndex: undefined });
   const closeLightbox = () => setLightbox((s) => ({ ...s, open: false }));
-  const activeMenuPageIndex = lightbox.type === 'image' ? MENU_PAGES.findIndex((p) => p.src === lightbox.src) : -1;
+  const changeLightboxImage = (direction: -1 | 1) => {
+    setLightbox((current) => {
+      if (current.type !== 'image' || !current.gallery?.length || current.galleryIndex == null) return current;
+      const nextIndex = current.galleryIndex + direction;
+      const nextItem = current.gallery[nextIndex];
+      if (!nextItem) return current;
+      return { ...current, src: nextItem.src, alt: nextItem.alt, galleryIndex: nextIndex };
+    });
+  };
+  const lightboxCanPrev = lightbox.type === 'image' && (lightbox.galleryIndex ?? -1) > 0;
+  const lightboxCanNext =
+    lightbox.type === 'image' &&
+    lightbox.galleryIndex != null &&
+    !!lightbox.gallery &&
+    lightbox.galleryIndex < lightbox.gallery.length - 1;
 
   const reservableStores = useMemo(() => STORES.filter((s) => s.acceptsReservation), []);
   const defaultStoreId = reservableStores[0]?.id ?? '';
@@ -301,14 +334,10 @@ export default function Home() {
         posterSrc={lightbox.posterSrc}
         alt={lightbox.alt}
         onClose={closeLightbox}
-        canPrev={activeMenuPageIndex > 0}
-        canNext={activeMenuPageIndex >= 0 && activeMenuPageIndex < MENU_PAGES.length - 1}
-        onPrev={activeMenuPageIndex > 0 ? () => openMenuPageLightbox(activeMenuPageIndex - 1) : undefined}
-        onNext={
-          activeMenuPageIndex >= 0 && activeMenuPageIndex < MENU_PAGES.length - 1
-            ? () => openMenuPageLightbox(activeMenuPageIndex + 1)
-            : undefined
-        }
+        canPrev={lightboxCanPrev}
+        canNext={lightboxCanNext}
+        onPrev={lightboxCanPrev ? () => changeLightboxImage(-1) : undefined}
+        onNext={lightboxCanNext ? () => changeLightboxImage(1) : undefined}
       />
 
       <header className="sticky top-0 z-40 border-b border-[#c7d8b5] bg-[#f7faf1]/80 backdrop-blur">
@@ -720,6 +749,13 @@ export default function Home() {
               const href = n.url?.trim();
               const title = n.title[lang].trim();
               const imgSrc = n.photoSrc;
+              const newsGallery =
+                imgSrc && n.gallerySrcs?.length
+                  ? [imgSrc, ...n.gallerySrcs].map((src, index) => ({
+                      src,
+                      alt: `${title} (${index + 1}/${n.gallerySrcs!.length + 1})`,
+                    }))
+                  : undefined;
               const videoSrc = n.videoSrc?.trim();
               let host = '';
               if (href) {
@@ -812,7 +848,7 @@ export default function Home() {
                           alt={title}
                           placeholderLabel="News"
                           className="w-full h-36 md:h-28 object-cover rounded-xl border border-[#d5e6c3] cursor-zoom-in"
-                          onClick={() => openLightbox(imgSrc, title)}
+                          onClick={() => (newsGallery ? openGalleryAt(newsGallery, 0) : openLightbox(imgSrc, title))}
                         />
                       )}
                     </div>

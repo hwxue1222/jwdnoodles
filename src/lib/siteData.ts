@@ -46,6 +46,7 @@ export type NewsItem = {
   title: Record<Lang, string>;
   body: Record<Lang, string>;
   photoSrc?: string;
+  gallerySrcs?: string[];
   videoSrc?: string;
   videoPosterSrc?: string;
   url?: string;
@@ -227,7 +228,7 @@ export const STORES: Store[] = [
       en: '10:00am–10:00pm (Mon–Sun)',
       ms: '10:00 pagi–10:00 malam (Isnin–Ahad)',
     },
-    photoSrc: '/images/news/lotus-opening-2026-08-15-cover.jpg',
+    photoSrc: '/images/stores/lotus-mutiara-rini.jpg',
     map: {
       placeQuery:
         "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
@@ -565,7 +566,13 @@ export const NEWS: NewsItem[] = [
       en: "JWD Mee Tarik is pleased to announce the opening of our third outlet at Lotus's Mutiara Rini, Johor Bahru. We were honored to invite Y.M. Tengku Dato’ Dr. Hishammuddin Zaizi Bin Y.A.M Tengku Bendahara Azman Shah Alhaj to join our staff for the ribbon-cutting ceremony. Thank you to everyone who celebrated this special milestone with us, and we look forward to welcoming more customers to our new outlet.",
       ms: "JWD Mee Tarik dengan sukacitanya mengumumkan pembukaan cawangan ketiga kami di Lotus's Mutiara Rini, Johor Bahru. Kami berbesar hati menjemput Y.M. Tengku Dato’ Dr. Hishammuddin Zaizi Bin Y.A.M Tengku Bendahara Azman Shah Alhaj untuk bersama kakitangan kami dalam majlis pemotongan reben. Terima kasih kepada semua yang meraikan detik istimewa ini bersama kami, dan kami berharap dapat mengalu-alukan lebih ramai pelanggan ke cawangan baharu kami.",
     },
-    photoSrc: '/images/stores/lotus-mutiara-rini.jpg',
+    photoSrc: '/images/news/lotus-opening-2026-08-15-cover.jpg',
+    gallerySrcs: [
+      '/images/news/lotus-opening-2026-08-15-01.jpg',
+      '/images/news/lotus-opening-2026-08-15-02.jpg',
+      '/images/news/lotus-opening-2026-08-15-03.jpg',
+      '/images/news/lotus-opening-2026-08-15-04.jpg',
+    ],
   },
   {
     id: 'kulai-vip-lunch-20260414',
