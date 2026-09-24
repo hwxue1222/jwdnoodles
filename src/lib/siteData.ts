@@ -100,7 +100,7 @@ export const SOCIAL_LINKS = {
   facebook: 'https://www.facebook.com/JWDfood',
   tiktok: 'https://www.tiktok.com/@jwdmeetarik',
   xiaohongshu: 'https://www.xiaohongshu.com/user/profile/5482367737',
-  whatsapp: 'https://wa.me/60178126685',
+  whatsapp: 'https://wa.me/6589926681',
 } as const;
 
 export const CONTACT = {
@@ -115,7 +115,7 @@ export const CONTACT = {
     zh: [
       {
         label: '1st outlet',
-        address: 'RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000 Iskandar Puteri, Johor',
+        address: 'RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000 Iskandar Puteri, Johor, Malaysia',
       },
       {
         label: '2nd outlet',
@@ -124,12 +124,16 @@ export const CONTACT = {
       {
         label: '3rd outlet',
         address: "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
+      },
+      {
+        label: '4th outlet',
+        address: 'Lot S126A, KIPMall Tampoi, Jalan Titiwangsa 1, Taman Tampoi Indah, 81200 Johor Bahru, Malaysia',
       },
     ],
     en: [
       {
         label: '1st outlet',
-        address: 'RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000 Iskandar Puteri, Johor',
+        address: 'RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000 Iskandar Puteri, Johor, Malaysia',
       },
       {
         label: '2nd outlet',
@@ -139,19 +143,27 @@ export const CONTACT = {
         label: '3rd outlet',
         address: "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
       },
+      {
+        label: '4th outlet',
+        address: 'Lot S126A, KIPMall Tampoi, Jalan Titiwangsa 1, Taman Tampoi Indah, 81200 Johor Bahru, Malaysia',
+      },
     ],
     ms: [
       {
-        label: 'Cawangan 1',
-        address: 'RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000 Iskandar Puteri, Johor',
+        label: '1st outlet',
+        address: 'RG14 Residensi Encorp, Persiaran Dato Seri Amar Diraja, Puteri Harbour, 79000 Iskandar Puteri, Johor, Malaysia',
       },
       {
-        label: 'Cawangan 2',
+        label: '2nd outlet',
         address: 'Ground Floor, G-06, THE COMMUNE Lifestyle Mall, Pusat Komersial Indah, 291, Jalan Kiambang 10, Bandar Indahpura, 81000 Kulai, Johor',
       },
       {
-        label: 'Cawangan 3',
+        label: '3rd outlet',
         address: "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
+      },
+      {
+        label: '4th outlet',
+        address: 'Lot S126A, KIPMall Tampoi, Jalan Titiwangsa 1, Taman Tampoi Indah, 81200 Johor Bahru, Malaysia',
       },
     ],
   } satisfies Record<Lang, { label: string; address: string }[]>,
@@ -216,22 +228,32 @@ export const STORES: Store[] = [
   {
     id: 'lotus_mutiara_rini',
     name: { zh: "Lotus's Mutiara Rini（JB）", en: "Lotus's Mutiara Rini (JB)", ms: "Lotus's Mutiara Rini (JB)" },
-    status: 'open',
-    openingDate: { zh: '2026年8月15日', en: '15 Aug 2026', ms: '15 Ogos 2026' },
+    status: 'opening_soon',
+    openingDate: { zh: '2026年7月', en: 'July 2026', ms: 'Julai 2026' },
     address: {
       zh: "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
       en: "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
       ms: "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
     },
-    hours: {
-      zh: '周一至周日 10:00–22:00',
-      en: '10:00am–10:00pm (Mon–Sun)',
-      ms: '10:00 pagi–10:00 malam (Isnin–Ahad)',
-    },
     photoSrc: '/images/stores/lotus-mutiara-rini.jpg',
     map: {
       placeQuery:
         "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
+    },
+    acceptsReservation: false,
+  },
+  {
+    id: 'kipmall_tampoi',
+    name: { zh: 'KIPMall Tampoi（JB）', en: 'KIPMall Tampoi (JB)', ms: 'KIPMall Tampoi (JB)' },
+    status: 'opening_soon',
+    openingDate: { zh: '2026年12月1日', en: '1 Dec 2026', ms: '1 Dis 2026' },
+    address: {
+      zh: 'Lot S126A, KIPMall Tampoi, Jalan Titiwangsa 1, Taman Tampoi Indah, 81200 Johor Bahru, Malaysia',
+      en: 'Lot S126A, KIPMall Tampoi, Jalan Titiwangsa 1, Taman Tampoi Indah, 81200 Johor Bahru, Malaysia',
+      ms: 'Lot S126A, KIPMall Tampoi, Jalan Titiwangsa 1, Taman Tampoi Indah, 81200 Johor Bahru, Malaysia',
+    },
+    map: {
+      placeQuery: 'Lot S126A, KIPMall Tampoi, Jalan Titiwangsa 1, Taman Tampoi Indah, 81200 Johor Bahru, Malaysia',
     },
     acceptsReservation: false,
   },
@@ -503,14 +525,12 @@ export const MENU: MenuCategory[] = [
     id: 'snacks',
     title: { zh: 'J. 小吃类', en: 'J. Snacks', ms: 'J. Snek' },
     items: [
-      { id: 'J1', code: 'J1', name: { zh: '牛肉饼/鸡肉饼', en: 'Beef/chicken kebab', ms: 'Kebab daging/Ayam' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 8.0 },
+      { id: 'J1', code: 'J1', name: { zh: '牛肉串', en: 'Beef kebab', ms: 'Kebab daging' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 8.0 },
       { id: 'J2', code: 'J2', name: { zh: '葱油饼', en: 'Scallion pancake', ms: 'Pancake daun bawang' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 5.0 },
       { id: 'J3', code: 'J3', name: { zh: '干切牛肉', en: 'Beef slice', ms: 'Hirisan daging' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 15.0 },
       { id: 'J4', code: 'J4', name: { zh: '卤牛肉', en: 'Braised beef', ms: 'Daging rebus' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 19.0 },
       { id: 'J5', code: 'J5', name: { zh: '煎蛋', en: 'Sunny egg', ms: 'Telur mata' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 3.0 },
       { id: 'J6', code: 'J6', name: { zh: '茶叶蛋', en: 'Tea egg', ms: 'Tea telur' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 5.0 },
-      { id: 'J7', code: 'J7', name: { zh: '肉夹馍', en: 'Lanzhou Burger', ms: 'Lanzhou Burger' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 10.0 },
-      { id: 'J8', code: 'J8', name: { zh: '手抓羊排', en: 'Hand Grasp Lamb Ribs', ms: 'Tulang rusuk kambing' }, desc: { zh: '', en: '', ms: '' }, priceMYR: 35.0 },
     ],
   },
   {
@@ -554,27 +574,6 @@ export const MENU: MenuCategory[] = [
 
 export const NEWS: NewsItem[] = [
   {
-    id: 'lotus-opening-20260815',
-    dateISO: '2026-08-15',
-    title: {
-      zh: "JWD Mee Tarik 在新山 Lotus's Mutiara Rini 开设第三家门店",
-      en: "JWD Mee Tarik opens its third outlet at Lotus's Mutiara Rini, Johor Bahru",
-      ms: "JWD Mee Tarik membuka cawangan ketiga di Lotus's Mutiara Rini, Johor Bahru",
-    },
-    body: {
-      zh: "JWD Mee Tarik 很高兴宣布，我们位于新山 Lotus's Mutiara Rini 的第三家门店正式开业。我们荣幸邀请到 Y.M. Tengku Dato’ Dr. Hishammuddin Zaizi Bin Y.A.M Tengku Bendahara Azman Shah Alhaj 与员工一同参加剪彩仪式。感谢所有与我们一同庆祝这一特别时刻的来宾，我们期待在新门店欢迎更多顾客。",
-      en: "JWD Mee Tarik is pleased to announce the opening of our third outlet at Lotus's Mutiara Rini, Johor Bahru. We were honored to invite Y.M. Tengku Dato’ Dr. Hishammuddin Zaizi Bin Y.A.M Tengku Bendahara Azman Shah Alhaj to join our staff for the ribbon-cutting ceremony. Thank you to everyone who celebrated this special milestone with us, and we look forward to welcoming more customers to our new outlet.",
-      ms: "JWD Mee Tarik dengan sukacitanya mengumumkan pembukaan cawangan ketiga kami di Lotus's Mutiara Rini, Johor Bahru. Kami berbesar hati menjemput Y.M. Tengku Dato’ Dr. Hishammuddin Zaizi Bin Y.A.M Tengku Bendahara Azman Shah Alhaj untuk bersama kakitangan kami dalam majlis pemotongan reben. Terima kasih kepada semua yang meraikan detik istimewa ini bersama kami, dan kami berharap dapat mengalu-alukan lebih ramai pelanggan ke cawangan baharu kami.",
-    },
-    photoSrc: '/images/news/lotus-opening-2026-08-15-cover.jpg',
-    gallerySrcs: [
-      '/images/news/lotus-opening-2026-08-15-01.jpg',
-      '/images/news/lotus-opening-2026-08-15-02.jpg',
-      '/images/news/lotus-opening-2026-08-15-03.jpg',
-      '/images/news/lotus-opening-2026-08-15-04.jpg',
-    ],
-  },
-  {
     id: 'kulai-vip-lunch-20260414',
     dateISO: '2026-04-14',
     title: {
@@ -606,18 +605,18 @@ export const NEWS: NewsItem[] = [
   },
   {
     id: 'halal-jakim-20250716',
-    dateISO: '2026-07-28',
+    dateISO: '2025-07-16',
     title: {
-      zh: 'JWD Mee Tarik @The Commune Lifestyle Mall（Kulai）获得马来西亚 JAKIM 清真认证',
-      en: 'JWD Mee Tarik @The Commune Lifestyle Mall (Kulai) Obtains JAKIM Halal Certification',
-      ms: 'JWD Mee Tarik @The Commune Lifestyle Mall (Kulai) Menerima Pensijilan Halal JAKIM Malaysia',
+      zh: 'Restoran JWD 获得马来西亚清真认证（JAKIM）',
+      en: 'Restoran JWD receives Malaysia Halal certification (JAKIM)',
+      ms: 'Restoran JWD menerima sijil Halal Malaysia (JAKIM)',
     },
     body: {
-      zh: '我们很高兴宣布，JWD Mee Tarik @The Commune Lifestyle Mall（Kulai）已正式获得马来西亚 JAKIM 颁发的清真认证。该认证签发日期为 2026-08-01，有效期至 2028-07-31。',
-      en: 'We are pleased to share that JWD Mee Tarik @The Commune Lifestyle Mall (Kulai) has officially obtained Halal certification from JAKIM, Malaysia. The certification was issued on 2026-08-01 and is valid until 2028-07-31.',
-      ms: 'Kami dengan sukacitanya berkongsi bahawa JWD Mee Tarik @The Commune Lifestyle Mall (Kulai) telah secara rasmi memperoleh pensijilan Halal daripada JAKIM, Malaysia. Pensijilan ini dikeluarkan pada 2026-08-01 dan sah sehingga 2028-07-31.',
+      zh: '我们很高兴宣布，Restoran JWD 门店已获得马来西亚 JAKIM 颁发的清真（Halal）认证。认证日期为 2025-07-16，有效期 2 年，至 2027-07-15 截止。Halal certification issued by JAKIM。',
+      en: 'We are pleased to announce that Restoran JWD has received Malaysia Halal certification issued by JAKIM. The certificate is issued on 2025-07-16 and is valid for 2 years, until 2027-07-15.',
+      ms: 'Kami dengan sukacitanya memaklumkan bahawa Restoran JWD telah menerima sijil Halal Malaysia yang dikeluarkan oleh JAKIM. Sijil ini dikeluarkan pada 2025-07-16 dan sah selama 2 tahun sehingga 2027-07-15.',
     },
-    photoSrc: '/images/news/commune-jakim-halal-2026-08-01.png',
+    photoSrc: '/images/halal/cert-1.jpg',
   },
   {
     id: 'kjt-173931375',
