@@ -228,12 +228,17 @@ export const STORES: Store[] = [
   {
     id: 'lotus_mutiara_rini',
     name: { zh: "Lotus's Mutiara Rini（JB）", en: "Lotus's Mutiara Rini (JB)", ms: "Lotus's Mutiara Rini (JB)" },
-    status: 'opening_soon',
-    openingDate: { zh: '2026年7月', en: 'July 2026', ms: 'Julai 2026' },
+    status: 'open',
+    openingDate: { zh: '2026年8月15日', en: '15 Aug 2026', ms: '15 Ogos 2026' },
     address: {
       zh: "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
       en: "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
       ms: "Ground floor, G4&G5, Lotus's Mutiara Rini, No.1, Jalan Persiaran Jasa 1, Taman Mutiara Rini, 81380 Skudai, Johor Bahru, Johor",
+    },
+    hours: {
+      zh: '周一至周日 10:00–22:00',
+      en: '10:00am–10:00pm (Mon–Sun)',
+      ms: '10:00 pagi–10:00 malam (Isnin–Ahad)',
     },
     photoSrc: '/images/stores/lotus-mutiara-rini.jpg',
     map: {
@@ -255,6 +260,12 @@ export const STORES: Store[] = [
     map: {
       placeQuery: 'Lot S126A, KIPMall Tampoi, Jalan Titiwangsa 1, Taman Tampoi Indah, 81200 Johor Bahru, Malaysia',
     },
+    hours: {
+      zh: '营业时间待公布',
+      en: 'Opening hours to be announced',
+      ms: 'Waktu operasi akan diumumkan',
+    },
+    photoSrc: '/images/stores/kipmall-tampoi.jpg',
     acceptsReservation: false,
   },
 ];
