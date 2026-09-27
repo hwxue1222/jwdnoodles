@@ -18,6 +18,7 @@ export type Store = {
   note?: LocalizedText;
   hours?: LocalizedText;
   photoSrc?: string;
+  photoBadge?: LocalizedText;
   map: { placeQuery: string };
   acceptsReservation: boolean;
   reservationWhatsAppPhone?: string;
@@ -266,6 +267,11 @@ export const STORES: Store[] = [
       ms: 'Waktu operasi akan diumumkan',
     },
     photoSrc: '/images/stores/kipmall-tampoi.jpg',
+    photoBadge: {
+      zh: '2026年12月开业',
+      en: 'Coming in Dec 2026',
+      ms: 'Datang pada Dis 2026',
+    },
     acceptsReservation: false,
   },
 ];

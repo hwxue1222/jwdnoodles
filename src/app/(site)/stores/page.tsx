@@ -45,16 +45,23 @@ export default function StoresPage() {
       <Section title={tt('section.stores.title')} subtitle={tt('section.stores.subtitle')}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {STORES.map((store) => (
-            <div key={store.id} className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden">
-              <SafeImg
-                src={store.photoSrc}
-                alt={store.name[lang]}
-                className="w-full h-56 object-cover cursor-zoom-in"
-                onClick={() => openLightbox(store.photoSrc, store.name[lang])}
-              />
-              <div className="p-6">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+            <div key={store.id} className="rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden flex flex-col">
+              <div className="relative">
+                <SafeImg
+                  src={store.photoSrc}
+                  alt={store.name[lang]}
+                  className="w-full h-56 object-cover cursor-zoom-in"
+                  onClick={() => openLightbox(store.photoSrc, store.name[lang])}
+                />
+                {store.photoBadge ? (
+                  <div className="pointer-events-none absolute left-4 top-4 rounded-full bg-[#274126]/90 px-3 py-1.5 text-xs font-semibold tracking-wide text-white shadow-sm">
+                    {store.photoBadge[lang]}
+                  </div>
+                ) : null}
+              </div>
+              <div className="p-6 flex flex-1 flex-col">
+                <div className="min-w-0 flex flex-1 flex-col">
+                  <div>
                     <h3 className="text-xl font-semibold text-[#274126] truncate">{store.name[lang]}</h3>
                     <p className="mt-1 text-sm text-[#486449]">
                       {store.status === 'opening_soon'
@@ -63,13 +70,13 @@ export default function StoresPage() {
                     </p>
                     <p className="mt-3 text-[#2f4a31]">{store.address[lang]}</p>
                     {store.note ? <p className="mt-1 text-sm text-[#486449]">{store.note[lang]}</p> : null}
-                    {store.hours ? (
-                      <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3">
-                        <div className="text-xs font-semibold tracking-wide text-[#486449]">{tt('store.hours')}</div>
-                        <div className="mt-1 text-sm text-[#2f4a31]">{store.hours[lang]}</div>
-                      </div>
-                    ) : null}
                   </div>
+                  {store.hours ? (
+                    <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3 min-h-[82px]">
+                      <div className="text-xs font-semibold tracking-wide text-[#486449]">{tt('store.hours')}</div>
+                      <div className="mt-1 text-sm text-[#2f4a31]">{store.hours[lang]}</div>
+                    </div>
+                  ) : null}
                 </div>
                 <div className="mt-4">
                   <a

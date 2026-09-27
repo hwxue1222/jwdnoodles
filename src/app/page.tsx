@@ -515,17 +515,24 @@ export default function Home() {
                   {STORES.map((store) => (
                     <div
                       key={store.id}
-                      className="snap-start shrink-0 w-[86vw] sm:w-[420px] max-w-[520px] rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden"
+                      className="snap-start shrink-0 w-[86vw] sm:w-[420px] max-w-[520px] rounded-2xl border border-[#c7d8b5] bg-[#f7faf1] overflow-hidden flex flex-col"
                     >
-                      <SafeImg
-                        src={store.photoSrc}
-                        alt={store.name[lang]}
-                        className="w-full h-56 object-cover cursor-zoom-in"
-                        onClick={() => openLightbox(store.photoSrc, store.name[lang])}
-                      />
-                      <div className="p-6">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
+                      <div className="relative">
+                        <SafeImg
+                          src={store.photoSrc}
+                          alt={store.name[lang]}
+                          className="w-full h-56 object-cover cursor-zoom-in"
+                          onClick={() => openLightbox(store.photoSrc, store.name[lang])}
+                        />
+                        {store.photoBadge ? (
+                          <div className="pointer-events-none absolute left-4 top-4 rounded-full bg-[#274126]/90 px-3 py-1.5 text-xs font-semibold tracking-wide text-white shadow-sm">
+                            {store.photoBadge[lang]}
+                          </div>
+                        ) : null}
+                      </div>
+                      <div className="p-6 flex flex-1 flex-col">
+                        <div className="min-w-0 flex flex-1 flex-col">
+                          <div>
                             <h3 className="text-xl font-semibold text-[#274126] truncate">{store.name[lang]}</h3>
                             <p className="mt-1 text-sm text-[#486449]">
                               {store.status === 'opening_soon'
@@ -534,10 +541,10 @@ export default function Home() {
                             </p>
                             <p className="mt-3 text-[#2f4a31]">{store.address[lang]}</p>
                             <p className="mt-1 text-sm text-[#486449] min-h-5">{store.note ? store.note[lang] : '\u00A0'}</p>
-                            <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3 min-h-[74px]">
-                              <div className="text-xs font-semibold tracking-wide text-[#486449]">{tt('store.hours')}</div>
-                              <div className="mt-1 text-sm text-[#2f4a31]">{store.hours ? store.hours[lang] : '\u00A0'}</div>
-                            </div>
+                          </div>
+                          <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3 min-h-[82px]">
+                            <div className="text-xs font-semibold tracking-wide text-[#486449]">{tt('store.hours')}</div>
+                            <div className="mt-1 text-sm text-[#2f4a31]">{store.hours ? store.hours[lang] : '\u00A0'}</div>
                           </div>
                         </div>
                         <div className="mt-4">
