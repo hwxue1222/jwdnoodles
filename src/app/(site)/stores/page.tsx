@@ -61,7 +61,7 @@ export default function StoresPage() {
               </div>
               <div className="p-6 flex flex-1 flex-col">
                 <div className="min-w-0 flex flex-1 flex-col">
-                  <div>
+                  <div className="min-h-[164px]">
                     <h3 className="text-xl font-semibold text-[#274126] truncate">{store.name[lang]}</h3>
                     <p className="mt-1 text-sm text-[#486449]">
                       {store.status === 'opening_soon'
@@ -69,7 +69,7 @@ export default function StoresPage() {
                         : tt('store.opened', { date: store.openingDate[lang] })}
                     </p>
                     <p className="mt-3 text-[#2f4a31]">{store.address[lang]}</p>
-                    {store.note ? <p className="mt-1 text-sm text-[#486449]">{store.note[lang]}</p> : null}
+                    <p className="mt-1 text-sm text-[#486449] min-h-5">{store.note ? store.note[lang] : '\u00A0'}</p>
                   </div>
                   {store.hours ? (
                     <div className="mt-4 rounded-xl border border-[#d5e6c3] bg-[#edf4e5] px-4 py-3 min-h-[82px]">

@@ -532,7 +532,7 @@ export default function Home() {
                       </div>
                       <div className="p-6 flex flex-1 flex-col">
                         <div className="min-w-0 flex flex-1 flex-col">
-                          <div>
+                          <div className="min-h-[164px]">
                             <h3 className="text-xl font-semibold text-[#274126] truncate">{store.name[lang]}</h3>
                             <p className="mt-1 text-sm text-[#486449]">
                               {store.status === 'opening_soon'
