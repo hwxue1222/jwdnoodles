@@ -105,7 +105,7 @@ export const I18N: Record<Lang, Record<string, I18nValue>> = {
     'section.stores.subtitle': 'We are open on public holidays.',
     'store.opened': ({ date }) => `Opened: ${date}`,
     'store.openingSoon': ({ date }) => `Opening soon: ${date}`,
-    'store.hours': 'Opening hours',
+    'store.hours': 'Operating hours',
     'store.viewOnMaps': 'Open in Google Maps',
 
     'section.menu.title': 'Menu',

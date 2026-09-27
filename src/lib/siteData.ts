@@ -262,7 +262,7 @@ export const STORES: Store[] = [
     },
     hours: {
       zh: '营业时间待公布',
-      en: 'Opening hours to be announced',
+      en: 'Operating hours to be announced',
       ms: 'Waktu operasi akan diumumkan',
     },
     photoSrc: '/images/stores/kipmall-tampoi.jpg',
